@@ -57,7 +57,7 @@ export default function Page({ params }: { params: { slug: string } }) {
         )}
       </div>
       <article className="lg:px-0 larger-line-height text-xl leading-10 my-2xl leading-looser w-full px-5">
-        <p className="py-10 text-2xl text-[#BBB0A4] text-center">
+        <p className="py-10 text-xl text-[#BBB0A4] text-center italic">
           {blog?.["description"]}
         </p>
         <div
