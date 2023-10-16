@@ -19,7 +19,8 @@ export default function RootLayout({
       </head>
       <body
         suppressHydrationWarning={true}
-        className={([inter.className], "primary-color-bg")}
+        className={inter.className}
+        style={{backgroundColor:  "rgb(38 34 35)"}}
       >
         <Navbar />
         {children}
