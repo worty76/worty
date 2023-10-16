@@ -73,7 +73,7 @@ export default function Page({ params }: { params: { slug: string } }) {
         </p>
         <div
           className="secondary-color-text pb-10"
-          dangerouslySetInnerHTML={{ __html: blog?.["content"] }}
+          dangerouslySetInnerHTML={{ __html: blog?.["content"]! }}
         ></div>
       </article>
     </div>
