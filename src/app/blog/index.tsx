@@ -23,7 +23,7 @@ export default function Blog() {
 
   return (
     // justify-items-center parents attribute
-    <div className="grid grid-cols-2 gap-4 place-content-center pt-10">
+    <div className="grid md:grid-cols-2 gap-4 place-content-center pt-10">
       {posts.map((post) => (
         <Link href={"blog/" + post["id"]} key={post["id"]}>
           <div className="flex max-w-xl flex-col items-start justify-between rounded-md border border-[#DDC6B6]/25 p-5 cursor-pointer hover:border-[#DDC6B6]/50">
