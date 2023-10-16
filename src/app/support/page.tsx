@@ -3,6 +3,7 @@
 import Image from "next/image";
 import agribank from "../../../public/agribank.jpg";
 import mbbank from "../../../public/mbbank.png";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 export default function Support() {
   return (
@@ -28,8 +29,8 @@ export default function Support() {
           />
           <p className="px-2">MB Bank - 0388121738 - LE THANH DAT</p>
         </div>
-        <h1 className="my-10 text-2xl secondary-color-text">
-          Thanks for the donation :)
+        <h1 className="my-10 text-2xl secondary-color-text text-center">
+          Thanks for the donation. Have you a good day :3 
         </h1>
       </div>
     </main>

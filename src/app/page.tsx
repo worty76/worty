@@ -32,7 +32,7 @@ const uri = [
 export default function Home() {
   return (
     //mt-8 w-full - parents attributes used to be
-    <main className="min-h-screen p-10">
+    <main className="min-h-screen py-5 px-5">
       <div className="flex items-center">
         <Image
           src={author}
