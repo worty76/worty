@@ -2,24 +2,35 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, doc, getDocs } from "firebase/firestore";
 import { database } from "../../../firebase/config";
 
 export default function Page({ params }: { params: { slug: string } }) {
-  const [blog, setBlog] = useState();
+  const [blog, setBlog] = useState<MyBlog>();
 
-  async function getBlogs() {
+  async function getBlogs(params: any) {
     const blogs = await getDocs(collection(database, "blog"));
-    blogs.docs.map((doc) => {
-      if (doc.data().id == params.id) {
-        setBlog(doc.data());
+    blogs.docs.map((document) => {
+      if (document.data().id == params.id) {
+        const data: any = document.data();
+        setBlog(data);
       }
     });
   }
 
   useEffect(() => {
-    getBlogs();
-  }, []);
+    getBlogs(params);
+  }, []); 
+
+  interface MyBlog {
+    category: Array<string>;
+    title: string;
+    datetime: string;
+    image: string;
+    description: string;
+    content: string;
+    prevState: null;
+  }
 
   return (
     <div>
