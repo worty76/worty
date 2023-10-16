@@ -9,7 +9,7 @@ export default function Navbar() {
     <div>
       <nav className="w-full opacity-100 duration-700 relative">
         {/* lg:max-w-7xl */}
-        <div className="justify-between px-4 mx-auto md:items-center md:flex md:px-8">
+        <div className="justify-between px-4 mx-auto md:items-center flex md:px-8">
           <div>
             <div className="flex items-center justify-between py-3 md:py-3">
               <p className="max-sm:text-sm max-sm:text-sm">

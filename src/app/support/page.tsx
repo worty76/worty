@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import agribank from "../../../public/agribank.jpg";
 import mbbank from "../../../public/mbbank.png";

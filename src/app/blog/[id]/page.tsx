@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { collection, getDocs } from "firebase/firestore";
-import { app, database } from "../../../firebase/config";
+import { database } from "../../../firebase/config";
 
 export default function Page({ params }: { params: { slug: string } }) {
   const [blog, setBlog] = useState();
@@ -36,7 +36,7 @@ export default function Page({ params }: { params: { slug: string } }) {
             );
           })}
         </div>
-        <h1 className="my-5 text-4xl secondary-color-text font-bold">
+        <h1 className="my-5 text-3xl secondary-color-text font-bold">
           {blog?.["title"]}
         </h1>
         <p className="secondary-color-text">Date: {blog?.["datetime"]}</p>
@@ -45,8 +45,8 @@ export default function Page({ params }: { params: { slug: string } }) {
         {blog ? (
           <Image
             src={blog?.["image"]}
-            width={1300}
-            height={240}
+            width={1000}
+            height={0}
             quality={100}
             priority
             className="rounded-md shadow-lg outline outline-1 outline-body-800 object-cover wide-media overflow-hidden object-fit-cover h-auto"
