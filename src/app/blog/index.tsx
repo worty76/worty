@@ -9,7 +9,7 @@ export default function Blog() {
   const [posts, setPosts] = useState([]);
 
   async function getBlogs() {
-    let blogsArr: any[] = [];
+    let blogsArr: any = [];
     const blogs = await getDocs(collection(database, "blog"));
     blogs.docs.map((doc) => {
       blogsArr.push(doc.data());
