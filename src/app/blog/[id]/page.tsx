@@ -35,22 +35,22 @@ export default function Page({ params }: { params: { slug: string } }) {
   return (
     <div>
       <main>
-        <div className="secondary-color-text flex">
+        <div className="flex">
           {blog?.["category"]?.map((item: string, index: number) => {
             return (
               <div
                 key={index}
                 className="m-1 p-1 border border-[#DDC6B6]/50 rounded-md"
               >
-                {item}
+                <p>{item}</p>
               </div>
             );
           })}
         </div>
-        <h1 className="my-5 text-3xl secondary-color-text font-bold">
+        <h1 className="my-5 text-3xl font-bold">
           {blog?.["title"]}
         </h1>
-        <p className="secondary-color-text">Date: {blog?.["datetime"]}</p>
+        <p>Date: {blog?.["datetime"]}</p>
       </main>
       <div className="w-full justify-center flex py-5 px-5">
         {blog ? (
@@ -72,7 +72,7 @@ export default function Page({ params }: { params: { slug: string } }) {
           {blog?.["description"]}
         </p>
         <div
-          className="secondary-color-text pb-10"
+          className="pb-10"
           dangerouslySetInnerHTML={{ __html: blog?.["content"]! }}
         ></div>
       </article>

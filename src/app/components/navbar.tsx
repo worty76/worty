@@ -8,7 +8,6 @@ export default function Navbar() {
   return (
     <div>
       <nav className="w-full opacity-100 duration-700 relative">
-        {/* lg:max-w-7xl */}
         <div className="justify-between px-4 mx-auto md:items-center flex md:px-8">
           <div>
             <div className="flex items-center justify-between py-3 md:py-3">
@@ -23,7 +22,6 @@ export default function Navbar() {
             </div>
           </div>
           <div>
-            {/* max-sm:hidden max-md:hidden : hide on smartphone */}
             <div className="flex items-center justify-between py-3 md:py-3">
               <Link
                 href={"/support"}

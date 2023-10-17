@@ -30,19 +30,18 @@ export default function Blog() {
             <div className="flex items-center gap-x-4 text-xs">
               <time 
                 dateTime={post["datetime"]}
-                className="secondary-color-text"
               >
-                {post["datetime"]}
+                <p>{post["datetime"]}</p>
               </time>
             </div>
             <div className="group relative">
-              <h3 className="mt-3 text-lg font-semibold leading-6 secondary-color-text">
+              <h3 className="mt-3 text-lg font-semibold leading-6">
                 <span className="group transition duration-300 inline-block">
                   <p className="line-clamp-1">{post["title"]}</p>
                   <span className="block max-w-0 group-hover:max-w-full transition-all duration-500 h-0.5 secondary-color-bg" />
                 </span>
               </h3>
-              <p className="mt-5 line-clamp-1 text-sm leading-6 secondary-color-text">
+              <p className="mt-5 line-clamp-1 text-sm leading-6">
                 {post["description"]}
               </p>
             </div>

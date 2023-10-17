@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import author from "../../public/lethanhdat.jpg";
+import author from "../../public/images/me.jpg";
 import Blog from "./blog";
 import {
   faDiscord,
@@ -10,6 +10,7 @@ import {
   faInstagram,
   faSteam,
 } from "@fortawesome/free-brands-svg-icons";
+
 const uri = [
   {
     uri: "https://www.facebook.com/w0rzt/",
@@ -56,37 +57,33 @@ export default function Home() {
               );
             })}
           </div>
-          <p className="secondary-color-text text-sm pt-2">
+          <p className="text-sm pt-2">
             <i>&quot;Simplicity is the ultimate sophistication.&quot;</i>
           </p>
-          {/* <button className="primary-color-bg hover:bg-amber-950 text-white font-bold py-2 px-4 rounded-xl duration-300 secondary-color-text border border-[#DDC6B6]/25 mt-2">
-            support
-          </button> */}
         </div>
       </div>
 
-      <h1 className="my-10 text-2xl secondary-color-text">
+      <h1 className="py-10 text-2xl">
         Hello there! My name is Le Thanh Dat. I am a React developer who loves
         to share open-source projects with people worldwide.
       </h1>
-      <p className="secondary-color-text">
+      <p>
         Like many other developers, I always want to build applications that
         people can use. I have a deep affection for various technologies, but my
         favorite one is React since it was my first programming language.
       </p>
-      <p className="secondary-color-text pt-5">
+      <p className="py-3">
         I love connecting with people and learning about their community also
         have a keen interest in their past projects and endeavors.
       </p>
-      <p className="secondary-color-text pt-5">
+      <p>
         In addition, if you want to collaborate with me in the future. Do not
-        hesitate to shoot me an email at{" "}
+        hesitate to shoot me an email at {" "}
         <span className="hover:bg-amber-950 duration-700 cursor-pointer">
           lethanhdat762003@gmail.com
         </span>
       </p>
-      <p className="secondary-color-text pt-5">My articles:</p>
-
+      <p className="pt-5">My articles:</p>
       <Blog />
     </main>
   );
