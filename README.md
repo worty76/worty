@@ -1,8 +1,8 @@
 <p align="center">
-  <h1 align="center">Worty </h1>
+  <h1 align="center">⭐️ Worty ⭐️</h1>
 
   <p align="center">
-  Hello there, my name is Le Thanh Dat aka Wort, who created this open-source project for intruducing myself and writing blogs about my life.
+  Hello there, my name is Le Thanh Dat, and I created this open-source project to introduce myself and write blogs about my life.
   <br/>
   <br/> 
     <br/>
@@ -15,7 +15,7 @@
 
 ## Overview ⭐️
 
-- Describing my information, also showing my desires in life and the future life.
+- A page describing my information, showing my desires in life and the future.
 - A bunch of articles talking about life around me.
 
 ## Setup And Deployment 🔧
