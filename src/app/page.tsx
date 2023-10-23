@@ -5,17 +5,13 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import author from "../../public/images/me.jpg";
 import Blog from "./blog";
 import {
-  faDiscord,
   faFacebookF,
   faInstagram,
   faSteam,
+  faGithub
 } from "@fortawesome/free-brands-svg-icons";
 
 const uri = [
-  {
-    uri: "https://www.facebook.com/w0rzt/",
-    icon: faDiscord,
-  },
   {
     uri: "https://www.facebook.com/w0rzt/",
     icon: faFacebookF,
@@ -25,14 +21,18 @@ const uri = [
     icon: faInstagram,
   },
   {
-    uri: "https://steamcommunity.com/id/noway312312312/",
+    uri: "https://steamcommunity.com/id/worty76/",
     icon: faSteam,
+  },
+  {
+    uri: "https://www.github.com/Worty76",
+    icon: faGithub,
   },
 ];
 
 export default function Home() {
   return (
-    //mt-8 w-full - parents attributes used to be
+    // mt-8 w-full - parents attributes used to be
     <main className="min-h-screen py-5 px-5">
       <div className="flex items-center">
         <Image
