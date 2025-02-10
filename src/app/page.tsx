@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import Image from "next/image";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -8,7 +8,7 @@ import {
   faFacebookF,
   faInstagram,
   faSteam,
-  faGithub
+  faGithub,
 } from "@fortawesome/free-brands-svg-icons";
 
 const uri = [
@@ -64,21 +64,24 @@ export default function Home() {
       </div>
 
       <h1 className="py-10 text-2xl">
-        Hello there! My name is Le Thanh Dat. I am a React developer who loves
-        to share open-source projects with people worldwide.
+        Hello there! My name is Le Thanh Dat, and I am a Backend Developer with
+        a strong passion for building scalable and efficient applications using
+        Node.js.
       </h1>
       <p>
-        Like many other developers, I always want to build applications that
-        people can use. I have a deep affection for various technologies, but my
-        favorite one is React since it was my first programming language.
+        I enjoy working with various backend technologies and architectures, but
+        my favorite stack revolves around Node.js, as it allows me to craft
+        high-performance and real-time solutions. I believe in building APIs and
+        services that are reliable, easy to maintain, and designed for growth.
       </p>
       <p className="py-3">
-        I love connecting with people and learning about their community also
-        have a keen interest in their past projects and endeavors.
+        I am always looking to collaborate with others and learn from the
+        experiences of fellow developers. If you're interested in discussing
+        tech, exploring new projects, or collaborating on backend-related
+        challenges, feel free to reach out!
       </p>
       <p>
-        In addition, if you want to collaborate with me in the future. Do not
-        hesitate to shoot me an email at {" "}
+        You can also connect with me via email at{" "}
         <span className="hover:bg-amber-950 duration-700 cursor-pointer">
           lethanhdat762003@gmail.com
         </span>
