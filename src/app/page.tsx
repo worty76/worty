@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import author from "../../public/images/me.jpg";
-import Blog from "./blog";
+import Blog from "./(blog)";
 import {
   faFacebookF,
   faInstagram,
