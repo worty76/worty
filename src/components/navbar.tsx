@@ -30,15 +30,15 @@ export default function Navbar() {
           <div>
             <div className="flex items-center justify-between py-3 md:py-3">
               {pathname === "/support" ? (
-                <button
-                  onClick={() => (window.location.href = "/")}
+                <Link
+                  href={"/"}
                   className="primary-color-bg hover:bg-[#FFF1E6] font-bold py-2 px-4 rounded-xl duration-300 secondary-color-text border border-[#DDC6B6]/25"
                 >
                   <FontAwesomeIcon
                     icon={faCircleUser}
                     style={{ color: "#ddc6b6" }}
                   />
-                </button>
+                </Link>
               ) : (
                 <Link
                   href={"/support"}
