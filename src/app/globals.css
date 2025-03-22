@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --color-primary-bg: rgb(38 34 35);
+  --color-primary-text: rgb(221 198 182);
+}
+
 main {
   max-width: 1100px;
   width: 95%;
@@ -121,25 +126,25 @@ article {
 /* THEME => I'm lazy :# */
 
 h1 {
-  color: rgb(221 198 182);
+  color: var(--color-primary-text);
 }
 
 p {
-  color: rgb(221 198 182);
+  color: var(--color-primary-text);
 }
 
 .primary-color-text {
-  color: rgb(38 34 35);
+  color: var(--color-primary-bg);
 }
 
 .secondary-color-text {
-  color: rgb(221 198 182);
+  color: var(--color-primary-text);
 }
 
 .primary-color-bg {
-  background-color: rgb(38 34 35);
+  background-color: var(--color-primary-bg);
 }
 
 .secondary-color-bg {
-  background-color: rgb(221 198 182);
+  background-color: var(--color-primary-text);
 }
