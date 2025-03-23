@@ -8,6 +8,7 @@ const nextConfig = {
       "www.esports.net",
       "i2-prod.chroniclelive.co.uk",
       "video-images.vice.com",
+      "api.dicebear.com",
     ],
   },
   env: {
