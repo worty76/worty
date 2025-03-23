@@ -2,10 +2,11 @@
 
 import { Profile } from "@/components/main/Profile";
 import Blog from "./(blog)";
+import Link from "next/link";
 
 export default function Home() {
   return (
-    <main className="py-5 px-5 w-[95%] max-w-[1100px] mx-auto">
+    <main className="py-5 px-5 w-[95%] max-w-[1100px] mx-auto relative">
       <Profile />
 
       <section>
@@ -47,6 +48,30 @@ export default function Home() {
         <h2 className="duration-1000 secondary-color-text">My articles:</h2>
         <Blog />
       </section>
+
+      <Link
+        href="/music"
+        className="fixed bottom-8 right-8 flex items-center gap-2 group secondary-color-text duration-1000"
+      >
+        <span className="hidden md:block text-sm opacity-70 group-hover:opacity-100 transition-opacity duration-1000">
+          my favorite musics
+        </span>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="transform transition-transform duration-1000 group-hover:translate-x-1 hidden md:block "
+        >
+          <path d="M5 12h14" />
+          <path d="m12 5 7 7-7 7" />
+        </svg>
+      </Link>
     </main>
   );
 }
