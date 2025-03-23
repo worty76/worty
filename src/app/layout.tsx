@@ -2,7 +2,9 @@
 
 import "./globals.css";
 import { Inter } from "next/font/google";
-import Navbar from "../components/navbar";
+import Navbar from "../components/layouts/Navbar";
+import { ThemeProvider } from "@/context/theme-context";
+import NextTopLoader from "nextjs-toploader";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -20,11 +22,20 @@ export default function RootLayout({
       </head>
       <body
         suppressHydrationWarning={true}
-        className={inter.className}
-        style={{ backgroundColor: "rgb(38 34 35)" }}
+        className={`${inter.className} transition-colors duration-1000`}
+        style={{ backgroundColor: "var(--color-primary-bg)" }}
       >
-        <Navbar />
-        {children}
+        <ThemeProvider>
+          <NextTopLoader
+            color="var(--color-primary-text)"
+            initialPosition={0.08}
+            crawlSpeed={200}
+            height={3}
+            showSpinner={false}
+          />
+          <Navbar />
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );
