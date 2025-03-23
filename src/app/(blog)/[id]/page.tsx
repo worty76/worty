@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { collection, getDocs, query, where } from "firebase/firestore";
-import { database } from "../../../firebase/config";
+import { db } from "../../../firebase/config";
 import Link from "next/link";
 
 interface MyBlog {
@@ -27,7 +27,7 @@ export default function Page({ params }: { params: { id: string } }) {
     async function fetchBlog() {
       try {
         const blogQuery = query(
-          collection(database, "blog"),
+          collection(db, "blog"),
           where("id", "==", params.id)
         );
         const blogDocs = await getDocs(blogQuery);
