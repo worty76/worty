@@ -16,20 +16,24 @@ const BlogCard = memo(({ post }: { post: BlogPost }) => {
   const { id, title, description, datetime } = post;
   return (
     <Link href={`/${id}`}>
-      <div className="flex max-w-xl flex-col items-start justify-between rounded-md border border-[#DDC6B6]/25 p-5 cursor-pointer hover:border-[#DDC6B6]/50">
+      <div className="flex max-w-xl flex-col items-start justify-between rounded-md border secondary-color-border p-5 cursor-pointer hover:opacity-80 transition-all duration-1000 group">
         <div className="flex items-center gap-x-4 text-xs">
           <time dateTime={datetime}>
-            <p>{datetime}</p>
+            <p className="transition-all duration-1000">{datetime}</p>
           </time>
         </div>
-        <div className="group relative">
+        <div className="relative w-full">
           <h3 className="mt-3 text-lg font-semibold leading-6">
-            <span className="group transition duration-300 inline-block">
-              <p className="line-clamp-1">{title}</p>
-              <span className="block max-w-0 group-hover:max-w-full transition-all duration-500 h-0.5 secondary-color-bg" />
+            <span className="inline-block">
+              <p className="line-clamp-1 transition-all duration-1000">
+                {title}
+              </p>
+              <span className="block h-0.5 w-full scale-x-0 transition-transform duration-500 secondary-color-bg group-hover:scale-x-100" />
             </span>
           </h3>
-          <p className="mt-5 line-clamp-1 text-sm leading-6">{description}</p>
+          <p className="mt-5 line-clamp-1 text-sm leading-6 transition-all duration-1000">
+            {description}
+          </p>
         </div>
       </div>
     </Link>
@@ -39,13 +43,13 @@ const BlogCard = memo(({ post }: { post: BlogPost }) => {
 BlogCard.displayName = "BlogCard";
 
 const BlogCardSkeleton = () => (
-  <div className="flex max-w-xl flex-col items-start justify-between rounded-md border border-[#DDC6B6]/25 p-5">
+  <div className="flex max-w-xl flex-col items-start justify-between rounded-md border secondary-color-border p-5 primary-color-bg transition-all duration-1000">
     <div className="flex items-center gap-x-4 text-xs">
-      <div className="h-3 w-24 bg-gray-200 rounded animate-pulse" />
+      <div className="h-3 w-24 secondary-color-bg opacity-20 rounded animate-[pulse_2s_ease-in-out_infinite]" />
     </div>
     <div className="group relative w-full">
-      <div className="mt-3 h-6 w-3/4 bg-gray-200 rounded animate-pulse" />
-      <div className="mt-5 h-4 w-full bg-gray-200 rounded animate-pulse" />
+      <div className="mt-3 h-6 w-3/4 secondary-color-bg opacity-20 rounded animate-[pulse_2s_ease-in-out_infinite]" />
+      <div className="mt-5 h-4 w-full secondary-color-bg opacity-20 rounded animate-[pulse_2s_ease-in-out_infinite]" />
     </div>
   </div>
 );
