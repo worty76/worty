@@ -7,16 +7,9 @@
   --color-primary-text: rgb(221 198 182);
 }
 
-main {
-  max-width: 1100px;
-  width: 95%;
-  margin: 0 auto;
-}
-
-article {
-  max-width: 800px;
-  width: 95%;
-  margin: 0 auto;
+:root[data-theme="reversed"] {
+  --color-primary-bg: rgb(221 198 182);
+  --color-primary-text: rgb(38 34 35);
 }
 
 @media screen and (max-width: 640px) {
@@ -147,4 +140,43 @@ p {
 
 .secondary-color-bg {
   background-color: var(--color-primary-text);
+}
+
+.secondary-color-border {
+  border-color: var(--color-primary-text);
+  border-width: 1px;
+  border-opacity: 0.25;
+}
+
+.primary-color-border {
+  border-color: var(--color-primary-bg);
+  border-width: 1px;
+  border-opacity: 0.25;
+}
+
+/* Scrollbar Styles */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-primary-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-primary-text);
+  border-radius: 5px;
+  border: 2px solid var(--color-primary-bg);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary-text);
+  opacity: 0.8;
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-primary-text) var(--color-primary-bg);
 }
