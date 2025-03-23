@@ -9,6 +9,14 @@ const nextConfig = {
       "i2-prod.chroniclelive.co.uk",
       "video-images.vice.com",
       "api.dicebear.com",
+      "i.scdn.co",
+    ],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "www.billboard.com",
+        pathname: "/**",
+      },
     ],
   },
   env: {

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { collection, getDocs } from "firebase/firestore";
-import { database } from "../../firebase/config";
+import { db } from "../../firebase/config";
 import { useEffect, useState, memo } from "react";
 import { BlogCardSkeleton } from "@/components/blog/BlogCardSkeleton";
 
@@ -59,7 +59,7 @@ export default function Blog() {
   useEffect(() => {
     const fetchBlogs = async () => {
       try {
-        const blogsCollection = collection(database, "blog");
+        const blogsCollection = collection(db, "blog");
         const blogsSnapshot = await getDocs(blogsCollection);
         const blogsData = blogsSnapshot.docs.map((doc) => ({
           ...doc.data(),
