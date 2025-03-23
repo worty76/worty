@@ -18,6 +18,16 @@
   }
 }
 
+pre {
+  background-color: #f4f4f4;
+  padding: 15px;
+  font-size: 1rem;
+  border-radius: 8px;
+  line-height: 1.6;
+  white-space: pre-wrap; /* Ensures that lines break if necessary */
+  word-wrap: break-word;
+}
+
 /* Tailwind Styles */
 
 .app {
