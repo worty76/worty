@@ -11,17 +11,23 @@ interface BlogPost {
   title: string;
   description: string;
   datetime: string;
+  readingTime?: string;
 }
 
 const BlogCard = memo(({ post }: { post: BlogPost }) => {
-  const { id, title, description, datetime } = post;
+  const { id, title, description, datetime, readingTime } = post;
   return (
     <Link href={`/${id}`}>
       <div className="flex max-w-xl flex-col items-start justify-between rounded-md border secondary-color-border p-5 cursor-pointer hover:opacity-80 transition-all duration-1000 group">
-        <div className="flex items-center gap-x-4 text-xs">
+        <div className="flex items-center gap-x-1 text-xs">
           <time dateTime={datetime}>
             <p className="transition-all duration-1000">{datetime}</p>
           </time>
+          {readingTime && (
+            <span className="transition-all duration-1000 secondary-color-text">
+              · {readingTime} read
+            </span>
+          )}
         </div>
         <div className="relative w-full">
           <h3 className="mt-3 text-lg font-semibold leading-6">

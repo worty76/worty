@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { database } from "../../../firebase/config";
+import Link from "next/link";
 
 interface MyBlog {
   category: Array<string>;
@@ -14,6 +15,7 @@ interface MyBlog {
   content: string;
   prevState: null;
   id: string;
+  readingTime?: string;
 }
 
 export default function Page({ params }: { params: { id: string } }) {
@@ -77,19 +79,13 @@ export default function Page({ params }: { params: { id: string } }) {
       </div>
     );
 
-  if (error)
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-red-500 bg-red-50 p-4 rounded-lg">{error}</div>
-      </div>
-    );
+  if (error) {
+    return window.location.replace("/");
+  }
 
-  if (!blog)
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-gray-500">Blog post not found</div>
-      </div>
-    );
+  if (!blog) {
+    return window.location.replace("/");
+  }
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
@@ -116,6 +112,7 @@ export default function Page({ params }: { params: { id: string } }) {
               month: "long",
               day: "numeric",
             })}
+            {blog.readingTime && <span> · {blog.readingTime} read</span>}
           </time>
         </div>
       </main>
@@ -133,16 +130,66 @@ export default function Page({ params }: { params: { id: string } }) {
       </div>
 
       <article className="prose prose-lg max-w-none w-[95%] max-w-[800px] mx-auto">
-        <p className="text-xl secondary-color-text italic text-center my-8 font-light duration-1000">
+        <p className="text-lg secondary-color-text italic text-center my-8 font-light duration-1000">
           {blog.description}
         </p>
         <div
           className="prose-headings:secondary-color-text prose-p:secondary-color-text prose-p:opacity-90 
                      prose-a:secondary-color-text hover:prose-a:opacity-80
-                     prose-img:rounded-xl prose-img:shadow-lg"
-          dangerouslySetInnerHTML={{ __html: blog.content }}
+                     prose-img:rounded-xl prose-img:shadow-lg
+                     prose-p:text-justify prose-p:leading-relaxed
+                     prose-headings:mt-8 prose-headings:mb-4
+                     prose-p:mb-6 prose-ul:my-6 prose-li:my-2
+                     prose-h2:text-2xl prose-h3:text-xl
+                     prose-code:text-sm prose-pre:bg-gray-100
+                     max-w-none"
+          dangerouslySetInnerHTML={{
+            __html: blog.content
+              // Preserve paragraph classes
+              .replace(
+                /<p class="([^"]*)">/g,
+                '<p class="$1 secondary-color-text">'
+              )
+              // Handle code blocks inside pre tags
+              .replace(
+                /<pre.*?><code>([\s\S]*?)<\/code><\/pre>/g,
+                (match, codeContent) => `
+                  <pre class="p-4 rounded-md overflow-x-auto my-4">
+                    <code class="block whitespace-pre secondary-color-text text-sm">
+                      ${codeContent
+                        .trim()
+                        .replace(/</g, "&lt;")
+                        .replace(/>/g, "&gt;")}
+                    </code>
+                  </pre>
+                `
+              )
+              // Handle inline code
+              .replace(
+                /<code>([\s\S]*?)<\/code>/g,
+                (match, code) =>
+                  `<code class="px-1 py-0.5 rounded text-sm">${code.trim()}</code>`
+              ),
+          }}
         />
       </article>
+
+      <div className="mt-16 mb-8 text-center">
+        <h3 className="text-xl font-semibold secondary-color-text mb-4">
+          Did you enjoy this article?
+        </h3>
+        <p className="mb-6 secondary-color-text opacity-80">
+          If you found this content helpful, consider supporting my work!
+        </p>
+        <Link
+          href="/support"
+          className="inline-block px-6 py-3 primary-color-bg secondary-color-text 
+                     border secondary-color-border rounded-full font-medium 
+                     hover:opacity-80 transition-all duration-500"
+        >
+          Support My Work
+        </Link>
+      </div>
     </div>
   );
 }
