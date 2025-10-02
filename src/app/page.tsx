@@ -11,15 +11,14 @@ export default function Home() {
 
       <section>
         <h1 className="py-7 text-2xl duration-1000">
-          Hello there! My name is Le Thanh Dat, and I am a Backend Developer
-          with a strong passion for building scalable and efficient applications
-          using Node.js.
+          Hello there! My name is Le Thanh Dat, and I am a GO Developer
+          with a strong passion for building scalable and efficient applications.
         </h1>
 
         <div className="space-y-3">
           <p className="duration-1000">
             I enjoy working with various backend technologies and architectures,
-            but my favorite stack revolves around Node.js, as it allows me to
+            but my favorite stack revolves around Go, as it allows me to
             craft high-performance and real-time solutions. I believe in
             building APIs and services that are reliable, easy to maintain, and
             designed for growth.
@@ -30,16 +29,6 @@ export default function Home() {
             experiences of fellow developers. If you're interested in discussing
             tech, exploring new projects, or collaborating on backend-related
             challenges, feel free to reach out!
-          </p>
-
-          <p className="duration-1000">
-            You can also connect with me via email at{" "}
-            <a
-              href="mailto:lethanhdat762003@gmail.com"
-              className="hover:opacity-80 cursor-pointer secondary-color-text duration-1000"
-            >
-              lethanhdat762003@gmail.com
-            </a>
           </p>
         </div>
       </section>
