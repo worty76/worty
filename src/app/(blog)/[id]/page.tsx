@@ -5,6 +5,9 @@ import { useEffect, useState } from "react";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "../../../firebase/config";
 import Link from "next/link";
+import ReactMarkdown, { type Components } from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
 
 interface MyBlog {
   category: Array<string>;
@@ -87,6 +90,109 @@ export default function Page({ params }: { params: { id: string } }) {
     return window.location.replace("/");
   }
 
+  const markdownComponents: Components = {
+    code({ inline, className, children, ...props }: any) {
+      if (!inline) {
+        return (
+          <pre className="p-4 rounded-md overflow-x-auto my-4 bg-gray-100">
+            <code className="block whitespace-pre secondary-color-text text-sm">
+              {children}
+            </code>
+          </pre>
+        );
+      }
+
+      return (
+        <code
+          className="px-1 py-0.5 rounded text-sm bg-gray-100 secondary-color-text"
+          {...props}
+        >
+          {children}
+        </code>
+      );
+    },
+    a({ children, ...props }) {
+      return (
+        <a
+          className="secondary-color-text underline hover:opacity-80 transition-colors"
+          {...props}
+        >
+          {children}
+        </a>
+      );
+    },
+    blockquote({ children, ...props }) {
+      return (
+        <blockquote
+          className="border-l-4 pl-4 my-6 italic secondary-color-text opacity-90"
+          {...props}
+        >
+          {children}
+        </blockquote>
+      );
+    },
+    ul({ children, ...props }) {
+      return (
+        <ul
+          className="list-disc pl-6 my-6 secondary-color-text opacity-90 space-y-2"
+          {...props}
+        >
+          {children}
+        </ul>
+      );
+    },
+    ol({ children, ...props }) {
+      return (
+        <ol
+          className="list-decimal pl-6 my-6 secondary-color-text opacity-90 space-y-2"
+          {...props}
+        >
+          {children}
+        </ol>
+      );
+    },
+    p({ children, ...props }) {
+      return (
+        <p
+          className="secondary-color-text opacity-90 leading-relaxed mb-6"
+          {...props}
+        >
+          {children}
+        </p>
+      );
+    },
+    h2({ children, ...props }) {
+      return (
+        <h2
+          className="text-2xl font-semibold secondary-color-text mt-8 mb-4"
+          {...props}
+        >
+          {children}
+        </h2>
+      );
+    },
+    h3({ children, ...props }) {
+      return (
+        <h3
+          className="text-xl font-semibold secondary-color-text mt-6 mb-3"
+          {...props}
+        >
+          {children}
+        </h3>
+      );
+    },
+    img({ ...props }: any) {
+      return (
+        <img
+          className="rounded-xl shadow-lg my-6 max-w-full h-auto"
+          loading="lazy"
+          alt={props.alt || "Blog content image"}
+          {...props}
+        />
+      );
+    },
+  };
+
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
       <main className="w-[95%] max-w-[1100px] mx-auto">
@@ -133,7 +239,7 @@ export default function Page({ params }: { params: { id: string } }) {
         <p className="text-lg secondary-color-text italic text-center my-8 font-light duration-1000">
           {blog.description}
         </p>
-        <div
+        <ReactMarkdown
           className="prose-headings:secondary-color-text prose-p:secondary-color-text prose-p:opacity-90 
                      prose-a:secondary-color-text hover:prose-a:opacity-80
                      prose-img:rounded-xl prose-img:shadow-lg
@@ -143,35 +249,12 @@ export default function Page({ params }: { params: { id: string } }) {
                      prose-h2:text-2xl prose-h3:text-xl
                      prose-code:text-sm prose-pre:bg-gray-100
                      max-w-none"
-          dangerouslySetInnerHTML={{
-            __html: blog.content
-              // Preserve paragraph classes
-              .replace(
-                /<p class="([^"]*)">/g,
-                '<p class="$1 secondary-color-text">'
-              )
-              // Handle code blocks inside pre tags
-              .replace(
-                /<pre.*?><code>([\s\S]*?)<\/code><\/pre>/g,
-                (match, codeContent) => `
-                  <pre class="p-4 rounded-md overflow-x-auto my-4">
-                    <code class="block whitespace-pre secondary-color-text text-sm">
-                      ${codeContent
-                        .trim()
-                        .replace(/</g, "&lt;")
-                        .replace(/>/g, "&gt;")}
-                    </code>
-                  </pre>
-                `
-              )
-              // Handle inline code
-              .replace(
-                /<code>([\s\S]*?)<\/code>/g,
-                (match, code) =>
-                  `<code class="px-1 py-0.5 rounded text-sm">${code.trim()}</code>`
-              ),
-          }}
-        />
+          remarkPlugins={[remarkGfm]}
+          rehypePlugins={[rehypeRaw]}
+          components={markdownComponents}
+        >
+          {blog.content || ""}
+        </ReactMarkdown>
       </article>
 
       <div className="mt-16 mb-8 text-center">
