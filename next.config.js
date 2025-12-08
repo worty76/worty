@@ -17,6 +17,11 @@ const nextConfig = {
         hostname: "www.billboard.com",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "www.trustedreviews.com",
+        pathname: "/**",
+      }
     ],
   },
   env: {
