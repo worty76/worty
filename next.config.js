@@ -2,26 +2,13 @@
 
 const nextConfig = {
   images: {
-    domains: [
-      "images.unsplash.com",
-      "i0.wp.com",
-      "www.esports.net",
-      "i2-prod.chroniclelive.co.uk",
-      "video-images.vice.com",
-      "api.dicebear.com",
-      "i.scdn.co",
-    ],
+    domains: ["res.cloudinary.com"],
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "www.billboard.com",
+        hostname: "www.res.cloudinary.com",
         pathname: "/**",
       },
-      {
-        protocol: "https",
-        hostname: "www.trustedreviews.com",
-        pathname: "/**",
-      }
     ],
   },
   env: {

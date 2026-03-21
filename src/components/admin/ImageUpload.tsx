@@ -21,6 +21,7 @@ export function ImageUpload({ value, onChange, label = "Image" }: ImageUploadPro
   const [scriptLoaded, setScriptLoaded] = useState(false);
 
   const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+  const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "ml_default";
 
   useEffect(() => {
     // Load Cloudinary widget script
@@ -43,6 +44,11 @@ export function ImageUpload({ value, onChange, label = "Image" }: ImageUploadPro
       return;
     }
 
+    if (!uploadPreset) {
+      alert("Cloudinary upload preset is not configured. Please add NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET to your .env file.");
+      return;
+    }
+
     if (!window.cloudinary) {
       alert("Cloudinary widget is not loaded yet. Please wait a moment and try again.");
       return;
@@ -53,19 +59,23 @@ export function ImageUpload({ value, onChange, label = "Image" }: ImageUploadPro
     const widget = window.cloudinary.createUploadWidget(
       {
         cloudName: cloudName,
-        uploadPreset: "ml_default", // Default upload preset, or create your own in Cloudinary dashboard
+        uploadPreset: uploadPreset,
         sources: ["local", "url", "camera"],
         multiple: false,
         maxFiles: 1,
-        cropping: true,
-        croppingAspectRatio: 16 / 9,
-        showSkipCropButton: false,
+        cropping: false, // Disable forced cropping for better quality
         folder: "worty-gallery",
         resourceType: "image",
         clientAllowedFormats: ["jpg", "jpeg", "png", "webp", "gif"],
-        maxFileSize: 10000000, // 10MB
-        maxImageWidth: 2000,
-        maxImageHeight: 2000,
+        maxFileSize: 20000000, // 20MB
+        maxImageWidth: 4000, // Increased for better quality
+        maxImageHeight: 4000, // Increased for better quality
+        quality: 95, // Higher quality
+        // Quality transformation to ensure high-quality delivery
+        transformation: [
+          { quality: "auto:best" },
+          { fetch_format: "auto" }
+        ],
         styles: {
           palette: {
             window: "#1a1a1a",
@@ -87,7 +97,14 @@ export function ImageUpload({ value, onChange, label = "Image" }: ImageUploadPro
       (error: any, result: any) => {
         setIsLoading(false);
         if (!error && result.event === "success") {
-          onChange(result.info.secure_url);
+          // Add quality parameters to the URL for high-quality delivery
+          let url = result.info.secure_url;
+          // Add quality parameters if not already present
+          if (!url.includes('q_')) {
+            // Insert quality transformation before the file extension
+            url = url.replace('/upload/', '/upload/q_auto:best,f_auto/');
+          }
+          onChange(url);
         }
         if (error) {
           console.error("Upload error:", error);
@@ -163,7 +180,7 @@ export function ImageUpload({ value, onChange, label = "Image" }: ImageUploadPro
                 )}
                 {cloudName && (
                   <p className="secondary-color-text opacity-60 text-sm mt-1">
-                    JPG, PNG, WebP up to 10MB
+                    JPG, PNG, WebP up to 20MB
                   </p>
                 )}
               </div>
