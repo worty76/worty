@@ -6,6 +6,8 @@ import { MusicCardSkeleton } from "@/components/music/MusicCardSkeleton";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/firebase/config";
 
+export const dynamic = "force-dynamic";
+
 interface Music {
   id: string;
   title: string;

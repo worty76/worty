@@ -1,7 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { BlogForm } from "@/components/admin/BlogForm";
+import { useAuth } from "@/context/auth-context";
+
+export const dynamic = "force-dynamic";
 
 interface EditingBlog {
   id?: string;
@@ -16,6 +21,26 @@ interface EditingBlog {
 export default function AdminPage() {
   const [editingBlog, setEditingBlog] = useState<EditingBlog | null>(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const { user, loading, logOut } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push("/admin/login");
+    }
+  }, [user, loading, router]);
+
+  if (loading) {
+    return (
+      <main className="min-h-screen primary-color-bg flex items-center justify-center">
+        <div className="secondary-color-text text-xl">Loading...</div>
+      </main>
+    );
+  }
+
+  if (!user) {
+    return null; // Will redirect
+  }
 
   const handleEdit = (blog: any) => {
     setEditingBlog({
@@ -34,9 +59,32 @@ export default function AdminPage() {
     setEditingBlog(null);
   };
 
+  const handleLogout = async () => {
+    await logOut();
+    router.push("/admin/login");
+  };
+
   return (
     <main className="min-h-screen primary-color-bg py-8 px-4">
       <div className="w-full max-w-7xl mx-auto">
+        {/* Header with logout */}
+        <div className="flex justify-between items-center mb-6">
+          <div>
+            <h1 className="text-2xl font-bold secondary-color-text">
+              Admin Dashboard
+            </h1>
+            <p className="secondary-color-text opacity-70 text-sm">
+              Logged in as {user.email}
+            </p>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="px-4 py-2 rounded-lg border secondary-color-border secondary-color-text font-medium hover:bg-white/5 transition-colors duration-200"
+          >
+            Logout
+          </button>
+        </div>
+
         {/* Form Section - Full Width */}
         <div className="w-full">
           <div className="bg-white/10 backdrop-blur-md rounded-xl p-8 lg:p-10">
