@@ -5,6 +5,8 @@ import { GalleryGrid } from "@/components/gallery/GalleryGrid";
 
 export const dynamic = "force-dynamic";
 
+// Define categories for filtering
+// Hardcode for now, can be made dynamic later if needed
 const CATEGORIES = [
   "All",
   "Adventure",
@@ -20,14 +22,14 @@ export default function GalleryPage() {
   const [activeFilter, setActiveFilter] = useState("All");
 
   return (
-    <main className="min-h-screen primary-color-bg py-8 px-4">
+    <main className="min-h-screen primary-color-bg transition-colors duration-1000 py-8 px-4">
       <div className="w-full max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="font-heading text-4xl md:text-5xl font-bold secondary-color-text mb-4">
+          <h1 className="font-heading text-4xl md:text-5xl font-bold secondary-color-text mb-4 transition-colors duration-1000">
             My Memories
           </h1>
-          <p className="secondary-color-text opacity-70 text-lg max-w-2xl mx-auto">
+          <p className="secondary-color-text opacity-70 text-lg max-w-2xl mx-auto transition-colors duration-1000">
             A collection of moments and adventures from my journey
           </p>
         </div>
@@ -38,7 +40,7 @@ export default function GalleryPage() {
             <button
               key={category}
               onClick={() => setActiveFilter(category)}
-              className={`px-5 py-2 rounded-full font-medium transition-all duration-300 ${
+              className={`px-5 py-2 rounded-full font-medium transition-all duration-1000 ${
                 activeFilter === category
                   ? "secondary-color-bg primary-color-text shadow-lg"
                   : "bg-white/10 secondary-color-text hover:bg-white/20"

@@ -37,7 +37,7 @@ export function GalleryGrid({ filter }: GalleryGridProps) {
 
         // Sort by date (newest first)
         galleryList.sort(
-          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
         );
 
         setItems(galleryList);
@@ -54,7 +54,7 @@ export function GalleryGrid({ filter }: GalleryGridProps) {
 
   const filteredItems = filter
     ? items.filter((item) =>
-        item.category?.toLowerCase().includes(filter.toLowerCase())
+        item.category?.toLowerCase().includes(filter.toLowerCase()),
       )
     : items;
 
@@ -64,7 +64,7 @@ export function GalleryGrid({ filter }: GalleryGridProps) {
         {[...Array(8)].map((_, i) => (
           <div
             key={i}
-            className="aspect-square bg-white/5 rounded-lg animate-pulse"
+            className="aspect-square bg-white/5 rounded-lg animate-pulse duration-1000"
           />
         ))}
       </div>
@@ -74,7 +74,7 @@ export function GalleryGrid({ filter }: GalleryGridProps) {
   if (error) {
     return (
       <div className="text-center py-12">
-        <p className="text-red-400">{error}</p>
+        <p className="text-red-400 transition-colors duration-1000">{error}</p>
       </div>
     );
   }
@@ -82,7 +82,9 @@ export function GalleryGrid({ filter }: GalleryGridProps) {
   if (filteredItems.length === 0) {
     return (
       <div className="text-center py-12">
-        <p className="secondary-color-text opacity-70">No memories found</p>
+        <p className="secondary-color-text opacity-70 transition-colors duration-1000">
+          No memories found
+        </p>
       </div>
     );
   }
@@ -94,17 +96,17 @@ export function GalleryGrid({ filter }: GalleryGridProps) {
           <div
             key={item.id}
             onClick={() => setSelectedImage(item)}
-            className="group relative aspect-square overflow-hidden rounded-lg cursor-pointer bg-white/5 hover:bg-white/10 transition-all duration-300"
+            className="group relative aspect-square overflow-hidden rounded-lg cursor-pointer bg-white/5 hover:bg-white/10 transition-all duration-1000"
           >
             <Image
               src={item.imageUrl}
               alt={item.title}
               fill
-              className="object-cover transition-transform duration-500 group-hover:scale-110"
+              className="object-cover transition-transform duration-1000 group-hover:scale-110"
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
             />
             {/* Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000">
               <div className="absolute bottom-0 left-0 right-0 p-4">
                 <p className="text-white font-medium font-heading text-sm truncate">
                   {item.title}
@@ -128,7 +130,7 @@ export function GalleryGrid({ filter }: GalleryGridProps) {
         >
           <button
             onClick={() => setSelectedImage(null)}
-            className="absolute top-4 right-4 text-white/70 hover:text-white text-4xl transition-colors"
+            className="absolute top-4 right-4 text-white/70 hover:text-white text-4xl transition-colors duration-1000"
           >
             ×
           </button>
@@ -156,7 +158,9 @@ export function GalleryGrid({ filter }: GalleryGridProps) {
               )}
               <div className="flex justify-center gap-4 mt-3 text-sm text-white/50">
                 {selectedImage.date && (
-                  <span>📅 {new Date(selectedImage.date).toLocaleDateString()}</span>
+                  <span>
+                    📅 {new Date(selectedImage.date).toLocaleDateString()}
+                  </span>
                 )}
                 {selectedImage.location && (
                   <span>📍 {selectedImage.location}</span>
