@@ -8,6 +8,7 @@ import Link from "next/link";
 import ReactMarkdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
+import { StatusBadge, BlogStatus } from "@/components/ui/StatusBadge";
 
 interface MyBlog {
   category: Array<string>;
@@ -19,6 +20,7 @@ interface MyBlog {
   prevState: null;
   id: string;
   readingTime?: string;
+  status?: BlogStatus;
 }
 
 export default function Page({ params }: { params: { id: string } }) {
@@ -337,16 +339,21 @@ export default function Page({ params }: { params: { id: string } }) {
     <div className="max-w-4xl mx-auto px-4 py-8">
       <main className="w-[95%] max-w-[1100px] mx-auto">
         <div className="mb-6">
-          <div className="flex flex-wrap gap-2 mb-4">
-            {blog.category.map((item, index) => (
-              <div
-                key={index}
-                className="px-3 py-1 primary-color-bg secondary-color-text border secondary-color-border
-                          rounded-full text-sm font-medium hover:opacity-80 transition-all duration-1000"
-              >
-                {item}
-              </div>
-            ))}
+          <div className="flex flex-wrap items-center gap-3 mb-4">
+            {blog.status && blog.status !== "published" && (
+              <StatusBadge status={blog.status} />
+            )}
+            <div className="flex flex-wrap gap-2">
+              {blog.category.map((item, index) => (
+                <div
+                  key={index}
+                  className="px-3 py-1 primary-color-bg secondary-color-text border secondary-color-border
+                            rounded-full text-sm font-medium hover:opacity-80 transition-all duration-1000"
+                >
+                  {item}
+                </div>
+              ))}
+            </div>
           </div>
 
           <h1 className="text-4xl font-bold leading-tight mb-4 secondary-color-text duration-1000">
@@ -380,7 +387,7 @@ export default function Page({ params }: { params: { id: string } }) {
           {blog.description}
         </p>
         <ReactMarkdown
-          className="prose-headings:secondary-color-text prose-p:secondary-color-text prose-p:opacity-90 
+          className="prose-headings:secondary-color-text prose-p:secondary-color-text prose-p:opacity-90
                      prose-a:secondary-color-text hover:prose-a:opacity-80
                      prose-img:rounded-xl prose-img:shadow-lg
                      prose-p:text-justify prose-p:leading-relaxed
@@ -406,8 +413,8 @@ export default function Page({ params }: { params: { id: string } }) {
         </p>
         <Link
           href="/support"
-          className="inline-block px-6 py-3 primary-color-bg secondary-color-text 
-                     border secondary-color-border rounded-full font-medium 
+          className="inline-block px-6 py-3 primary-color-bg secondary-color-text
+                     border secondary-color-border rounded-full font-medium
                      hover:opacity-80 transition-all duration-500"
         >
           Support My Work
