@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { socialLinks } from "../../config/socialLinks";
+import { socialLinks } from "../../utils/social-links";
 import author from "../../../public/images/me.jpg";
 
 export const Profile = () => {

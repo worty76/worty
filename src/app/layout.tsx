@@ -4,7 +4,9 @@ import "./globals.css";
 import { Inter } from "next/font/google";
 import Navbar from "../components/layouts/Navbar";
 import { ThemeProvider } from "@/context/theme-context";
+import { AuthProvider } from "@/context/auth-context";
 import NextTopLoader from "nextjs-toploader";
+import { Toaster } from "react-hot-toast";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -25,17 +27,60 @@ export default function RootLayout({
         className={`${inter.className} transition-colors duration-1000`}
         style={{ backgroundColor: "var(--color-primary-bg)" }}
       >
-        <ThemeProvider>
-          <NextTopLoader
-            color="var(--color-primary-text)"
-            initialPosition={0.08}
-            crawlSpeed={200}
-            height={3}
-            showSpinner={false}
-          />
-          <Navbar />
-          {children}
-        </ThemeProvider>
+        <AuthProvider>
+          <ThemeProvider>
+            <NextTopLoader
+              color="var(--color-primary-text)"
+              initialPosition={0.08}
+              crawlSpeed={200}
+              height={3}
+              showSpinner={false}
+            />
+            <Navbar />
+            {children}
+            <Toaster
+              position="top-right"
+              containerStyle={{
+                top: 80,
+                right: 20,
+              }}
+              toastOptions={{
+                duration: 3000,
+                className: "",
+                style: {
+                  background: "#1f2937",
+                  color: "#ffffff",
+                  padding: "12px 20px",
+                  borderRadius: "8px",
+                  fontSize: "14px",
+                  fontWeight: "500",
+                  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+                  border: "1px solid rgba(255, 255, 255, 0.1)",
+                },
+                success: {
+                  style: {
+                    background: "#065f46",
+                    border: "1px solid #10b981",
+                  },
+                  iconTheme: {
+                    primary: "#10b981",
+                    secondary: "#ffffff",
+                  },
+                },
+                error: {
+                  style: {
+                    background: "#7f1d1d",
+                    border: "1px solid #ef4444",
+                  },
+                  iconTheme: {
+                    primary: "#ef4444",
+                    secondary: "#ffffff",
+                  },
+                },
+              }}
+            />
+          </ThemeProvider>
+        </AuthProvider>
       </body>
     </html>
   );
