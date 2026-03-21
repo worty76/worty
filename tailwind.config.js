@@ -14,7 +14,10 @@ module.exports = {
         lato: ["Lato", "sans-serif"],
         raleway: ['Raleway', "sans-serif"],
         ubuntu: ['Ubuntu', "sans-serif"],
-        opensans: ['Open Sans', "sans-serif"]
+        opensans: ['Open Sans', "sans-serif"],
+        heading: ["var(--font-heading)", "sans-serif"],
+        body: ["var(--font-body)", "sans-serif"],
+        sans: ["var(--font-body)", "sans-serif"],
       },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",

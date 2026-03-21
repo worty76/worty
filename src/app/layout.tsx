@@ -1,14 +1,25 @@
 "use client";
 
 import "./globals.css";
-import { Inter } from "next/font/google";
+import { Space_Grotesk, Inter } from "next/font/google";
 import Navbar from "../components/layouts/Navbar";
 import { ThemeProvider } from "@/context/theme-context";
 import { AuthProvider } from "@/context/auth-context";
 import NextTopLoader from "nextjs-toploader";
 import { Toaster } from "react-hot-toast";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const heading = Space_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-heading",
+  display: "swap",
+  weight: ["400", "500", "600", "700"],
+});
+
+const body = Inter({
+  subsets: ["latin"],
+  variable: "--font-body",
+  display: "swap",
+});
 
 export default function RootLayout({
   children,
@@ -24,7 +35,7 @@ export default function RootLayout({
       </head>
       <body
         suppressHydrationWarning={true}
-        className={`${inter.className} transition-colors duration-1000`}
+        className={`${heading.variable} ${body.variable} font-sans antialiased transition-colors duration-1000`}
         style={{ backgroundColor: "var(--color-primary-bg)" }}
       >
         <AuthProvider>

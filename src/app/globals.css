@@ -5,11 +5,22 @@
 :root {
   --color-primary-bg: rgb(38 34 35);
   --color-primary-text: rgb(221 198 182);
+  --font-heading: "Space Grotesk", sans-serif;
+  --font-body: "Inter", sans-serif;
 }
 
 :root[data-theme="reversed"] {
   --color-primary-bg: rgb(221 198 182);
   --color-primary-text: rgb(38 34 35);
+}
+
+/* Global Font Styles */
+* {
+  font-family: var(--font-body), sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading), sans-serif;
 }
 
 @media screen and (max-width: 640px) {
