@@ -50,15 +50,9 @@ export default function GalleryPage() {
         </div>
 
         {/* Gallery Grid */}
-        <GalleryGrid filter={activeFilter === "All" ? undefined : activeFilter} />
-
-        {/* Empty State Info */}
-        <div className="mt-16 text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 rounded-lg secondary-color-text opacity-60 text-sm">
-            <span>💡</span>
-            <span>Add new memories through the admin panel</span>
-          </div>
-        </div>
+        <GalleryGrid
+          filter={activeFilter === "All" ? undefined : activeFilter}
+        />
       </div>
     </main>
   );
