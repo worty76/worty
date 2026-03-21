@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { MarkdownEditor } from "./MarkdownEditor";
+import { ImageUpload } from "./ImageUpload";
 import toast from "react-hot-toast";
 import { collection, addDoc, updateDoc, doc } from "firebase/firestore";
 import { db } from "@/firebase/config";
@@ -47,7 +48,7 @@ export function BlogForm({ initialData, onSuccess }: BlogFormProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialData?.id]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -153,26 +154,11 @@ export function BlogForm({ initialData, onSuccess }: BlogFormProps) {
       </div>
 
       <div>
-        <label className="block text-sm font-semibold secondary-color-text mb-3">
-          🖼️ Featured Image
-        </label>
-        <input
-          type="url"
-          name="image"
+        <ImageUpload
           value={formData.image}
-          onChange={handleInputChange}
-          placeholder="https://example.com/image.jpg"
-          className="w-full px-4 py-3 border secondary-color-border rounded-lg bg-white/5 secondary-color-text placeholder-secondary/40 focus:outline-none focus:ring-2 focus:ring-opacity-50 transition-all duration-200"
+          onChange={(url) => setFormData((prev) => ({ ...prev, image: url }))}
+          label="🖼️ Featured Image"
         />
-        {formData.image && (
-          <div className="mt-4 relative group">
-            <img
-              src={formData.image}
-              alt="Preview"
-              className="w-full max-h-56 rounded-lg object-cover border secondary-color-border opacity-80 group-hover:opacity-100 transition-opacity"
-            />
-          </div>
-        )}
       </div>
 
       <div>
