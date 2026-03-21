@@ -5,6 +5,7 @@ import { collection, getDocs } from "firebase/firestore";
 import { db } from "../../firebase/config";
 import { useEffect, useState, memo } from "react";
 import { BlogCardSkeleton } from "@/components/blog/BlogCardSkeleton";
+import { StatusBadge, BlogStatus } from "@/components/ui/StatusBadge";
 
 interface BlogPost {
   id: string;
@@ -12,22 +13,29 @@ interface BlogPost {
   description: string;
   datetime: string;
   readingTime?: string;
+  status?: BlogStatus;
 }
 
 const BlogCard = memo(({ post }: { post: BlogPost }) => {
-  const { id, title, description, datetime, readingTime } = post;
+  const { id, title, description, datetime, readingTime, status } = post;
+
+  const isPublished = status === "published";
+
   return (
     <Link href={`/${id}`}>
-      <div className="flex max-w-xl flex-col items-start justify-between rounded-md border secondary-color-border p-5 cursor-pointer hover:opacity-80 transition-all duration-1000 group">
-        <div className="flex items-center gap-x-1 text-xs">
-          <time dateTime={datetime}>
-            <p className="transition-all duration-1000">{datetime}</p>
-          </time>
-          {readingTime && (
-            <span className="transition-all duration-1000 secondary-color-text">
-              · {readingTime} read
-            </span>
-          )}
+      <div className={`flex max-w-xl flex-col items-start justify-between rounded-md border ${isPublished ? "secondary-color-border" : "border-dashed secondary-color-border opacity-70"} p-5 cursor-pointer hover:opacity-80 transition-all duration-1000 group`}>
+        <div className="flex items-center justify-between w-full">
+          <div className="flex items-center gap-x-1 text-xs">
+            <time dateTime={datetime}>
+              <p className="transition-all duration-1000">{datetime}</p>
+            </time>
+            {readingTime && (
+              <span className="transition-all duration-1000 secondary-color-text">
+                · {readingTime} read
+              </span>
+            )}
+          </div>
+          {!isPublished && <StatusBadge status={status || "draft"} size="sm" />}
         </div>
         <div className="relative w-full">
           <h3 className="mt-3 text-lg font-semibold leading-6">
