@@ -21,7 +21,6 @@ export default function Navbar() {
   const navLinks = [
     { href: "/", icon: faHome, label: "Home" },
     { href: "/gallery", icon: faImages, label: "Gallery" },
-    { href: "/music", icon: faMusic, label: "Music" },
     { href: "/support", icon: faHandshakeAngle, label: "Support" },
   ];
 
