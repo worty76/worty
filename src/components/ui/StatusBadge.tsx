@@ -1,7 +1,5 @@
 "use client";
 
-import { FaEdit, FaClock, FaCheckCircle, FaEyeSlash } from "react-icons/fa";
-
 type BlogStatus = "published" | "draft" | "in-progress" | "archived";
 
 interface StatusBadgeProps {
@@ -31,7 +29,7 @@ export function StatusBadge({ status, size = "md" }: StatusBadgeProps) {
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-full ${sizeClasses} font-medium`}
+      className={`inline-flex items-center gap-1.5 rounded-full ${sizeClasses} font-medium secondary-color-text`}
     >
       {config.label}
     </span>

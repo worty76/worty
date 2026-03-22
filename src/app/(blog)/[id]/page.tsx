@@ -282,7 +282,9 @@ export default function Page({ params }: { params: { id: string } }) {
       );
     },
     img({ src, alt, ...props }: any) {
-      const isCentered = props["data-align"] === "center" || props.className?.includes("text-center");
+      const isCentered =
+        props["data-align"] === "center" ||
+        props.className?.includes("text-center");
 
       return (
         <div className={isCentered ? "flex justify-center my-6" : "my-6"}>
@@ -349,9 +351,6 @@ export default function Page({ params }: { params: { id: string } }) {
       <main className="w-[100%] max-w-[1100px] mx-auto">
         <div className="mb-6">
           <div className="flex flex-wrap items-center gap-3 mb-4">
-            {blog.status && blog.status !== "published" && (
-              <StatusBadge status={blog.status} />
-            )}
             <div className="flex flex-wrap gap-2">
               {blog.category.map((item, index) => (
                 <div
@@ -366,7 +365,10 @@ export default function Page({ params }: { params: { id: string } }) {
           </div>
 
           <h1 className="text-4xl font-bold leading-tight mb-4 secondary-color-text duration-1000">
-            {blog.title}
+            {blog.title}{" "}
+            {blog.status && blog.status !== "published" && (
+              <StatusBadge status={blog.status} />
+            )}
           </h1>
           <time className="secondary-color-text opacity-70 text-sm duration-1000">
             {new Date(blog.datetime).toLocaleDateString("en-US", {
