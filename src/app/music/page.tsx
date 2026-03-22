@@ -2,9 +2,9 @@
 
 import { useEffect, useState, memo } from "react";
 import Image from "next/image";
-import { MusicCardSkeleton } from "@/components/music/MusicCardSkeleton";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/firebase/config";
+import { FaPlay, FaYoutube } from "react-icons/fa";
 
 export const dynamic = "force-dynamic";
 
@@ -33,23 +33,27 @@ const VideoModal = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="primary-color-bg rounded-lg max-w-4xl w-full p-4">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-semibold secondary-color-text">
-            {title}
-          </h3>
+    <div
+      className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      <div
+        className="primary-color-bg rounded-xl max-w-4xl w-full overflow-hidden shadow-2xl border border-white/10"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex justify-between items-center p-4 border-b border-white/10">
+          <h3 className="font-semibold secondary-color-text">{title}</h3>
           <button
             onClick={onClose}
-            className="p-2 hover:opacity-70 secondary-color-text"
+            className="p-2 hover:bg-white/10 rounded-full transition-colors secondary-color-text"
           >
             ✕
           </button>
         </div>
-        <div className="relative aspect-video">
+        <div className="relative aspect-video bg-black">
           <iframe
             src={videoUrl}
-            className="absolute inset-0 w-full h-full rounded-lg"
+            className="absolute inset-0 w-full h-full"
             title={title}
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
             referrerPolicy="strict-origin-when-cross-origin"
@@ -61,69 +65,72 @@ const VideoModal = ({
   );
 };
 
-const MusicCard = memo(
+const MusicRow = memo(
   ({ music, onPlay }: { music: Music; onPlay: () => void }) => {
-    const { title, artist, coverImage, genre, spotifyLink, year } = music;
+    const { title, artist, coverImage, genre, year } = music;
+
     return (
       <div
         onClick={onPlay}
-        className="group relative overflow-hidden rounded-lg bg-gradient-to-b from-gray-100/10 to-gray-200/20 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] cursor-pointer"
+        className="group flex items-center gap-4 p-3 bg-white/5 border border-white/10 rounded-xl hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 cursor-pointer"
       >
-        <div className="relative aspect-square">
+        {/* Play Button */}
+        <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center group-hover:bg-white/20 transition-colors flex-shrink-0">
+          <FaPlay className="secondary-color-text opacity-60 group-hover:opacity-100 ml-0.5 transition-colors" size={14} />
+        </div>
+
+        {/* Cover Image */}
+        <div className="relative w-14 h-14 flex-shrink-0 bg-white/10 rounded-lg overflow-hidden">
           <Image
             src={coverImage}
             alt={title}
             fill
-            className="object-cover transition-all duration-500 group-hover:brightness-110"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            quality={100}
+            unoptimized
+            className="object-cover"
+            sizes="56px"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 transition-opacity duration-1000 group-hover:opacity-100" />
         </div>
-        <div className="p-4 ">
-          <div className="flex flex-wrap gap-2 mb-2 duration-1000">
-            {genre.map((g, index) => (
-              <span
-                key={index}
-                className="px-2 py-1 text-xs rounded-full primary-color-bg secondary-color-text backdrop-blur-sm transition-all duration-1000"
-              >
-                {g}
-              </span>
-            ))}
-          </div>
-          <h3 className="font-semibold secondary-color-text line-clamp-1 duration-1000">
-            {title}
-          </h3>
-          <div className="flex items-center gap-2 mt-1">
-            <p className="text-sm secondary-color-text opacity-70 duration-1000">
-              {artist}
-            </p>
-            <span className="text-xs secondary-color-text opacity-60 duration-1000">
-              •
-            </span>
-            <p className="text-xs secondary-color-text opacity-60 duration-1000">
-              {year}
-            </p>
-          </div>
-          {spotifyLink && (
-            <a
-              href={spotifyLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-3 inline-flex items-center gap-2 text-sm secondary-color-text opacity-70 hover:opacity-100 transition-all duration-1000"
+
+        {/* Info */}
+        <div className="flex-1 min-w-0">
+          <h3 className="font-semibold secondary-color-text truncate">{title}</h3>
+          <p className="text-sm secondary-color-text opacity-60 truncate">{artist}</p>
+        </div>
+
+        {/* Genre Pills */}
+        <div className="hidden sm:flex flex-wrap gap-1.5">
+          {genre.slice(0, 2).map((g, index) => (
+            <span
+              key={index}
+              className="px-2 py-0.5 text-xs bg-white/10 secondary-color-text rounded-full"
             >
-              Listen on Youtube
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M7 7h8.586L5.293 17.293l1.414 1.414L17 8.414V17h2V5H7v2z" />
-              </svg>
-            </a>
-          )}
+              {g}
+            </span>
+          ))}
         </div>
+
+        {/* Year */}
+        <p className="text-sm secondary-color-text opacity-40 flex-shrink-0 hidden md:block">{year}</p>
+
+        {/* YouTube Link */}
+        {music.spotifyLink && (
+          <a
+            href={music.spotifyLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className="p-2 text-red-500 hover:bg-red-500/10 rounded-full transition-colors flex-shrink-0"
+          >
+            <FaYoutube size={16} />
+          </a>
+        )}
       </div>
     );
   }
 );
 
-MusicCard.displayName = "MusicCard";
+MusicRow.displayName = "MusicRow";
 
 export default function Music() {
   const [state, setState] = useState({
@@ -180,10 +187,10 @@ export default function Music() {
 
   if (state.isLoading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <div className="max-w-4xl mx-auto px-4 py-12">
+        <div className="space-y-3">
           {[...Array(8)].map((_, i) => (
-            <MusicCardSkeleton key={i} />
+            <div key={i} className="h-20 bg-white/5 rounded-xl animate-pulse" />
           ))}
         </div>
       </div>
@@ -192,8 +199,8 @@ export default function Music() {
 
   if (state.error) {
     return (
-      <div className="flex items-center justify-center min-h-[40vh]">
-        <div className="text-center text-red-500 p-4 rounded-lg bg-red-50">
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <div className="text-center text-red-400 p-4 rounded-lg bg-red-500/10 border border-red-500/20">
           <p>{state.error}</p>
         </div>
       </div>
@@ -202,17 +209,27 @@ export default function Music() {
 
   return (
     <>
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {state.music.map((item) => (
-            <MusicCard
-              key={item.id}
-              music={item}
-              onPlay={() => handlePlay(item)}
-            />
-          ))}
+      <main className="min-h-screen primary-color-bg transition-colors duration-1000">
+        <div className="max-w-4xl mx-auto px-4 py-12">
+          {/* Header */}
+          <div className="mb-8">
+            <h1 className="text-2xl font-bold secondary-color-text">Music</h1>
+            <p className="secondary-color-text opacity-60">{state.music.length} tracks</p>
+          </div>
+
+          {/* List */}
+          <div className="space-y-3">
+            {state.music.map((item) => (
+              <MusicRow
+                key={item.id}
+                music={item}
+                onPlay={() => handlePlay(item)}
+              />
+            ))}
+          </div>
         </div>
-      </div>
+      </main>
+
       <VideoModal
         isOpen={modal.isOpen}
         onClose={handleCloseModal}
