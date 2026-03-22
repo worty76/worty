@@ -170,7 +170,7 @@ export default function Blog() {
   }
 
   return (
-    <div className="w-full max-w-4xl py-12">
+    <div className="w-full max-w-4xl py-4">
       <div className="flex flex-col gap-4">
         {state.posts.map((post) => (
           <BlogCard key={post.docId} post={post} />
