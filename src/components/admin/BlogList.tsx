@@ -128,7 +128,7 @@ export function BlogList({ onEdit, refreshTrigger }: BlogListProps) {
                 </Button>
                 <Button
                   variant="danger"
-                  onClick={() => handleDelete(post.id)}
+                  onClick={() => handleDelete(post.docId)}
                   icon={<FaTrash size={14} />}
                 >
                   Delete
