@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import Image from "next/image";
-import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/firebase/config";
-import { FaSearchPlus, FaSearchMinus, FaTimes, FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { FaSearchPlus, FaSearchMinus, FaTimes, FaChevronLeft, FaChevronRight, FaStar, FaTag } from "react-icons/fa";
 
 interface GalleryItem {
   id: string;
@@ -14,26 +13,46 @@ interface GalleryItem {
   date: string;
   location?: string;
   category?: string;
+  tags?: string[];
+  featured?: boolean;
 }
 
 interface GalleryGridProps {
+  items?: GalleryItem[];
   filter?: string;
 }
 
-export function GalleryGrid({ filter }: GalleryGridProps) {
-  const [items, setItems] = useState<GalleryItem[]>([]);
-  const [loading, setLoading] = useState(true);
+interface ImageDimensions {
+  [key: string]: { width: number; height: number; aspectRatio: number };
+}
+
+export function GalleryGrid({ items: propItems, filter }: GalleryGridProps) {
+  const [items, setItems] = useState<GalleryItem[]>(propItems || []);
+  const [loading, setLoading] = useState(!propItems);
   const [error, setError] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState<GalleryItem | null>(null);
   const [zoom, setZoom] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [imageDimensions, setImageDimensions] = useState<ImageDimensions>({});
+  const [visibleIds, setVisibleIds] = useState<Set<string>>(new Set());
   const imageRef = useRef<HTMLDivElement>(null);
+  const intersectionObserverRef = useRef<IntersectionObserver | null>(null);
+  const loadingImagesRef = useRef<Map<string, HTMLImageElement>>(new Map());
+  const containerRef = useRef<HTMLDivElement>(null);
 
+  // Fetch data only if not provided as prop
   useEffect(() => {
+    if (propItems) {
+      setItems(propItems);
+      setLoading(false);
+      return;
+    }
+
     const fetchGallery = async () => {
       try {
+        const { collection, getDocs } = await import("firebase/firestore");
         const galleryCollection = collection(db, "gallery");
         const gallerySnapshot = await getDocs(galleryCollection);
         const galleryList = gallerySnapshot.docs.map((doc) => ({
@@ -41,10 +60,12 @@ export function GalleryGrid({ filter }: GalleryGridProps) {
           ...doc.data(),
         })) as GalleryItem[];
 
-        // Sort by date (newest first)
-        galleryList.sort(
-          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
-        );
+        // Sort: featured first, then by date (newest first)
+        galleryList.sort((a, b) => {
+          if (a.featured && !b.featured) return -1;
+          if (!a.featured && b.featured) return 1;
+          return new Date(b.date).getTime() - new Date(a.date).getTime();
+        });
 
         setItems(galleryList);
         setLoading(false);
@@ -56,25 +77,124 @@ export function GalleryGrid({ filter }: GalleryGridProps) {
     };
 
     fetchGallery();
+  }, [propItems]);
+
+  // Cleanup function for loading images
+  /* eslint-disable react-hooks/exhaustive-deps */
+  useEffect(() => {
+    return () => {
+      // Cancel any pending image loads
+      const currentLoadingImages = loadingImagesRef.current;
+      currentLoadingImages.forEach((img) => {
+        img.onload = null;
+        img.onerror = null;
+        img.src = "";
+      });
+      currentLoadingImages.clear();
+
+      // Disconnect intersection observer
+      if (intersectionObserverRef.current) {
+        intersectionObserverRef.current.disconnect();
+      }
+    };
   }, []);
+  /* eslint-enable react-hooks/exhaustive-deps */
 
-  const filteredItems = filter
-    ? items.filter((item) =>
-        item.category?.toLowerCase().includes(filter.toLowerCase()),
-      )
-    : items;
+  // Filter by category or tags (memoized)
+  const filteredItems = useMemo(() => {
+    if (!filter) return items;
 
-  // Reset zoom when image changes
+    return items.filter((item) => {
+      const categoryMatch = item.category?.toLowerCase().includes(filter.toLowerCase());
+      const tagMatch = item.tags?.some(tag => tag.toLowerCase().includes(filter.toLowerCase()));
+      return categoryMatch || tagMatch;
+    });
+  }, [items, filter]);
+
+  // Collect all unique tags from filtered items (memoized)
+  const allTags = useMemo(() => {
+    return Array.from(
+      new Set(filteredItems.flatMap(item => item.tags || []))
+    ).sort();
+  }, [filteredItems]);
+
+  // Setup Intersection Observer for lazy loading
+  useEffect(() => {
+    if (!containerRef.current || loading) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const imgId = entry.target.getAttribute("data-img-id");
+            if (imgId) {
+              setVisibleIds((prev) => new Set(Array.from(prev).concat(imgId)));
+              observer.unobserve(entry.target);
+            }
+          }
+        });
+      },
+      { rootMargin: "200px" } // Load images 200px before they enter viewport
+    );
+
+    intersectionObserverRef.current = observer;
+
+    // Observe all image containers
+    const containers = containerRef.current.querySelectorAll("[data-img-id]");
+    containers.forEach((container) => observer.observe(container));
+
+    return () => observer.disconnect();
+  }, [filteredItems, loading]);
+
+  // Load image dimensions for visible images only
+  useEffect(() => {
+    const itemsToLoad = filteredItems.filter(
+      (item) => visibleIds.has(item.id) && !imageDimensions[item.id]
+    );
+
+    if (itemsToLoad.length === 0) return;
+
+    itemsToLoad.forEach((item) => {
+      // Skip if already loading
+      if (loadingImagesRef.current.has(item.id)) return;
+
+      const img = new window.Image();
+      loadingImagesRef.current.set(item.id, img);
+
+      img.onload = () => {
+        const aspectRatio = img.width / img.height;
+        setImageDimensions((prev) => ({
+          ...prev,
+          [item.id]: { width: img.width, height: img.height, aspectRatio },
+        }));
+        loadingImagesRef.current.delete(item.id);
+      };
+
+      img.onerror = () => {
+        loadingImagesRef.current.delete(item.id);
+        // Set default dimensions on error
+        setImageDimensions((prev) => ({
+          ...prev,
+          [item.id]: { width: 1, height: 1, aspectRatio: 1 },
+        }));
+      };
+
+      img.src = item.imageUrl;
+    });
+  }, [visibleIds, filteredItems, imageDimensions]);
+
+  // Reset zoom when image changes (memoized)
   useEffect(() => {
     setZoom(1);
     setPosition({ x: 0, y: 0 });
   }, [selectedImage]);
 
-  const handleZoomIn = () => {
+  // Memoize event handlers
+  const handleZoomIn = useCallback(() => {
     setZoom((prev) => Math.min(prev + 0.25, 3));
-  };
+  }, []);
 
-  const handleZoomOut = () => {
+  const handleZoomOut = useCallback(() => {
     setZoom((prev) => {
       const newZoom = Math.max(prev - 0.25, 1);
       if (newZoom === 1) {
@@ -82,12 +202,12 @@ export function GalleryGrid({ filter }: GalleryGridProps) {
       }
       return newZoom;
     });
-  };
+  }, []);
 
-  const handleResetZoom = () => {
+  const handleResetZoom = useCallback(() => {
     setZoom(1);
     setPosition({ x: 0, y: 0 });
-  };
+  }, []);
 
   const handleWheel = useCallback((e: React.WheelEvent) => {
     e.preventDefault();
@@ -104,27 +224,27 @@ export function GalleryGrid({ filter }: GalleryGridProps) {
     }
   }, []);
 
-  const handleMouseDown = (e: React.MouseEvent) => {
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
     if (zoom > 1) {
       setIsDragging(true);
       setDragStart({ x: e.clientX - position.x, y: e.clientY - position.y });
     }
-  };
+  }, [zoom, position.x, position.y]);
 
-  const handleMouseMove = (e: React.MouseEvent) => {
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
     if (isDragging && zoom > 1) {
       setPosition({
         x: e.clientX - dragStart.x,
         y: e.clientY - dragStart.y,
       });
     }
-  };
+  }, [isDragging, zoom, dragStart.x, dragStart.y]);
 
-  const handleMouseUp = () => {
+  const handleMouseUp = useCallback(() => {
     setIsDragging(false);
-  };
+  }, []);
 
-  const handleNavigate = (direction: "prev" | "next") => {
+  const handleNavigate = useCallback((direction: "prev" | "next") => {
     if (!selectedImage) return;
     const currentIndex = filteredItems.findIndex((item) => item.id === selectedImage.id);
     let newIndex = direction === "next" ? currentIndex + 1 : currentIndex - 1;
@@ -133,16 +253,28 @@ export function GalleryGrid({ filter }: GalleryGridProps) {
     if (newIndex >= filteredItems.length) newIndex = 0;
 
     setSelectedImage(filteredItems[newIndex]);
-  };
+  }, [selectedImage, filteredItems]);
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (e.key === "Escape") setSelectedImage(null);
     if (e.key === "ArrowLeft") handleNavigate("prev");
     if (e.key === "ArrowRight") handleNavigate("next");
     if (e.key === "+" || e.key === "=") handleZoomIn();
     if (e.key === "-" || e.key === "_") handleZoomOut();
     if (e.key === "0") handleResetZoom();
-  };
+  }, [handleNavigate, handleZoomIn, handleZoomOut, handleResetZoom]);
+
+  // Get aspect ratio style based on image dimensions
+  const getItemStyle = useCallback((itemId: string) => {
+    const dims = imageDimensions[itemId];
+    if (!dims) {
+      return { aspectRatio: 1 }; // Default to square while loading
+    }
+
+    // Clamp aspect ratio between 0.6 and 1.5 to prevent extreme sizes
+    const clampedRatio = Math.max(0.6, Math.min(1.5, dims.aspectRatio));
+    return { aspectRatio: clampedRatio };
+  }, [imageDimensions]);
 
   if (loading) {
     return (
@@ -177,36 +309,125 @@ export function GalleryGrid({ filter }: GalleryGridProps) {
 
   return (
     <>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {filteredItems.map((item) => (
-          <div
-            key={item.id}
-            onClick={() => setSelectedImage(item)}
-            className="group relative aspect-square overflow-hidden rounded-lg cursor-pointer bg-white/5 hover:bg-white/10 transition-all duration-1000"
-          >
-            <Image
-              src={item.imageUrl}
-              alt={item.title}
-              fill
-              quality={90}
-              className="object-cover transition-transform duration-1000 group-hover:scale-110"
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
-            />
-            {/* Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000">
-              <div className="absolute bottom-0 left-0 right-0 p-4">
-                <p className="text-white font-medium font-heading text-sm truncate">
-                  {item.title}
-                </p>
-                {item.location && (
-                  <p className="text-white/70 text-xs truncate mt-1">
-                    📍 {item.location}
+      {/* Tags cloud */}
+      {allTags.length > 0 && (
+        <div className="mb-8">
+          <div className="flex flex-wrap gap-2 justify-center">
+            <span className="text-sm secondary-color-text opacity-60 flex items-center gap-1 mr-2">
+              <FaTag size={12} />
+              Popular tags:
+            </span>
+            {allTags.slice(0, 15).map((tag) => (
+              <button
+                key={tag}
+                className="px-3 py-1 bg-white/5 hover:bg-white/10 secondary-color-text rounded-full text-sm transition-colors duration-300"
+              >
+                #{tag}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Masonry Grid */}
+      <div ref={containerRef} className="masonry-grid">
+        <style>{`
+          .masonry-grid {
+            column-count: 1;
+            column-gap: 1rem;
+          }
+          @media (min-width: 640px) {
+            .masonry-grid {
+              column-count: 2;
+            }
+          }
+          @media (min-width: 1024px) {
+            .masonry-grid {
+              column-count: 3;
+            }
+          }
+          @media (min-width: 1280px) {
+            .masonry-grid {
+              column-count: 4;
+            }
+          }
+          .masonry-item {
+            break-inside: avoid;
+            margin-bottom: 1rem;
+          }
+        `}</style>
+
+        {filteredItems.map((item) => {
+          const itemStyle = getItemStyle(item.id);
+
+          return (
+            <div
+              key={item.id}
+              data-img-id={item.id}
+              onClick={() => setSelectedImage(item)}
+              className="masonry-item group relative overflow-hidden rounded-xl cursor-pointer bg-white/5 hover:bg-white/10 transition-all duration-300"
+              style={{ aspectRatio: itemStyle.aspectRatio }}
+            >
+              {/* Featured badge */}
+              {item.featured && (
+                <div className="absolute top-2 right-2 z-10 flex items-center gap-1 px-2 py-1 bg-yellow-500/90 text-white rounded-full text-xs font-semibold shadow-lg">
+                  <FaStar size={8} />
+                  Featured
+                </div>
+              )}
+
+              {/* Category badge */}
+              {item.category && (
+                <div className="absolute top-2 left-2 z-10 px-2 py-1 bg-black/50 backdrop-blur-sm text-white rounded-full text-xs">
+                  {item.category}
+                </div>
+              )}
+
+              <Image
+                src={item.imageUrl}
+                alt={item.title}
+                fill
+                quality={90}
+                className="object-cover transition-transform duration-500 group-hover:scale-105"
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
+                loading="lazy"
+              />
+
+              {/* Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="absolute bottom-0 left-0 right-0 p-4">
+                  <p className="text-white font-medium font-heading text-sm truncate mb-1">
+                    {item.title}
                   </p>
-                )}
+                  {item.location && (
+                    <p className="text-white/70 text-xs truncate">
+                      📍 {item.location}
+                    </p>
+                  )}
+
+                  {/* Tags */}
+                  {item.tags && item.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 mt-2">
+                      {item.tags.slice(0, 3).map((tag) => (
+                        <span
+                          key={tag}
+                          className="px-2 py-0.5 bg-white/20 backdrop-blur-sm text-white rounded-full text-xs"
+                        >
+                          #{tag}
+                        </span>
+                      ))}
+                      {item.tags.length > 3 && (
+                        <span className="px-2 py-0.5 bg-white/20 text-white rounded-full text-xs">
+                          +{item.tags.length - 3}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Lightbox Modal */}
@@ -327,9 +548,14 @@ export function GalleryGrid({ filter }: GalleryGridProps) {
           {/* Image info */}
           <div className="absolute top-4 left-4 max-w-md text-left z-10">
             <div className="bg-black/50 backdrop-blur-sm rounded-lg p-4">
-              <h3 className="text-white font-heading text-xl font-semibold">
-                {selectedImage.title}
-              </h3>
+              <div className="flex items-start justify-between gap-2">
+                <h3 className="text-white font-heading text-xl font-semibold">
+                  {selectedImage.title}
+                </h3>
+                {selectedImage.featured && (
+                  <FaStar className="text-yellow-400 flex-shrink-0 mt-1" size={16} />
+                )}
+              </div>
               {selectedImage.description && (
                 <p className="text-white/80 mt-2 text-sm">
                   {selectedImage.description}
@@ -346,13 +572,26 @@ export function GalleryGrid({ filter }: GalleryGridProps) {
                   <span>🏷️ {selectedImage.category}</span>
                 )}
               </div>
+              {/* Tags in lightbox */}
+              {selectedImage.tags && selectedImage.tags.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-3">
+                  {selectedImage.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="px-2 py-1 bg-white/10 hover:bg-white/20 text-white rounded-full text-xs transition-colors"
+                    >
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
           {/* Keyboard shortcuts hint */}
           <div className="absolute top-4 right-16 text-white/50 text-xs hidden md:block">
             <div className="bg-black/50 rounded px-2 py-1">
-              Scroll/Pan to zoom • Drag to move • Arrows to navigate
+              Scroll to zoom • Drag to move • Arrows to navigate
             </div>
           </div>
         </div>

@@ -80,3 +80,42 @@ export function FormSelect({ label, error, fullWidth = true, className = "", opt
     </div>
   );
 }
+
+interface SwitchProps {
+  label: string;
+  description?: string;
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+  disabled?: boolean;
+}
+
+export function Switch({ label, description, checked, onChange, disabled = false }: SwitchProps) {
+  return (
+    <div className={`flex items-center justify-between p-4 bg-white/5 border secondary-color-border rounded-lg ${disabled ? "opacity-50" : ""}`}>
+      <div>
+        <label className="block text-sm font-semibold secondary-color-text">
+          {label}
+        </label>
+        {description && (
+          <p className="text-xs secondary-color-text opacity-60 mt-0.5">
+            {description}
+          </p>
+        )}
+      </div>
+      <button
+        type="button"
+        onClick={() => !disabled && onChange(!checked)}
+        disabled={disabled}
+        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ${
+          checked ? "primary-color-bg" : "bg-white/20"
+        } ${disabled ? "cursor-not-allowed" : "cursor-pointer"}`}
+      >
+        <span
+          className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ${
+            checked ? "translate-x-6" : "translate-x-1"
+          }`}
+        />
+      </button>
+    </div>
+  );
+}
