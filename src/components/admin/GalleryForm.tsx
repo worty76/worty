@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { ImageUpload } from "./ImageUpload";
 import { Button } from "@/components/ui/Button";
-import { FormInput, FormTextarea, FormSelect } from "@/components/ui/FormInput";
+import { FormInput, FormTextarea, FormSelect, Switch } from "@/components/ui/FormInput";
+import { TagInput } from "@/components/ui/TagInput";
 import toast from "react-hot-toast";
 import { collection, addDoc, updateDoc, doc } from "firebase/firestore";
 import { db } from "@/firebase/config";
@@ -17,8 +18,11 @@ interface GalleryFormProps {
     date: string;
     location?: string;
     category?: string;
+    tags?: string[];
+    featured?: boolean;
   };
   onSuccess?: () => void;
+  existingTags?: string[];
 }
 
 const CATEGORIES = [
@@ -31,6 +35,17 @@ const CATEGORIES = [
   { value: "Other", label: "Other" },
 ];
 
+// Common tag suggestions per category
+const TAG_SUGGESTIONS: Record<string, string[]> = {
+  Adventure: ["hiking", "camping", "climbing", "roadtrip", "extreme", "outdoors"],
+  Travel: ["beach", "city", "mountains", "cultural", "sightseeing", "solo", "backpacking"],
+  Food: ["restaurant", "street-food", "home-cooked", "dessert", "coffee", "local-cuisine"],
+  Friends: ["gathering", "party", "celebration", "reunion", "weekend", "group"],
+  Nature: ["landscape", "wildlife", "sunset", "sunrise", "forest", "ocean", "waterfall"],
+  Events: ["wedding", "birthday", "conference", "concert", "festival", "workshop", "meetup"],
+  Other: ["memory", "moment", "favorite", "throwback"],
+};
+
 const defaultValues = {
   title: "",
   description: "",
@@ -38,9 +53,11 @@ const defaultValues = {
   date: new Date().toISOString().split("T")[0],
   location: "",
   category: "Travel",
+  tags: [] as string[],
+  featured: false,
 };
 
-export function GalleryForm({ initialData, onSuccess }: GalleryFormProps) {
+export function GalleryForm({ initialData, onSuccess, existingTags = [] }: GalleryFormProps) {
   const [form, setForm] = useState(defaultValues);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -53,6 +70,8 @@ export function GalleryForm({ initialData, onSuccess }: GalleryFormProps) {
         date: initialData.date,
         location: initialData.location || "",
         category: initialData.category || "Travel",
+        tags: initialData.tags || [],
+        featured: initialData.featured || false,
       });
     }
   }, [initialData]);
@@ -61,7 +80,15 @@ export function GalleryForm({ initialData, onSuccess }: GalleryFormProps) {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    setForm((prev: typeof defaultValues) => ({ ...prev, [name]: value }));
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleTagsChange = (tags: string[]) => {
+    setForm((prev) => ({ ...prev, tags }));
+  };
+
+  const handleFeaturedChange = (checked: boolean) => {
+    setForm((prev) => ({ ...prev, featured: checked }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -76,11 +103,13 @@ export function GalleryForm({ initialData, onSuccess }: GalleryFormProps) {
     try {
       const galleryData = {
         title: form.title.trim(),
-        description: form.description.trim(),
+        description: form.description.trim() || "",
         imageUrl: form.imageUrl.trim(),
         date: form.date,
-        location: form.location.trim(),
+        location: form.location.trim() || "",
         category: form.category,
+        tags: form.tags,
+        featured: form.featured,
         updatedAt: new Date().toISOString(),
       };
 
@@ -102,11 +131,17 @@ export function GalleryForm({ initialData, onSuccess }: GalleryFormProps) {
     }
   };
 
+  // Memoized suggestions
+  const combinedSuggestions = useMemo(() => {
+    const categorySuggestions = TAG_SUGGESTIONS[form.category] || [];
+    return Array.from(new Set([...categorySuggestions, ...existingTags]));
+  }, [form.category, existingTags]);
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <ImageUpload
         value={form.imageUrl}
-        onChange={(url) => setForm((prev: typeof defaultValues) => ({ ...prev, imageUrl: url }))}
+        onChange={(url) => setForm((prev) => ({ ...prev, imageUrl: url }))}
         label="Upload Image"
       />
 
@@ -155,6 +190,28 @@ export function GalleryForm({ initialData, onSuccess }: GalleryFormProps) {
         onChange={handleInputChange}
         placeholder="Tell the story behind this memory..."
         rows={3}
+      />
+
+      <div>
+        <label className="block text-sm font-semibold secondary-color-text mb-3">
+          Tags
+        </label>
+        <TagInput
+          tags={form.tags}
+          onChange={handleTagsChange}
+          suggestions={combinedSuggestions}
+          placeholder="Add tags (e.g., beach, sunset, friends)..."
+        />
+        <p className="text-xs secondary-color-text opacity-60 mt-1.5">
+          Tags help organize and filter your memories
+        </p>
+      </div>
+
+      <Switch
+        label="Featured Memory"
+        description="Highlight this memory on the gallery page"
+        checked={form.featured}
+        onChange={handleFeaturedChange}
       />
 
       <Button

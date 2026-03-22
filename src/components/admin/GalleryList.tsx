@@ -5,7 +5,7 @@ import Image from "next/image";
 import { collection, getDocs, deleteDoc, doc } from "firebase/firestore";
 import { db } from "@/firebase/config";
 import toast from "react-hot-toast";
-import { FaEdit, FaTrash, FaMapMarkerAlt, FaCalendar } from "react-icons/fa";
+import { FaEdit, FaTrash, FaMapMarkerAlt, FaCalendar, FaStar, FaTag } from "react-icons/fa";
 import { LoadingSkeleton, EmptyState } from "@/components/ui/LoadingStates";
 import { FilterButtonGroup } from "@/components/ui/Card";
 
@@ -17,6 +17,8 @@ interface GalleryItem {
   date: string;
   location?: string;
   category?: string;
+  tags?: string[];
+  featured?: boolean;
 }
 
 interface GalleryListProps {
@@ -39,9 +41,12 @@ export function GalleryList({ onEdit, refreshTrigger }: GalleryListProps) {
           ...doc.data(),
         })) as GalleryItem[];
 
-        galleryList.sort(
-          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-        );
+        // Sort: featured first, then by date (newest first)
+        galleryList.sort((a, b) => {
+          if (a.featured && !b.featured) return -1;
+          if (!a.featured && b.featured) return 1;
+          return new Date(b.date).getTime() - new Date(a.date).getTime();
+        });
 
         setItems(galleryList);
         setLoading(false);
@@ -63,14 +68,23 @@ export function GalleryList({ onEdit, refreshTrigger }: GalleryListProps) {
       setItems((prev) => prev.filter((item) => item.id !== id));
       toast.success("Memory deleted successfully!");
     } catch (error) {
-      console.error("Error deleting memory:", error);
+      console.error("Error deleting gallery:", error);
       toast.error("Failed to delete memory");
     }
   };
 
-  const categories = ["All", ...Array.from(new Set(items.map((i) => i.category || "Other")))];
+  // Get all unique categories and tags for filtering
+  const allCategories = ["All", ...Array.from(new Set(items.map((i) => i.category || "Other")))];
+  const allTags = ["All", ...Array.from(new Set(items.flatMap((i) => i.tags || [])))];
 
-  const filteredItems = filter === "All" ? items : items.filter((item) => item.category === filter);
+  // Combine filter options
+  const filterOptions = Array.from(new Set([...allCategories, ...allTags]));
+
+  const filteredItems = filter === "All"
+    ? items
+    : items.filter((item) =>
+        item.category === filter || item.tags?.includes(filter)
+      );
 
   if (loading) {
     return <LoadingSkeleton count={12} type="square" />;
@@ -89,7 +103,7 @@ export function GalleryList({ onEdit, refreshTrigger }: GalleryListProps) {
   return (
     <div>
       <FilterButtonGroup
-        filters={categories}
+        filters={filterOptions}
         activeFilter={filter}
         onFilterChange={setFilter}
       />
@@ -101,6 +115,21 @@ export function GalleryList({ onEdit, refreshTrigger }: GalleryListProps) {
             className="group relative aspect-square rounded-xl overflow-hidden bg-white/5 hover:bg-white/10 transition-all duration-200 border border-transparent hover:border-secondary-color-border cursor-pointer"
             onClick={() => onEdit(item)}
           >
+            {/* Featured badge */}
+            {item.featured && (
+              <div className="absolute top-2 left-2 z-10 flex items-center gap-1 px-2 py-1 bg-yellow-500/90 text-white rounded-full text-xs font-semibold shadow-lg">
+                <FaStar size={8} />
+                Featured
+              </div>
+            )}
+
+            {/* Category badge */}
+            {item.category && (
+              <div className="absolute top-2 right-2 px-2 py-1 bg-black/50 backdrop-blur-sm rounded-full text-white text-xs">
+                {item.category}
+              </div>
+            )}
+
             <Image
               src={item.imageUrl}
               alt={item.title}
@@ -111,12 +140,6 @@ export function GalleryList({ onEdit, refreshTrigger }: GalleryListProps) {
             />
 
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-              {item.category && (
-                <div className="absolute top-2 left-2 px-2 py-1 bg-black/50 backdrop-blur-sm rounded-full text-white text-xs">
-                  {item.category}
-                </div>
-              )}
-
               <div className="absolute bottom-0 left-0 right-0 p-3">
                 <p className="text-white text-sm font-medium font-heading line-clamp-1 mb-1">
                   {item.title}
@@ -133,6 +156,27 @@ export function GalleryList({ onEdit, refreshTrigger }: GalleryListProps) {
                     {new Date(item.date).toLocaleDateString()}
                   </span>
                 </div>
+
+                {/* Tags */}
+                {item.tags && item.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mb-2">
+                    {item.tags.slice(0, 2).map((tag) => (
+                      <span
+                        key={tag}
+                        className="flex items-center gap-1 px-1.5 py-0.5 bg-white/20 rounded text-white text-xs"
+                      >
+                        <FaTag size={8} />
+                        {tag}
+                      </span>
+                    ))}
+                    {item.tags.length > 2 && (
+                      <span className="px-1.5 py-0.5 bg-white/20 rounded text-white text-xs">
+                        +{item.tags.length - 2}
+                      </span>
+                    )}
+                  </div>
+                )}
+
                 <div className="flex gap-2">
                   <button
                     onClick={(e) => {

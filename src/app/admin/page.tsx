@@ -7,6 +7,7 @@ import { GalleryForm } from "@/components/admin/GalleryForm";
 import { BlogList } from "@/components/admin/BlogList";
 import { GalleryList } from "@/components/admin/GalleryList";
 import { useAuth } from "@/context/auth-context";
+import { db } from "@/firebase/config";
 import {
   FaPen,
   FaImages,
@@ -44,6 +45,8 @@ interface EditingGallery {
   date: string;
   location?: string;
   category?: string;
+  tags?: string[];
+  featured?: boolean;
 }
 
 export default function AdminPage() {
@@ -54,6 +57,7 @@ export default function AdminPage() {
     null,
   );
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [existingTags, setExistingTags] = useState<string[]>([]);
   const { user, loading, logOut } = useAuth();
   const router = useRouter();
 
@@ -62,6 +66,30 @@ export default function AdminPage() {
       router.push("/admin/login");
     }
   }, [user, loading, router]);
+
+  // Fetch existing tags for gallery form suggestions
+  useEffect(() => {
+    const fetchTags = async () => {
+      if (activeTab !== "gallery") return;
+
+      try {
+        const { collection, getDocs } = await import("firebase/firestore");
+        const gallerySnapshot = await getDocs(collection(db, "gallery"));
+        const tagsSet = new Set<string>();
+        gallerySnapshot.docs.forEach((doc) => {
+          const data = doc.data();
+          if (data.tags && Array.isArray(data.tags)) {
+            data.tags.forEach((tag: string) => tagsSet.add(tag));
+          }
+        });
+        setExistingTags(Array.from(tagsSet));
+      } catch (error) {
+        console.error("Error fetching tags:", error);
+      }
+    };
+
+    fetchTags();
+  }, [activeTab]);
 
   if (loading) {
     return (
@@ -98,6 +126,8 @@ export default function AdminPage() {
       date: item.date,
       location: item.location || "",
       category: item.category || "Travel",
+      tags: item.tags || [],
+      featured: item.featured || false,
     });
     setCurrentView("form");
   };
@@ -256,6 +286,7 @@ export default function AdminPage() {
                   <GalleryForm
                     initialData={editingGallery || undefined}
                     onSuccess={handleSuccess}
+                    existingTags={existingTags}
                   />
                 )}
               </div>
