@@ -5,6 +5,8 @@ import ReactMarkdown, { Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 
+/* eslint-disable @next/next/no-img-element */
+
 interface MarkdownEditorProps {
   value: string;
   onChange: (value: string) => void;

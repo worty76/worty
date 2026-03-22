@@ -6,6 +6,7 @@ import { ImageUpload } from "./ImageUpload";
 import { Button } from "@/components/ui/Button";
 import { FormInput, FormSelect } from "@/components/ui/FormInput";
 import { BlogStatus } from "@/components/ui/StatusBadge";
+import { MarkdownGuide } from "./MarkdownGuide";
 import toast from "react-hot-toast";
 import { collection, addDoc, updateDoc, doc } from "firebase/firestore";
 import { db } from "@/firebase/config";
@@ -205,6 +206,8 @@ export function BlogForm({ initialData, onSuccess }: BlogFormProps) {
           onChange={(content) => setForm((prev: typeof defaultValues) => ({ ...prev, content }))}
         />
       </div>
+
+      <MarkdownGuide />
 
       <Button
         type="submit"

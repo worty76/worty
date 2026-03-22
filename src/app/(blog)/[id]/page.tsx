@@ -28,6 +28,8 @@ export default function Page({ params }: { params: { id: string } }) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  /* eslint-disable @next/next/no-img-element */
+
   useEffect(() => {
     async function fetchBlog() {
       try {
@@ -279,14 +281,19 @@ export default function Page({ params }: { params: { id: string } }) {
         </td>
       );
     },
-    img({ ...props }: any) {
+    img({ src, alt, ...props }: any) {
+      const isCentered = props["data-align"] === "center" || props.className?.includes("text-center");
+
       return (
-        <img
-          className="rounded-lg max-w-full h-auto my-6 border secondary-color-border shadow-md"
-          loading="lazy"
-          alt={props.alt || "Blog content image"}
-          {...props}
-        />
+        <div className={isCentered ? "flex justify-center my-6" : "my-6"}>
+          <img
+            className="rounded-lg max-w-full h-auto border secondary-color-border shadow-md"
+            loading="lazy"
+            alt={alt || "Blog content image"}
+            src={src}
+            {...props}
+          />
+        </div>
       );
     },
     hr({ ...props }) {

@@ -137,7 +137,7 @@ export default function AdminPage() {
     activeTab === "blog"
       ? {
           title: editingBlog?.docId ? "Edit Blog Post" : "Create New Post",
-          description: editingBlog?.id
+          description: editingBlog?.docId
             ? "Update your existing blog post"
             : "Share your thoughts with the world",
         }
