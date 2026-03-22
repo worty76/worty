@@ -4,13 +4,16 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { BlogForm } from "@/components/admin/BlogForm";
 import { GalleryForm } from "@/components/admin/GalleryForm";
+import { MusicForm } from "@/components/admin/MusicForm";
 import { BlogList } from "@/components/admin/BlogList";
 import { GalleryList } from "@/components/admin/GalleryList";
+import { MusicList } from "@/components/admin/MusicList";
 import { useAuth } from "@/context/auth-context";
 import { db } from "@/firebase/config";
 import {
   FaPen,
   FaImages,
+  FaMusic,
   FaPlus,
   FaList,
   FaSignOutAlt,
@@ -23,7 +26,7 @@ import { BlogStatus } from "@/components/ui/StatusBadge";
 
 export const dynamic = "force-dynamic";
 
-type Tab = "blog" | "gallery";
+type Tab = "blog" | "gallery" | "music";
 type View = "form" | "list";
 
 interface EditingBlog {
@@ -49,15 +52,26 @@ interface EditingGallery {
   featured?: boolean;
 }
 
+interface EditingMusic {
+  id?: string;
+  title: string;
+  artist: string;
+  album?: string;
+  coverImage: string;
+  year: string;
+  genre: string[];
+  spotifyLink?: string;
+}
+
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<Tab>("blog");
   const [currentView, setCurrentView] = useState<View>("list");
   const [editingBlog, setEditingBlog] = useState<EditingBlog | null>(null);
-  const [editingGallery, setEditingGallery] = useState<EditingGallery | null>(
-    null,
-  );
+  const [editingGallery, setEditingGallery] = useState<EditingGallery | null>(null);
+  const [editingMusic, setEditingMusic] = useState<EditingMusic | null>(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [existingTags, setExistingTags] = useState<string[]>([]);
+  const [existingGenres, setExistingGenres] = useState<string[]>([]);
   const { user, loading, logOut } = useAuth();
   const router = useRouter();
 
@@ -89,6 +103,30 @@ export default function AdminPage() {
     };
 
     fetchTags();
+  }, [activeTab]);
+
+  // Fetch existing genres for music form suggestions
+  useEffect(() => {
+    const fetchGenres = async () => {
+      if (activeTab !== "music") return;
+
+      try {
+        const { collection, getDocs } = await import("firebase/firestore");
+        const musicSnapshot = await getDocs(collection(db, "music"));
+        const genresSet = new Set<string>();
+        musicSnapshot.docs.forEach((doc) => {
+          const data = doc.data();
+          if (data.genre && Array.isArray(data.genre)) {
+            data.genre.forEach((genre: string) => genresSet.add(genre));
+          }
+        });
+        setExistingGenres(Array.from(genresSet));
+      } catch (error) {
+        console.error("Error fetching genres:", error);
+      }
+    };
+
+    fetchGenres();
   }, [activeTab]);
 
   if (loading) {
@@ -132,9 +170,24 @@ export default function AdminPage() {
     setCurrentView("form");
   };
 
+  const handleMusicEdit = (item: any) => {
+    setEditingMusic({
+      id: item.id,
+      title: item.title,
+      artist: item.artist,
+      album: item.album || "",
+      coverImage: item.coverImage,
+      year: item.year,
+      genre: item.genre || [],
+      spotifyLink: item.spotifyLink || "",
+    });
+    setCurrentView("form");
+  };
+
   const handleNewPost = () => {
     setEditingBlog(null);
     setEditingGallery(null);
+    setEditingMusic(null);
     setCurrentView("form");
   };
 
@@ -142,12 +195,14 @@ export default function AdminPage() {
     setRefreshTrigger((prev) => prev + 1);
     setEditingBlog(null);
     setEditingGallery(null);
+    setEditingMusic(null);
     setCurrentView("list");
   };
 
   const handleCancelEdit = () => {
     setEditingBlog(null);
     setEditingGallery(null);
+    setEditingMusic(null);
     setCurrentView("list");
   };
 
@@ -161,6 +216,7 @@ export default function AdminPage() {
     setCurrentView("list");
     setEditingBlog(null);
     setEditingGallery(null);
+    setEditingMusic(null);
   };
 
   const formHeaderInfo =
@@ -171,11 +227,18 @@ export default function AdminPage() {
             ? "Update your existing blog post"
             : "Share your thoughts with the world",
         }
-      : {
+      : activeTab === "gallery"
+      ? {
           title: editingGallery?.id ? "Edit Memory" : "Add New Memory",
           description: editingGallery?.id
             ? "Update your memory"
             : "Add a new moment to your gallery",
+        }
+      : {
+          title: editingMusic?.id ? "Edit Track" : "Add New Track",
+          description: editingMusic?.id
+            ? "Update this track"
+            : "Add a new track to your collection",
         };
 
   const listHeaderInfo =
@@ -184,9 +247,14 @@ export default function AdminPage() {
           title: "Your Blog Posts",
           description: "Manage and edit your blog posts",
         }
-      : {
+      : activeTab === "gallery"
+      ? {
           title: "Your Memories",
           description: "Manage your photo gallery",
+        }
+      : {
+          title: "Your Music",
+          description: "Manage your music collection",
         };
 
   return (
@@ -250,6 +318,14 @@ export default function AdminPage() {
             >
               Gallery
             </Button>
+            <Button
+              variant={activeTab === "music" ? "primary" : "ghost"}
+              size="md"
+              onClick={() => handleTabChange("music")}
+              icon={<FaMusic size={14} />}
+            >
+              Music
+            </Button>
           </div>
 
           <div className="flex items-center gap-3">
@@ -282,11 +358,17 @@ export default function AdminPage() {
                     initialData={editingBlog || undefined}
                     onSuccess={handleSuccess}
                   />
-                ) : (
+                ) : activeTab === "gallery" ? (
                   <GalleryForm
                     initialData={editingGallery || undefined}
                     onSuccess={handleSuccess}
                     existingTags={existingTags}
+                  />
+                ) : (
+                  <MusicForm
+                    initialData={editingMusic || undefined}
+                    onSuccess={handleSuccess}
+                    existingGenres={existingGenres}
                   />
                 )}
               </div>
@@ -304,9 +386,14 @@ export default function AdminPage() {
                   onEdit={handleBlogEdit}
                   refreshTrigger={refreshTrigger}
                 />
-              ) : (
+              ) : activeTab === "gallery" ? (
                 <GalleryList
                   onEdit={handleGalleryEdit}
+                  refreshTrigger={refreshTrigger}
+                />
+              ) : (
+                <MusicList
+                  onEdit={handleMusicEdit}
                   refreshTrigger={refreshTrigger}
                 />
               )}
