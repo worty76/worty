@@ -8,7 +8,7 @@ import { BlogCardSkeleton } from "@/components/blog/BlogCardSkeleton";
 import { StatusBadge, BlogStatus } from "@/components/ui/StatusBadge";
 
 interface BlogPost {
-  id: string;
+  docId: string; // Firestore document ID
   title: string;
   description: string;
   datetime: string;
@@ -17,13 +17,15 @@ interface BlogPost {
 }
 
 const BlogCard = memo(({ post }: { post: BlogPost }) => {
-  const { id, title, description, datetime, readingTime, status } = post;
+  const { docId, title, description, datetime, readingTime, status } = post;
 
   const isPublished = status === "published";
 
   return (
-    <Link href={`/${id}`}>
-      <div className={`flex max-w-xl flex-col items-start justify-between rounded-md border ${isPublished ? "secondary-color-border" : "border-dashed secondary-color-border opacity-70"} p-5 cursor-pointer hover:opacity-80 transition-all duration-1000 group`}>
+    <Link href={`/${docId}`}>
+      <div
+        className={`flex max-w-xl flex-col items-start justify-between rounded-md border ${isPublished ? "secondary-color-border" : "border-dashed secondary-color-border opacity-70"} p-5 cursor-pointer hover:opacity-80 transition-all duration-1000 group`}
+      >
         <div className="flex items-center justify-between w-full">
           <div className="flex items-center gap-x-1 text-xs">
             <time dateTime={datetime}>
@@ -70,8 +72,8 @@ export default function Blog() {
         const blogsCollection = collection(db, "blog");
         const blogsSnapshot = await getDocs(blogsCollection);
         const blogsData = blogsSnapshot.docs.map((doc) => ({
+          docId: doc.id,
           ...doc.data(),
-          id: doc.id,
         })) as BlogPost[];
 
         setState((prev) => ({ ...prev, posts: blogsData, isLoading: false }));
@@ -109,7 +111,7 @@ export default function Blog() {
   return (
     <div className="grid md:grid-cols-2 gap-4 place-content-center pt-10">
       {state.posts.map((post) => (
-        <BlogCard key={post.id} post={post} />
+        <BlogCard key={post.docId} post={post} />
       ))}
     </div>
   );

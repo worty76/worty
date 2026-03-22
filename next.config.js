@@ -2,11 +2,37 @@
 
 const nextConfig = {
   images: {
-    domains: ["res.cloudinary.com"],
+    domains: [
+      "ik.imagekit.io",
+      "www.trustedreviews.com",
+      "res.cloudinary.com",
+      "www.billboard.com",
+      "i.scdn.co",
+    ],
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "www.res.cloudinary.com",
+        hostname: "ik.imagekit.io",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "www.trustedreviews.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "www.billboard.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "i.scdn.co",
         pathname: "/**",
       },
     ],
