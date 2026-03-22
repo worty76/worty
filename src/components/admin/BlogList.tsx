@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/Button";
 import { StatusBadge, BlogStatus } from "@/components/ui/StatusBadge";
 
 interface BlogPost {
-  id: string;
+  docId: string; // Firestore document ID
   title: string;
   description: string;
   image: string;
@@ -37,7 +37,7 @@ export function BlogList({ onEdit, refreshTrigger }: BlogListProps) {
         const blogCollection = collection(db, "blog");
         const blogSnapshot = await getDocs(blogCollection);
         const blogList = blogSnapshot.docs.map((doc) => ({
-          id: doc.id,
+          docId: doc.id,
           ...doc.data(),
         })) as BlogPost[];
 
@@ -62,7 +62,7 @@ export function BlogList({ onEdit, refreshTrigger }: BlogListProps) {
 
     try {
       await deleteDoc(doc(db, "blog", id));
-      setPosts((prev) => prev.filter((post) => post.id !== id));
+      setPosts((prev) => prev.filter((post) => post.docId !== id));
       toast.success("Blog post deleted successfully!");
     } catch (error) {
       console.error("Error deleting blog:", error);
@@ -105,7 +105,7 @@ export function BlogList({ onEdit, refreshTrigger }: BlogListProps) {
       <div className="grid md:grid-cols-2 gap-4">
         {filteredPosts.map((post) => (
           <div
-            key={post.id}
+            key={post.docId}
             className="group bg-white/5 hover:bg-white/10 rounded-xl overflow-hidden transition-all duration-200 border border-transparent hover:border-secondary-color-border"
           >
             <div className="relative aspect-video w-full overflow-hidden">
@@ -113,6 +113,7 @@ export function BlogList({ onEdit, refreshTrigger }: BlogListProps) {
                 src={post.image}
                 alt={post.title}
                 fill
+                quality={90}
                 className="object-cover group-hover:scale-105 transition-transform duration-300"
                 sizes="(max-width: 768px) 100vw, 50vw"
               />

@@ -14,10 +14,7 @@ import {
   FaList,
   FaSignOutAlt,
   FaUserCircle,
-  FaSun,
-  FaMoon
 } from "react-icons/fa";
-import { useTheme } from "@/context/theme-context";
 import { Card, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { LoadingSpinner } from "@/components/ui/LoadingStates";
@@ -29,7 +26,7 @@ type Tab = "blog" | "gallery";
 type View = "form" | "list";
 
 interface EditingBlog {
-  id?: string;
+  docId?: string;
   title: string;
   description: string;
   content: string;
@@ -53,10 +50,11 @@ export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<Tab>("blog");
   const [currentView, setCurrentView] = useState<View>("list");
   const [editingBlog, setEditingBlog] = useState<EditingBlog | null>(null);
-  const [editingGallery, setEditingGallery] = useState<EditingGallery | null>(null);
+  const [editingGallery, setEditingGallery] = useState<EditingGallery | null>(
+    null,
+  );
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const { user, loading, logOut } = useAuth();
-  const { isReversed, toggleTheme } = useTheme();
   const router = useRouter();
 
   useEffect(() => {
@@ -79,7 +77,7 @@ export default function AdminPage() {
 
   const handleBlogEdit = (blog: any) => {
     setEditingBlog({
-      id: blog.id,
+      docId: blog.docId,
       title: blog.title,
       description: blog.description || "",
       content: blog.content || "",
@@ -135,25 +133,31 @@ export default function AdminPage() {
     setEditingGallery(null);
   };
 
-  const formHeaderInfo = activeTab === "blog"
-    ? {
-        title: editingBlog?.id ? "Edit Blog Post" : "Create New Post",
-        description: editingBlog?.id ? "Update your existing blog post" : "Share your thoughts with the world",
-      }
-    : {
-        title: editingGallery?.id ? "Edit Memory" : "Add New Memory",
-        description: editingGallery?.id ? "Update your memory" : "Add a new moment to your gallery",
-      };
+  const formHeaderInfo =
+    activeTab === "blog"
+      ? {
+          title: editingBlog?.docId ? "Edit Blog Post" : "Create New Post",
+          description: editingBlog?.id
+            ? "Update your existing blog post"
+            : "Share your thoughts with the world",
+        }
+      : {
+          title: editingGallery?.id ? "Edit Memory" : "Add New Memory",
+          description: editingGallery?.id
+            ? "Update your memory"
+            : "Add a new moment to your gallery",
+        };
 
-  const listHeaderInfo = activeTab === "blog"
-    ? {
-        title: "Your Blog Posts",
-        description: "Manage and edit your blog posts",
-      }
-    : {
-        title: "Your Memories",
-        description: "Manage your photo gallery",
-      };
+  const listHeaderInfo =
+    activeTab === "blog"
+      ? {
+          title: "Your Blog Posts",
+          description: "Manage and edit your blog posts",
+        }
+      : {
+          title: "Your Memories",
+          description: "Manage your photo gallery",
+        };
 
   return (
     <div className="min-h-screen primary-color-bg">
@@ -165,21 +169,21 @@ export default function AdminPage() {
                 <span className="primary-color-text font-bold text-lg">W</span>
               </div>
               <div>
-                <h1 className="font-heading font-bold secondary-color-text">Admin</h1>
-                <p className="text-xs secondary-color-text opacity-60">Dashboard</p>
+                <h1 className="font-heading font-bold secondary-color-text">
+                  Admin
+                </h1>
+                <p className="text-xs secondary-color-text opacity-60">
+                  Dashboard
+                </p>
               </div>
             </div>
 
             <div className="flex items-center gap-3">
-              <button
-                onClick={toggleTheme}
-                className="p-2 rounded-lg secondary-color-bg primary-color-text hover:opacity-80 transition-opacity"
-                title="Toggle theme"
-              >
-                {isReversed ? <FaMoon size={16} /> : <FaSun size={16} />}
-              </button>
               <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-white/5 rounded-full">
-                <FaUserCircle className="secondary-color-text opacity-60" size={16} />
+                <FaUserCircle
+                  className="secondary-color-text opacity-60"
+                  size={16}
+                />
                 <span className="secondary-color-text text-sm truncate max-w-[150px]">
                   {user.email}
                 </span>
@@ -228,10 +232,7 @@ export default function AdminPage() {
                 Back to List
               </Button>
             ) : (
-              <Button
-                onClick={handleNewPost}
-                icon={<FaPlus size={14} />}
-              >
+              <Button onClick={handleNewPost} icon={<FaPlus size={14} />}>
                 Create New
               </Button>
             )}
@@ -239,7 +240,7 @@ export default function AdminPage() {
         </div>
 
         {currentView === "form" ? (
-          <div className="max-w-3xl mx-auto">
+          <div className="max-w-8xl mx-auto">
             <Card>
               <CardHeader
                 title={formHeaderInfo.title}

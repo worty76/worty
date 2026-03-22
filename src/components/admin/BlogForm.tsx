@@ -12,7 +12,7 @@ import { db } from "@/firebase/config";
 
 interface BlogFormProps {
   initialData?: {
-    id?: string;
+    docId?: string; // Firestore document ID
     title: string;
     description: string;
     content: string;
@@ -97,10 +97,8 @@ export function BlogForm({ initialData, onSuccess }: BlogFormProps) {
         .map((cat) => cat.trim())
         .filter((cat) => cat.length > 0);
 
-      const postId = initialData?.id || crypto.randomUUID();
-
       const blogData = {
-        id: postId,
+        // NO custom 'id' field - use Firestore document ID instead
         title: form.title.trim(),
         description: form.description.trim(),
         content: form.content.trim(),
@@ -109,14 +107,17 @@ export function BlogForm({ initialData, onSuccess }: BlogFormProps) {
         readingTime: form.readingTime.trim(),
         status: form.status,
         datetime: initialData?.datetime || new Date().toISOString().split("T")[0],
+        createdAt: initialData?.datetime || new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
 
-      if (initialData?.id) {
-        await updateDoc(doc(db, "blog", initialData.id), blogData);
+      if (initialData?.docId) {
+        // Update existing blog - use document ID
+        await updateDoc(doc(db, "blog", initialData.docId), blogData);
         toast.success("Blog updated successfully!");
       } else {
-        await addDoc(collection(db, "blog"), blogData);
+        // Create new blog - let Firestore auto-generate document ID
+        const docRef = await addDoc(collection(db, "blog"), blogData);
         toast.success("Blog created successfully!");
         setForm(defaultValues);
       }
@@ -210,7 +211,7 @@ export function BlogForm({ initialData, onSuccess }: BlogFormProps) {
         loading={isLoading}
         fullWidth
       >
-        {initialData?.id ? "Update Blog" : "Create Blog"}
+        {initialData?.docId ? "Update Blog" : "Create Blog"}
       </Button>
     </form>
   );

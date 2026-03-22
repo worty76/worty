@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { collection, getDocs, query, where } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../../firebase/config";
 import Link from "next/link";
 import ReactMarkdown, { type Components } from "react-markdown";
@@ -17,8 +17,8 @@ interface MyBlog {
   image: string;
   description: string;
   content: string;
+  docId: string; // Firestore document ID
   prevState: null;
-  id: string;
   readingTime?: string;
   status?: BlogStatus;
 }
@@ -31,18 +31,19 @@ export default function Page({ params }: { params: { id: string } }) {
   useEffect(() => {
     async function fetchBlog() {
       try {
-        const blogQuery = query(
-          collection(db, "blog"),
-          where("id", "==", params.id)
-        );
-        const blogDocs = await getDocs(blogQuery);
+        // Use document ID directly - more efficient and reliable
+        const blogDoc = await getDoc(doc(db, "blog", params.id));
 
-        if (blogDocs.empty) {
+        if (!blogDoc.exists()) {
           setError("Blog not found");
           return;
         }
 
-        const blogData = blogDocs.docs[0].data() as MyBlog;
+        const blogData = {
+          docId: blogDoc.id,
+          ...blogDoc.data(),
+        } as MyBlog;
+
         setBlog(blogData);
       } catch (err) {
         setError("Failed to fetch blog");
@@ -328,6 +329,7 @@ export default function Page({ params }: { params: { id: string } }) {
             disabled
             className="mr-2 cursor-default"
             {...props}
+            s
           />
         );
       }
@@ -337,7 +339,7 @@ export default function Page({ params }: { params: { id: string } }) {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
-      <main className="w-[95%] max-w-[1100px] mx-auto">
+      <main className="w-[100%] max-w-[1100px] mx-auto">
         <div className="mb-6">
           <div className="flex flex-wrap items-center gap-3 mb-4">
             {blog.status && blog.status !== "published" && (
@@ -370,19 +372,20 @@ export default function Page({ params }: { params: { id: string } }) {
         </div>
       </main>
 
-      <div className="my-8">
-        <div className="aspect-w-16 aspect-h-9 relative rounded-xl overflow-hidden shadow-2xl">
+      <div className="my-8 w-full">
+        <div className="aspect-video w-full relative rounded-xl overflow-hidden shadow-2xl max-w-5xl mx-auto">
           <Image
             src={blog.image}
             fill
             priority
+            quality={95}
             className="object-cover"
             alt={blog.title}
           />
         </div>
       </div>
 
-      <article className="prose prose-lg max-w-none w-[95%] max-w-[800px] mx-auto">
+      <article className="prose prose-lg max-w-none w-full max-w-4xl mx-auto">
         <p className="text-lg secondary-color-text italic text-center my-8 font-light duration-1000">
           {blog.description}
         </p>
