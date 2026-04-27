@@ -35,7 +35,6 @@ const CATEGORIES = [
   { value: "Other", label: "Other" },
 ];
 
-// Common tag suggestions per category
 const TAG_SUGGESTIONS: Record<string, string[]> = {
   Adventure: ["hiking", "camping", "climbing", "roadtrip", "extreme", "outdoors"],
   Travel: ["beach", "city", "mountains", "cultural", "sightseeing", "solo", "backpacking"],
@@ -93,12 +92,10 @@ export function GalleryForm({ initialData, onSuccess, existingTags = [] }: Galle
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!form.title.trim() || !form.imageUrl.trim()) {
       toast.error("Please add an image and enter a title");
       return;
     }
-
     setIsLoading(true);
     try {
       const galleryData = {
@@ -112,7 +109,6 @@ export function GalleryForm({ initialData, onSuccess, existingTags = [] }: Galle
         featured: form.featured,
         updatedAt: new Date().toISOString(),
       };
-
       if (initialData?.id) {
         await updateDoc(doc(db, "gallery", initialData.id), galleryData);
         toast.success("Memory updated successfully!");
@@ -121,7 +117,6 @@ export function GalleryForm({ initialData, onSuccess, existingTags = [] }: Galle
         toast.success("Memory added successfully!");
         setForm(defaultValues);
       }
-
       onSuccess?.();
     } catch (error) {
       console.error("Error saving memory:", error);
@@ -131,20 +126,21 @@ export function GalleryForm({ initialData, onSuccess, existingTags = [] }: Galle
     }
   };
 
-  // Memoized suggestions
   const combinedSuggestions = useMemo(() => {
     const categorySuggestions = TAG_SUGGESTIONS[form.category] || [];
     return Array.from(new Set([...categorySuggestions, ...existingTags]));
   }, [form.category, existingTags]);
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-8">
+      {/* Image upload - prominent at top */}
       <ImageUpload
         value={form.imageUrl}
         onChange={(url) => setForm((prev) => ({ ...prev, imageUrl: url }))}
         label="Upload Image"
       />
 
+      {/* Two-column details section */}
       <div className="grid md:grid-cols-2 gap-6">
         <FormInput
           label="Date"
@@ -154,7 +150,6 @@ export function GalleryForm({ initialData, onSuccess, existingTags = [] }: Galle
           onChange={handleInputChange}
           required
         />
-
         <FormSelect
           label="Category"
           name="category"
@@ -164,6 +159,7 @@ export function GalleryForm({ initialData, onSuccess, existingTags = [] }: Galle
         />
       </div>
 
+      {/* Title - full width, prominent */}
       <FormInput
         label="Title"
         type="text"
@@ -192,6 +188,7 @@ export function GalleryForm({ initialData, onSuccess, existingTags = [] }: Galle
         rows={3}
       />
 
+      {/* Tags section */}
       <div>
         <label className="block text-sm font-semibold secondary-color-text mb-3">
           Tags
@@ -214,13 +211,12 @@ export function GalleryForm({ initialData, onSuccess, existingTags = [] }: Galle
         onChange={handleFeaturedChange}
       />
 
-      <Button
-        type="submit"
-        loading={isLoading}
-        fullWidth
-      >
-        {initialData?.id ? "Update Memory" : "Add Memory"}
-      </Button>
+      {/* Submit with good spacing */}
+      <div className="pt-2">
+        <Button type="submit" loading={isLoading} fullWidth>
+          {initialData?.id ? "Update Memory" : "Add Memory"}
+        </Button>
+      </div>
     </form>
   );
 }
