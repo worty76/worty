@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Toaster, toast } from "react-hot-toast";
+import { toast } from "react-hot-toast";
 import agribank from "../../../public/images/agribank.jpg";
 import mbbank from "../../../public/images/mbbank.png";
 
@@ -29,7 +29,6 @@ export default function Support() {
 
   return (
     <main className="w-[95%] max-w-[1100px] mx-auto">
-      <Toaster position="bottom-center" />
       <div className="max-w-3xl mx-auto px-4 py-16">
         <p className="text-center mb-12 secondary-color-text duration-1000">
           If you find my work helpful, you can support me through these channels
