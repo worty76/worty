@@ -130,7 +130,7 @@ export function GalleryList({ onEdit, refreshTrigger }: GalleryListProps) {
               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center gap-3">
                 <button
                   onClick={(e) => { e.stopPropagation(); onEdit(item); }}
-                  className="flex items-center gap-2 px-4 py-2.5 bg-white/90 hover:bg-white text-[rgb(38,34,35)] rounded-xl text-sm font-medium transition-colors shadow-lg"
+                  className="flex items-center gap-2 px-4 py-2.5 bg-secondary-color-bg/90 hover:bg-secondary-color-bg primary-color-text rounded-xl text-sm font-medium transition-colors shadow-lg"
                 >
                   <FaEdit size={12} />
                   Edit
@@ -151,7 +151,7 @@ export function GalleryList({ onEdit, refreshTrigger }: GalleryListProps) {
                 {item.title}
               </h3>
 
-              <div className="flex items-center gap-3 text-[rgb(221,198,182)] opacity-50 text-xs mb-2">
+              <div className="flex items-center gap-3 secondary-color-text opacity-50 text-xs mb-2">
                 {item.location && (
                   <span className="flex items-center gap-1 truncate">
                     <FaMapMarkerAlt size={10} />
@@ -169,14 +169,14 @@ export function GalleryList({ onEdit, refreshTrigger }: GalleryListProps) {
                   {item.tags.slice(0, 3).map((tag) => (
                     <span
                       key={tag}
-                      className="flex items-center gap-1 px-2 py-0.5 bg-white/[0.06] rounded-md text-[rgb(221,198,182)] opacity-50 text-xs"
+                      className="flex items-center gap-1 px-2 py-0.5 bg-white/[0.06] rounded-md secondary-color-text opacity-50 text-xs"
                     >
                       <FaTag size={7} />
                       {tag}
                     </span>
                   ))}
                   {item.tags.length > 3 && (
-                    <span className="px-2 py-0.5 bg-white/[0.06] rounded-md text-[rgb(221,198,182)] opacity-50 text-xs">
+                    <span className="px-2 py-0.5 bg-white/[0.06] rounded-md secondary-color-text opacity-50 text-xs">
                       +{item.tags.length - 3}
                     </span>
                   )}

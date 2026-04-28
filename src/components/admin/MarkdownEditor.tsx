@@ -151,7 +151,7 @@ export function MarkdownEditor({
     blockquote({ children, ...props }) {
       return (
         <blockquote
-          className="border-l-4 secondary-color-border pl-4 py-2 my-4 secondary-color-text italic opacity-80 bg-black/10 rounded-r"
+          className="border-l-4 secondary-color-border pl-4 py-2 my-4 secondary-color-text italic opacity-80 bg-primary-color-bg/10 rounded-r"
           {...props}
         >
           {children}
@@ -172,7 +172,7 @@ export function MarkdownEditor({
     },
     thead({ children, ...props }) {
       return (
-        <thead className="bg-black/20" {...props}>
+        <thead className="bg-primary-color-bg/20" {...props}>
           {children}
         </thead>
       );
