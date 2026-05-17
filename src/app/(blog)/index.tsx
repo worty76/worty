@@ -124,7 +124,7 @@ export default function Blog() {
           .map((doc) => ({
             docId: doc.id,
             ...doc.data(),
-          }) as BlogPost[])
+          }) as BlogPost)
           .filter((post) => post.status === "published");
 
         setState((prev) => ({ ...prev, posts: blogsData, isLoading: false }));
