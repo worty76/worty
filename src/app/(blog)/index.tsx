@@ -120,10 +120,12 @@ export default function Blog() {
       try {
         const blogsCollection = collection(db, "blog");
         const blogsSnapshot = await getDocs(blogsCollection);
-        const blogsData = blogsSnapshot.docs.map((doc) => ({
-          docId: doc.id,
-          ...doc.data(),
-        })) as BlogPost[];
+        const blogsData = blogsSnapshot.docs
+          .map((doc) => ({
+            docId: doc.id,
+            ...doc.data(),
+          }) as BlogPost[])
+          .filter((post) => post.status === "published");
 
         setState((prev) => ({ ...prev, posts: blogsData, isLoading: false }));
       } catch (err) {
