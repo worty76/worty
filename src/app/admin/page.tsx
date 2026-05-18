@@ -355,7 +355,7 @@ export default function AdminPage() {
   return (
     <div className="min-h-screen primary-color-bg flex">
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex flex-col w-64 border-r border-[rgba(221,198,182,0.08)] bg-[rgba(0,0,0,0.15)] fixed inset-y-0 left-0 z-30">
+      <aside className="hidden lg:flex flex-col w-64 shrink-0 border-r border-[rgba(221,198,182,0.08)] bg-[rgba(0,0,0,0.15)] sticky top-0 h-screen z-30">
         {/* Logo */}
         <div className="p-6 border-b border-[rgba(221,198,182,0.08)]">
           <div className="flex items-center gap-3">
@@ -437,7 +437,7 @@ export default function AdminPage() {
       </div>
 
       {/* Main content */}
-      <main className="flex-1 lg:ml-64 pt-28 lg:pt-0">
+      <main className="flex-1 pt-40 lg:pt-8 overflow-auto">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {renderContent()}
         </div>
