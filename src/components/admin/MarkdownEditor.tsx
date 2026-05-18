@@ -1,9 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import ReactMarkdown, { Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
+import {
+  FaBold,
+  FaItalic,
+  FaHeading,
+  FaLink,
+  FaImage,
+  FaCode,
+  FaQuoteLeft,
+  FaListUl,
+  FaListOl,
+  FaMinus,
+  FaExpand,
+  FaCompress,
+} from "react-icons/fa";
 
 /* eslint-disable @next/next/no-img-element */
 
@@ -11,14 +25,138 @@ interface MarkdownEditorProps {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
+  blogId?: string;
+  onSuccess?: () => void;
 }
+
+interface ToolbarButton {
+  label: string;
+  icon: React.ReactNode;
+  prefix: string;
+  suffix: string;
+  block?: string;
+}
+
+const toolbarButtons: ToolbarButton[] = [
+  { label: "Bold", icon: <FaBold />, prefix: "**", suffix: "**" },
+  { label: "Italic", icon: <FaItalic />, prefix: "*", suffix: "*" },
+  { label: "Heading", icon: <FaHeading />, prefix: "## ", suffix: "", block: "line" },
+  { label: "Link", icon: <FaLink />, prefix: "[", suffix: "](url)" },
+  { label: "Image", icon: <FaImage />, prefix: "![alt](", suffix: ")" },
+  { label: "Code", icon: <FaCode />, prefix: "`", suffix: "`" },
+  { label: "Code block", icon: <FaCode />, prefix: "```\n", suffix: "\n```", block: "block" },
+  { label: "Quote", icon: <FaQuoteLeft />, prefix: "> ", suffix: "", block: "line" },
+  { label: "List", icon: <FaListUl />, prefix: "- ", suffix: "", block: "line" },
+  { label: "Ordered list", icon: <FaListOl />, prefix: "1. ", suffix: "", block: "line" },
+  { label: "Horizontal rule", icon: <FaMinus />, prefix: "\n---\n", suffix: "" },
+];
 
 export function MarkdownEditor({
   value,
   onChange,
   placeholder = "Write your markdown content here...",
+  blogId,
+  onSuccess,
 }: MarkdownEditorProps) {
   const [showPreview, setShowPreview] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [draftSaved, setDraftSaved] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const draftKey = blogId ? `blog-draft-${blogId}` : "blog-draft-new";
+
+  // Auto-save to localStorage every 3 seconds
+  useEffect(() => {
+    if (!value) return;
+    const timer = setTimeout(() => {
+      localStorage.setItem(draftKey, value);
+      setDraftSaved(true);
+      setTimeout(() => setDraftSaved(false), 2000);
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, [value, draftKey]);
+
+  // Restore draft on mount
+  useEffect(() => {
+    const draft = localStorage.getItem(draftKey);
+    if (draft && draft !== value) {
+      onChange(draft);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Clear draft on success
+  useEffect(() => {
+    if (!onSuccess) return;
+    const original = onSuccess;
+    const wrapped = () => {
+      localStorage.removeItem(draftKey);
+      original();
+    };
+    // We can't override props, so we watch for external success via a flag
+    // Instead, we'll expose a clearDraft via ref - but simpler: just clear on unmount if success happened
+    return () => {
+      // Clean up on unmount
+    };
+  }, [onSuccess, draftKey]);
+
+  // Clear draft when onSuccess prop changes (called externally)
+  const prevOnSuccessRef = useRef(onSuccess);
+  useEffect(() => {
+    if (onSuccess !== prevOnSuccessRef.current) {
+      prevOnSuccessRef.current = onSuccess;
+      localStorage.removeItem(draftKey);
+    }
+  }, [onSuccess, draftKey]);
+
+  // Escape to exit fullscreen
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isFullscreen) {
+        setIsFullscreen(false);
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isFullscreen]);
+
+  const insertMarkdown = useCallback(
+    (btn: ToolbarButton) => {
+      const textarea = textareaRef.current;
+      if (!textarea) return;
+
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const selectedText = value.substring(start, end);
+      let before = value.substring(0, start);
+      let after = value.substring(end);
+
+      if (btn.block === "line" && before.length > 0 && !before.endsWith("\n")) {
+        before += "\n";
+      }
+
+      const insertion =
+        selectedText
+          ? `${btn.prefix}${selectedText}${btn.suffix}`
+          : `${btn.prefix}${btn.suffix}`;
+
+      const newValue = before + insertion + after;
+      onChange(newValue);
+
+      // Restore cursor
+      requestAnimationFrame(() => {
+        textarea.focus();
+        const cursorPos = before.length + insertion.length;
+        if (selectedText) {
+          textarea.selectionStart = before.length + btn.prefix.length;
+          textarea.selectionEnd = cursorPos - btn.suffix.length;
+        } else {
+          textarea.selectionStart = textarea.selectionEnd =
+            before.length + btn.prefix.length;
+        }
+      });
+    },
+    [value, onChange]
+  );
 
   // Custom components to style markdown elements
   const markdownComponents: Components = {
@@ -249,7 +387,6 @@ export function MarkdownEditor({
       );
     },
     input({ ...props }: any) {
-      // For task lists
       if (props.type === "checkbox") {
         return (
           <input
@@ -264,42 +401,80 @@ export function MarkdownEditor({
     },
   };
 
-  return (
+  const editorContent = (
     <div className="w-full">
-      <div className="flex gap-2 mb-4 p-1 bg-white/5 rounded-lg inline-flex border secondary-color-border">
-        <button
-          type="button"
-          onClick={() => setShowPreview(false)}
-          className={`px-4 py-2 rounded-md font-semibold transition-all duration-200 flex items-center gap-2 ${
-            !showPreview
-              ? "secondary-color-bg primary-color-text"
-              : "secondary-color-text opacity-60 hover:opacity-100"
-          }`}
-        >
-          ✏️ Editor
-        </button>
-        <button
-          type="button"
-          onClick={() => setShowPreview(true)}
-          className={`px-4 py-2 rounded-md font-semibold transition-all duration-200 flex items-center gap-2 ${
-            showPreview
-              ? "secondary-color-bg primary-color-text"
-              : "secondary-color-text opacity-60 hover:opacity-100"
-          }`}
-        >
-          👁️ Preview
-        </button>
+      {/* Top bar: tabs + fullscreen + draft indicator */}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex gap-2 p-1 bg-white/5 rounded-lg inline-flex border secondary-color-border">
+          <button
+            type="button"
+            onClick={() => setShowPreview(false)}
+            className={`px-4 py-2 rounded-md font-semibold transition-all duration-200 flex items-center gap-2 ${
+              !showPreview
+                ? "secondary-color-bg primary-color-text"
+                : "secondary-color-text opacity-60 hover:opacity-100"
+            }`}
+          >
+            ✏️ Editor
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowPreview(true)}
+            className={`px-4 py-2 rounded-md font-semibold transition-all duration-200 flex items-center gap-2 ${
+              showPreview
+                ? "secondary-color-bg primary-color-text"
+                : "secondary-color-text opacity-60 hover:opacity-100"
+            }`}
+          >
+            👁️ Preview
+          </button>
+        </div>
+
+        <div className="flex items-center gap-3">
+          {draftSaved && (
+            <span className="text-xs secondary-color-text/60 animate-pulse">
+              Draft saved
+            </span>
+          )}
+          <button
+            type="button"
+            onClick={() => setIsFullscreen(!isFullscreen)}
+            className="p-2 rounded-md secondary-color-text/60 hover:bg-white/10 hover:secondary-color-text transition-all"
+            title={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
+          >
+            {isFullscreen ? <FaCompress /> : <FaExpand />}
+          </button>
+        </div>
       </div>
 
+      {/* Markdown toolbar */}
+      {!showPreview && (
+        <div className="flex flex-wrap gap-1 mb-3 p-2 bg-white/5 rounded-lg border secondary-color-border">
+          {toolbarButtons.map((btn, i) => (
+            <button
+              key={i}
+              type="button"
+              onClick={() => insertMarkdown(btn)}
+              className="p-2 rounded secondary-color-text/70 hover:bg-white/10 hover:secondary-color-text transition-all text-sm"
+              title={btn.label}
+            >
+              {btn.icon}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Editor / Preview */}
       {!showPreview ? (
         <textarea
+          ref={textareaRef}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
-          className="w-full h-[500px] p-4 border secondary-color-border rounded-lg bg-white/5 secondary-color-text placeholder-secondary/40 focus:outline-none focus:ring-2 focus:ring-opacity-50 transition-all duration-200 resize-none font-mono text-sm leading-relaxed"
+          className="w-full min-h-[600px] p-4 border secondary-color-border rounded-lg bg-white/5 secondary-color-text placeholder-secondary/40 focus:outline-none focus:ring-2 focus:ring-opacity-50 transition-all duration-200 resize-y font-mono text-sm leading-relaxed"
         />
       ) : (
-        <div className="w-full min-h-[500px] max-h-[500px] p-6 border secondary-color-border rounded-lg bg-white/5 overflow-y-auto">
+        <div className="w-full min-h-[600px] max-h-[600px] p-6 border secondary-color-border rounded-lg bg-white/5 overflow-y-auto">
           {value.trim() ? (
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
@@ -317,4 +492,14 @@ export function MarkdownEditor({
       )}
     </div>
   );
+
+  if (isFullscreen) {
+    return (
+      <div className="fixed inset-0 z-50 bg-[rgb(38,34,35)] p-6 flex flex-col">
+        <div className="flex-1 flex flex-col overflow-hidden">{editorContent}</div>
+      </div>
+    );
+  }
+
+  return editorContent;
 }
