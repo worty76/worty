@@ -438,7 +438,7 @@ export default function AdminPage() {
 
       {/* Main content */}
       <main className="flex-1 pt-40 lg:pt-8 overflow-auto">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="px-4 sm:px-6 lg:px-8 py-8">
           {renderContent()}
         </div>
       </main>
