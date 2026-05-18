@@ -474,7 +474,7 @@ export function MarkdownEditor({
           className="w-full min-h-[600px] p-4 border secondary-color-border rounded-lg bg-white/5 secondary-color-text placeholder-secondary/40 focus:outline-none focus:ring-2 focus:ring-opacity-50 transition-all duration-200 resize-y font-mono text-sm leading-relaxed"
         />
       ) : (
-        <div className="w-full min-h-[600px] max-h-[600px] p-6 border secondary-color-border rounded-lg bg-white/5 overflow-y-auto">
+        <div className={`w-full p-6 border secondary-color-border rounded-lg bg-white/5 overflow-y-auto ${isFullscreen ? "flex-1" : "min-h-[600px] max-h-[600px]"}`}>
           {value.trim() ? (
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
