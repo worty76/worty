@@ -66,6 +66,8 @@ export function MusicForm({ initialData, onSuccess, existingGenres = [] }: Music
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!confirm("Are you sure you want to save this track?")) return;
+
     if (!form.title.trim() || !form.artist.trim() || !form.coverImage.trim()) {
       toast.error("Please fill in title, artist, and cover image");
       return;

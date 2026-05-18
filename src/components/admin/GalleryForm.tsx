@@ -92,6 +92,9 @@ export function GalleryForm({ initialData, onSuccess, existingTags = [] }: Galle
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!confirm("Are you sure you want to save this memory?")) return;
+
     if (!form.title.trim() || !form.imageUrl.trim()) {
       toast.error("Please add an image and enter a title");
       return;

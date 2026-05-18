@@ -83,6 +83,8 @@ export function BlogForm({ initialData, onSuccess }: BlogFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!confirm("Are you sure you want to save this post?")) return;
+
     const requiredFields = ["title", "description", "content", "image", "category", "readingTime"] as const;
     const missingField = requiredFields.find((field) => !form[field]?.trim());
 
