@@ -15,6 +15,7 @@ interface BlogPost {
   datetime: string;
   readingTime?: string;
   status?: BlogStatus;
+  deleted?: boolean;
 }
 
 // Format date like "5 days ago" similar to xetera.dev
@@ -125,7 +126,7 @@ export default function Blog() {
             docId: doc.id,
             ...doc.data(),
           }) as BlogPost)
-          .filter((post) => post.status === "published");
+          .filter((post) => post.status === "published" && post.deleted !== true);
 
         setState((prev) => ({ ...prev, posts: blogsData, isLoading: false }));
       } catch (err) {

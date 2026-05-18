@@ -18,6 +18,7 @@ interface GalleryItem {
   category?: string;
   tags?: string[];
   featured?: boolean;
+  deleted?: boolean;
 }
 
 type FilterType = "category" | "tag";
@@ -45,7 +46,7 @@ export default function GalleryPage() {
           return new Date(b.date).getTime() - new Date(a.date).getTime();
         });
 
-        setItems(galleryList);
+        setItems(galleryList.filter((item) => item.deleted !== true));
         setLoading(false);
       } catch (error) {
         console.error("Error fetching gallery:", error);

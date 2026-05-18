@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import { collection, getDocs, deleteDoc, doc } from "firebase/firestore";
+import { collection, getDocs, updateDoc, doc } from "firebase/firestore";
 import { db } from "@/firebase/config";
 import toast from "react-hot-toast";
-import { FaEdit, FaTrash, FaMapMarkerAlt, FaCalendar, FaStar, FaTag } from "react-icons/fa";
+import { FaEdit, FaTrash, FaMapMarkerAlt, FaCalendar, FaStar, FaTag, FaRecycle, FaTrashRestore } from "react-icons/fa";
 import { LoadingSkeleton, EmptyState } from "@/components/ui/LoadingStates";
 import { FilterButtonGroup } from "@/components/ui/Card";
 
@@ -19,6 +19,8 @@ interface GalleryItem {
   category?: string;
   tags?: string[];
   featured?: boolean;
+  deleted?: boolean;
+  deletedAt?: string | null;
 }
 
 interface GalleryListProps {
@@ -30,6 +32,7 @@ export function GalleryList({ onEdit, refreshTrigger }: GalleryListProps) {
   const [items, setItems] = useState<GalleryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("All");
+  const [showDeleted, setShowDeleted] = useState(false);
 
   useEffect(() => {
     const fetchGallery = async () => {
@@ -58,11 +61,35 @@ export function GalleryList({ onEdit, refreshTrigger }: GalleryListProps) {
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this memory?")) return;
     try {
-      await deleteDoc(doc(db, "gallery", id));
+      await updateDoc(doc(db, "gallery", id), { deleted: true, deletedAt: new Date().toISOString() });
       setItems((prev) => prev.filter((item) => item.id !== id));
-      toast.success("Memory deleted successfully!");
+      toast.success("Memory moved to trash!");
     } catch (error) {
       console.error("Error deleting gallery:", error);
+      toast.error("Failed to delete memory");
+    }
+  };
+
+  const handleRestore = async (id: string) => {
+    try {
+      await updateDoc(doc(db, "gallery", id), { deleted: false, deletedAt: null });
+      setItems((prev) => prev.filter((item) => item.id !== id));
+      toast.success("Memory restored!");
+    } catch (error) {
+      console.error("Error restoring gallery:", error);
+      toast.error("Failed to restore memory");
+    }
+  };
+
+  const handlePermanentDelete = async (id: string) => {
+    if (!confirm("⚠️ This will permanently delete this memory. Are you sure?")) return;
+    const { deleteDoc } = await import("firebase/firestore");
+    try {
+      await deleteDoc(doc(db, "gallery", id));
+      setItems((prev) => prev.filter((item) => item.id !== id));
+      toast.success("Memory permanently deleted!");
+    } catch (error) {
+      console.error("Error permanently deleting gallery:", error);
       toast.error("Failed to delete memory");
     }
   };
@@ -70,12 +97,15 @@ export function GalleryList({ onEdit, refreshTrigger }: GalleryListProps) {
   const allCategories = ["All", ...Array.from(new Set(items.map((i) => i.category || "Other")))];
   const allTags = ["All", ...Array.from(new Set(items.flatMap((i) => i.tags || [])))];
   const filterOptions = Array.from(new Set([...allCategories, ...allTags]));
-  const filteredItems = filter === "All"
+  const filteredItems = (filter === "All"
     ? items
-    : items.filter((item) => item.category === filter || item.tags?.includes(filter));
+    : items.filter((item) => item.category === filter || item.tags?.includes(filter)))
+    .filter((item) => showDeleted ? item.deleted === true : item.deleted !== true);
+
+  const deletedCount = items.filter((i) => i.deleted === true).length;
 
   if (loading) return <LoadingSkeleton count={6} type="square" />;
-  if (items.length === 0) {
+  if (!showDeleted && items.filter((i) => i.deleted !== true).length === 0) {
     return (
       <EmptyState
         emoji=""
@@ -87,18 +117,33 @@ export function GalleryList({ onEdit, refreshTrigger }: GalleryListProps) {
 
   return (
     <div>
-      <FilterButtonGroup
-        filters={filterOptions}
-        activeFilter={filter}
-        onFilterChange={setFilter}
-      />
+      <div className="flex items-center justify-between mb-4">
+        <FilterButtonGroup
+          filters={filterOptions}
+          activeFilter={filter}
+          onFilterChange={setFilter}
+        />
+        <button
+          onClick={() => setShowDeleted((prev) => !prev)}
+          className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+            showDeleted
+              ? "bg-red-500/20 text-red-400 border border-red-500/30"
+              : "bg-white/5 secondary-color-text opacity-60 hover:opacity-100 border border-white/10"
+          }`}
+        >
+          {showDeleted ? <FaTrashRestore size={12} /> : <FaTrash size={12} />}
+          {showDeleted ? "Active Items" : `Trash${deletedCount > 0 ? ` (${deletedCount})` : ""}`}
+        </button>
+      </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
         {filteredItems.map((item) => (
           <div
             key={item.id}
-            className="group relative rounded-2xl overflow-hidden bg-white/[0.04] hover:bg-white/[0.07] transition-all duration-200 border border-[rgba(221,198,182,0.08)] hover:border-[rgba(221,198,182,0.2)] cursor-pointer"
-            onClick={() => onEdit(item)}
+            className={`group relative rounded-2xl overflow-hidden bg-white/[0.04] hover:bg-white/[0.07] transition-all duration-200 border border-[rgba(221,198,182,0.08)] hover:border-[rgba(221,198,182,0.2)] cursor-pointer ${
+              item.deleted ? "opacity-60" : ""
+            }`}
+            onClick={() => !item.deleted && onEdit(item)}
           >
             {/* Image */}
             <div className="relative aspect-[4/3] overflow-hidden">
@@ -119,6 +164,13 @@ export function GalleryList({ onEdit, refreshTrigger }: GalleryListProps) {
                 </div>
               )}
 
+              {/* Deleted badge */}
+              {item.deleted && (
+                <div className="absolute top-3 left-3 px-2.5 py-1 bg-red-500/90 text-white rounded-lg text-xs font-semibold shadow-lg backdrop-blur-sm">
+                  Deleted
+                </div>
+              )}
+
               {/* Category badge */}
               {item.category && (
                 <div className="absolute top-3 right-3 px-2.5 py-1 bg-black/50 backdrop-blur-sm rounded-lg text-white text-xs font-medium">
@@ -128,26 +180,49 @@ export function GalleryList({ onEdit, refreshTrigger }: GalleryListProps) {
 
               {/* Action buttons overlay */}
               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center gap-3">
-                <button
-                  onClick={(e) => { e.stopPropagation(); onEdit(item); }}
-                  className="flex items-center gap-2 px-4 py-2.5 bg-secondary-color-bg/90 hover:bg-secondary-color-bg primary-color-text rounded-xl text-sm font-medium transition-colors shadow-lg"
-                >
-                  <FaEdit size={12} />
-                  Edit
-                </button>
-                <button
-                  onClick={(e) => { e.stopPropagation(); handleDelete(item.id); }}
-                  className="flex items-center gap-2 px-4 py-2.5 bg-red-500/90 hover:bg-red-500 text-white rounded-xl text-sm font-medium transition-colors shadow-lg"
-                >
-                  <FaTrash size={12} />
-                  Delete
-                </button>
+                {!item.deleted ? (
+                  <>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); onEdit(item); }}
+                      className="flex items-center gap-2 px-4 py-2.5 bg-secondary-color-bg/90 hover:bg-secondary-color-bg primary-color-text rounded-xl text-sm font-medium transition-colors shadow-lg"
+                    >
+                      <FaEdit size={12} />
+                      Edit
+                    </button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleDelete(item.id); }}
+                      className="flex items-center gap-2 px-4 py-2.5 bg-red-500/90 hover:bg-red-500 text-white rounded-xl text-sm font-medium transition-colors shadow-lg"
+                    >
+                      <FaTrash size={12} />
+                      Delete
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleRestore(item.id); }}
+                      className="flex items-center gap-2 px-4 py-2.5 bg-green-500/90 hover:bg-green-500 text-white rounded-xl text-sm font-medium transition-colors shadow-lg"
+                    >
+                      <FaRecycle size={12} />
+                      Restore
+                    </button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handlePermanentDelete(item.id); }}
+                      className="flex items-center gap-2 px-4 py-2.5 bg-red-500/90 hover:bg-red-500 text-white rounded-xl text-sm font-medium transition-colors shadow-lg"
+                    >
+                      <FaTrash size={12} />
+                      Delete Forever
+                    </button>
+                  </>
+                )}
               </div>
             </div>
 
             {/* Info - always visible */}
             <div className="p-4">
-              <h3 className="secondary-color-text font-heading font-semibold text-sm line-clamp-1 mb-2">
+              <h3 className={`secondary-color-text font-heading font-semibold text-sm line-clamp-1 mb-2 ${
+                item.deleted ? "line-through opacity-50" : ""
+              }`}>
                 {item.title}
               </h3>
 

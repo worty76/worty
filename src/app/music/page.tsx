@@ -17,6 +17,7 @@ interface Music {
   year: string;
   genre: string[];
   spotifyLink?: string;
+  deleted?: boolean;
 }
 
 const VideoModal = ({
@@ -155,7 +156,7 @@ export default function Music() {
 
         setState((prev) => ({
           ...prev,
-          music: musicList,
+          music: musicList.filter((m) => m.deleted !== true),
           isLoading: false,
         }));
       } catch (error) {
