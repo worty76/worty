@@ -304,7 +304,7 @@ export default function AdminPage() {
     // Form view
     if (currentView === "form") {
       return (
-        <div>
+        <div className="max-w-5xl">
           <button onClick={handleCancelEdit} className="flex items-center gap-2 secondary-color-text opacity-60 hover:opacity-100 text-sm mb-6 transition-opacity">
             <FaArrowLeft size={12} />
             Back to list
