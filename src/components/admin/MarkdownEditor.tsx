@@ -449,13 +449,13 @@ export function MarkdownEditor({
 
       {/* Markdown toolbar */}
       {!showPreview && (
-        <div className="flex flex-wrap gap-1 mb-3 p-2 bg-white/5 rounded-lg border secondary-color-border">
+        <div className="flex flex-wrap gap-1 mb-3 p-2 rounded-lg border secondary-color-border bg-white/[0.03]">
           {toolbarButtons.map((btn, i) => (
             <button
               key={i}
               type="button"
               onClick={() => insertMarkdown(btn)}
-              className="p-2 rounded secondary-color-text opacity-70 hover:opacity-100 hover:bg-white/10 transition-all text-sm"
+              className="p-2 rounded-md hover:bg-white/10 text-[rgb(200,180,160)] hover:text-[rgb(240,225,210)] transition-colors"
               title={btn.label}
             >
               {btn.icon}
