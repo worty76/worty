@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/Button";
 import { StatusBadge, BlogStatus } from "@/components/ui/StatusBadge";
 
 interface BlogPost {
-  docId: string; // Firestore document ID
+  docId: string;
   title: string;
   description: string;
   image: string;
@@ -22,6 +22,10 @@ interface BlogPost {
   status?: BlogStatus;
   deleted?: boolean;
   deletedAt?: string | null;
+  titleVi?: string;
+  descriptionVi?: string;
+  contentVi?: string;
+  readingTimeVi?: string;
 }
 
 interface BlogListProps {

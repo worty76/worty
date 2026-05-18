@@ -17,16 +17,37 @@ interface MyBlog {
   image: string;
   description: string;
   content: string;
-  docId: string; // Firestore document ID
+  docId: string;
   prevState: null;
   readingTime?: string;
   status?: BlogStatus;
+  titleVi?: string;
+  descriptionVi?: string;
+  contentVi?: string;
+  readingTimeVi?: string;
+}
+
+type Lang = "vi" | "en";
+
+function getLangPref(): Lang {
+  if (typeof window === "undefined") return "vi";
+  return (localStorage.getItem("blog-lang-preference") as Lang) || "vi";
 }
 
 export default function Page({ params }: { params: { id: string } }) {
   const [blog, setBlog] = useState<MyBlog | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [lang, setLangState] = useState<Lang>("vi");
+
+  useEffect(() => {
+    setLangState(getLangPref());
+  }, []);
+
+  const setLang = (l: Lang) => {
+    setLangState(l);
+    localStorage.setItem("blog-lang-preference", l);
+  };
 
   /* eslint-disable @next/next/no-img-element */
 
@@ -346,11 +367,16 @@ export default function Page({ params }: { params: { id: string } }) {
     },
   };
 
+  const displayTitle = (lang === "vi" && blog.titleVi) ? blog.titleVi : blog.title;
+  const displayDescription = (lang === "vi" && blog.descriptionVi) ? blog.descriptionVi : blog.description;
+  const displayContent = (lang === "vi" && blog.contentVi) ? blog.contentVi : blog.content;
+  const displayReadingTime = (lang === "vi" && blog.readingTimeVi) ? blog.readingTimeVi : blog.readingTime;
+
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
       <main className="w-[100%] max-w-[1100px] mx-auto">
         <div className="mb-6">
-          <div className="flex flex-wrap items-center gap-3 mb-4">
+          <div className="flex items-center justify-between mb-4">
             <div className="flex flex-wrap gap-2">
               {blog.category.map((item, index) => (
                 <div
@@ -362,10 +388,32 @@ export default function Page({ params }: { params: { id: string } }) {
                 </div>
               ))}
             </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setLang("en")}
+                className={`px-3 py-1 rounded-md text-xs font-medium transition-all ${
+                  lang === "en"
+                    ? "bg-white/[0.12] secondary-color-text border border-[rgba(221,198,182,0.2)]"
+                    : "secondary-color-text opacity-40 hover:opacity-70 border border-transparent"
+                }`}
+              >
+                EN
+              </button>
+              <button
+                onClick={() => setLang("vi")}
+                className={`px-3 py-1 rounded-md text-xs font-medium transition-all ${
+                  lang === "vi"
+                    ? "bg-white/[0.12] secondary-color-text border border-[rgba(221,198,182,0.2)]"
+                    : "secondary-color-text opacity-40 hover:opacity-70 border border-transparent"
+                }`}
+              >
+                VI
+              </button>
+            </div>
           </div>
 
           <h1 className="text-4xl font-bold leading-tight mb-4 secondary-color-text duration-1000">
-            {blog.title}{" "}
+            {displayTitle}{" "}
             {blog.status && blog.status !== "published" && (
               <StatusBadge status={blog.status} />
             )}
@@ -376,7 +424,7 @@ export default function Page({ params }: { params: { id: string } }) {
               month: "long",
               day: "numeric",
             })}
-            {blog.readingTime && <span> · {blog.readingTime} read</span>}
+            {blog.readingTime && <span> · {displayReadingTime} read</span>}
           </time>
         </div>
       </main>
@@ -389,14 +437,14 @@ export default function Page({ params }: { params: { id: string } }) {
             priority
             quality={95}
             className="object-cover"
-            alt={blog.title}
+            alt={displayTitle}
           />
         </div>
       </div>
 
       <article className="prose prose-lg max-w-none w-full max-w-4xl mx-auto">
         <p className="text-lg secondary-color-text italic text-center my-8 font-light duration-1000">
-          {blog.description}
+          {displayDescription}
         </p>
         <ReactMarkdown
           className="prose-headings:secondary-color-text prose-p:secondary-color-text prose-p:opacity-90
@@ -412,7 +460,7 @@ export default function Page({ params }: { params: { id: string } }) {
           rehypePlugins={[rehypeRaw]}
           components={markdownComponents}
         >
-          {blog.content || ""}
+          {displayContent || ""}
         </ReactMarkdown>
       </article>
 

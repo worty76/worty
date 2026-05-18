@@ -22,6 +22,10 @@ interface BlogFormProps {
     datetime: string;
     readingTime?: string;
     status?: BlogStatus;
+    titleVi?: string;
+    descriptionVi?: string;
+    contentVi?: string;
+    readingTimeVi?: string;
   };
   onSuccess?: () => void;
 }
@@ -33,6 +37,8 @@ const STATUS_OPTIONS: Array<{ value: BlogStatus; label: string }> = [
   { value: "archived", label: "Archived" },
 ];
 
+type LanguageTab = "en" | "vi";
+
 const defaultValues = {
   title: "",
   description: "",
@@ -41,10 +47,15 @@ const defaultValues = {
   category: "",
   readingTime: "",
   status: "draft" as BlogStatus,
+  titleVi: "",
+  descriptionVi: "",
+  contentVi: "",
+  readingTimeVi: "",
 };
 
 export function BlogForm({ initialData, onSuccess }: BlogFormProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [langTab, setLangTab] = useState<LanguageTab>("en");
 
   const formData = initialData
     ? {
@@ -52,6 +63,10 @@ export function BlogForm({ initialData, onSuccess }: BlogFormProps) {
         category: initialData.category?.join(", ") || "",
         readingTime: initialData.readingTime || "",
         status: initialData.status || "draft" as BlogStatus,
+        titleVi: initialData.titleVi || "",
+        descriptionVi: initialData.descriptionVi || "",
+        contentVi: initialData.contentVi || "",
+        readingTimeVi: initialData.readingTimeVi || "",
       }
     : defaultValues;
 
@@ -67,6 +82,10 @@ export function BlogForm({ initialData, onSuccess }: BlogFormProps) {
         category: initialData.category?.join(", ") || "",
         readingTime: initialData.readingTime || "",
         status: initialData.status || "draft",
+        titleVi: initialData.titleVi || "",
+        descriptionVi: initialData.descriptionVi || "",
+        contentVi: initialData.contentVi || "",
+        readingTimeVi: initialData.readingTimeVi || "",
       });
     }
   }, [initialData]);
@@ -101,7 +120,6 @@ export function BlogForm({ initialData, onSuccess }: BlogFormProps) {
         .filter((cat) => cat.length > 0);
 
       const blogData = {
-        // NO custom 'id' field - use Firestore document ID instead
         title: form.title.trim(),
         description: form.description.trim(),
         content: form.content.trim(),
@@ -112,6 +130,10 @@ export function BlogForm({ initialData, onSuccess }: BlogFormProps) {
         datetime: initialData?.datetime || new Date().toISOString().split("T")[0],
         createdAt: initialData?.datetime || new Date().toISOString(),
         updatedAt: new Date().toISOString(),
+        titleVi: (form as any).titleVi?.trim() || "",
+        descriptionVi: (form as any).descriptionVi?.trim() || "",
+        contentVi: (form as any).contentVi?.trim() || "",
+        readingTimeVi: (form as any).readingTimeVi?.trim() || "",
       };
 
       if (initialData?.docId) {
@@ -136,6 +158,35 @@ export function BlogForm({ initialData, onSuccess }: BlogFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Language Toggle */}
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => setLangTab("en")}
+          className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${
+            langTab === "en"
+              ? "bg-white/[0.12] secondary-color-text border border-[rgba(221,198,182,0.2)]"
+              : "secondary-color-text opacity-50 hover:opacity-80 border border-transparent"
+          }`}
+        >
+          English
+        </button>
+        <button
+          type="button"
+          onClick={() => setLangTab("vi")}
+          className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${
+            langTab === "vi"
+              ? "bg-white/[0.12] secondary-color-text border border-[rgba(221,198,182,0.2)]"
+              : "secondary-color-text opacity-50 hover:opacity-80 border border-transparent"
+          }`}
+        >
+          Tiếng Việt
+        </button>
+        {langTab === "vi" && (
+          <span className="text-xs secondary-color-text opacity-40 ml-1">Optional — English shown as fallback</span>
+        )}
+      </div>
+
       <div className="grid md:grid-cols-2 gap-6">
         <FormSelect
           label="Status"
@@ -146,11 +197,11 @@ export function BlogForm({ initialData, onSuccess }: BlogFormProps) {
         />
         <FormInput
           label="Reading Time"
-          name="readingTime"
-          value={form.readingTime}
+          name={langTab === "vi" ? "readingTimeVi" : "readingTime"}
+          value={langTab === "vi" ? (form as any).readingTimeVi : form.readingTime}
           onChange={handleInputChange}
           placeholder="e.g., 5 min"
-          required
+          required={langTab === "en"}
         />
       </div>
       <p className="text-xs secondary-color-text opacity-60 -mt-4">
@@ -164,21 +215,21 @@ export function BlogForm({ initialData, onSuccess }: BlogFormProps) {
       </p>
 
       <FormInput
-        label="Blog Title"
-        name="title"
-        value={form.title}
+        label={langTab === "vi" ? "Blog Title (Tiếng Việt)" : "Blog Title"}
+        name={langTab === "vi" ? "titleVi" : "title"}
+        value={langTab === "vi" ? (form as any).titleVi : form.title}
         onChange={handleInputChange}
-        placeholder="Enter an engaging blog title..."
-        required
+        placeholder={langTab === "vi" ? "Nhập tiêu đề..." : "Enter an engaging blog title..."}
+        required={langTab === "en"}
       />
 
       <FormInput
-        label="Description"
-        name="description"
-        value={form.description}
+        label={langTab === "vi" ? "Description (Tiếng Việt)" : "Description"}
+        name={langTab === "vi" ? "descriptionVi" : "description"}
+        value={langTab === "vi" ? (form as any).descriptionVi : form.description}
         onChange={handleInputChange}
-        placeholder="Write a brief summary (2-3 sentences)..."
-        required
+        placeholder={langTab === "vi" ? "Viết tóm tắt ngắn..." : "Write a brief summary (2-3 sentences)..."}
+        required={langTab === "en"}
       />
 
       <ImageUpload
@@ -201,11 +252,16 @@ export function BlogForm({ initialData, onSuccess }: BlogFormProps) {
 
       <div>
         <label className="block text-sm font-semibold secondary-color-text mb-3">
-          Content (Markdown)
+          Content (Markdown){langTab === "vi" ? " — Tiếng Việt" : ""}
         </label>
         <MarkdownEditor
-          value={form.content}
-          onChange={(content) => setForm((prev: typeof defaultValues) => ({ ...prev, content }))}
+          value={langTab === "vi" ? (form as any).contentVi : form.content}
+          onChange={(content) => {
+            setForm((prev: any) => ({
+              ...prev,
+              [langTab === "vi" ? "contentVi" : "content"]: content,
+            }));
+          }}
         />
       </div>
 

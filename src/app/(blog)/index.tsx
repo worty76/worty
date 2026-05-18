@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../../firebase/config";
-import { useEffect, useState, memo, useRef } from "react";
+import { useEffect, useState, memo, useRef, useCallback } from "react";
 import { BlogCardSkeleton } from "@/components/blog/BlogCardSkeleton";
 import { StatusBadge, BlogStatus } from "@/components/ui/StatusBadge";
 import { annotate } from "rough-notation";
@@ -16,6 +16,33 @@ interface BlogPost {
   readingTime?: string;
   status?: BlogStatus;
   deleted?: boolean;
+  titleVi?: string;
+  descriptionVi?: string;
+  readingTimeVi?: string;
+}
+
+type Lang = "vi" | "en";
+
+function getLangPref(): Lang {
+  if (typeof window === "undefined") return "vi";
+  return (localStorage.getItem("blog-lang-preference") as Lang) || "vi";
+}
+
+function useBlogLang() {
+  const [lang, setLangState] = useState<Lang>("vi");
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setLang(getLangPref());
+    setMounted(true);
+  }, []);
+
+  const setLang = useCallback((l: Lang) => {
+    setLangState(l);
+    localStorage.setItem("blog-lang-preference", l);
+  }, []);
+
+  return { lang, setLang, mounted };
 }
 
 // Format date like "5 days ago" similar to xetera.dev
@@ -42,8 +69,9 @@ function formatDistance(dateString: string): string {
   return "Posted just now";
 }
 
-const BlogCard = memo(({ post }: { post: BlogPost }) => {
-  const { docId, title, datetime, readingTime, status } = post;
+const BlogCard = memo(({ post, lang }: { post: BlogPost; lang: Lang }) => {
+  const { docId, title, datetime, readingTime, status, titleVi } = post;
+  const displayTitle = (lang === "vi" && titleVi) ? titleVi : title;
 
   const isPublished = status === "published";
   const titleRef = useRef<HTMLParagraphElement>(null);
@@ -86,7 +114,7 @@ const BlogCard = memo(({ post }: { post: BlogPost }) => {
     >
       <h2 className="article-title text-xl font-heading font-semibold leading-5 secondary-color-text transition-colors duration-1000">
         <span ref={titleRef} className="inline-block">
-          {title}
+          {displayTitle}
         </span>
         {!isPublished && status && (
           <span className="ml-2">
@@ -110,6 +138,7 @@ const BlogCard = memo(({ post }: { post: BlogPost }) => {
 BlogCard.displayName = "BlogCard";
 
 export default function Blog() {
+  const { lang, setLang, mounted } = useBlogLang();
   const [state, setState] = useState({
     posts: [] as BlogPost[],
     isLoading: true,
@@ -174,9 +203,33 @@ export default function Blog() {
 
   return (
     <div className="w-full max-w-4xl py-4">
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setLang("en")}
+            className={`px-3 py-1 rounded-md text-xs font-medium transition-all ${
+              lang === "en"
+                ? "bg-white/[0.12] secondary-color-text border border-[rgba(221,198,182,0.2)]"
+                : "secondary-color-text opacity-40 hover:opacity-70 border border-transparent"
+            }`}
+          >
+            EN
+          </button>
+          <button
+            onClick={() => setLang("vi")}
+            className={`px-3 py-1 rounded-md text-xs font-medium transition-all ${
+              lang === "vi"
+                ? "bg-white/[0.12] secondary-color-text border border-[rgba(221,198,182,0.2)]"
+                : "secondary-color-text opacity-40 hover:opacity-70 border border-transparent"
+            }`}
+          >
+            VI
+          </button>
+        </div>
+      </div>
       <div className="flex flex-col gap-4">
         {state.posts.map((post) => (
-          <BlogCard key={post.docId} post={post} />
+          <BlogCard key={post.docId} post={post} lang={lang} />
         ))}
       </div>
     </div>
