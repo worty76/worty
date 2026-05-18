@@ -304,14 +304,14 @@ export default function AdminPage() {
     // Form view
     if (currentView === "form") {
       return (
-        <div className="max-w-5xl">
+        <div>
           <button onClick={handleCancelEdit} className="flex items-center gap-2 secondary-color-text opacity-60 hover:opacity-100 text-sm mb-6 transition-opacity">
             <FaArrowLeft size={12} />
             Back to list
           </button>
-          <Card>
+          <Card noPadding>
             <CardHeader title={formHeaderInfo.title} description={formHeaderInfo.description} />
-            <div className="p-6 sm:p-8">
+            <div className="p-4 sm:p-6">
               {activeTab === "blog" ? (
                 <BlogForm initialData={editingBlog || undefined} onSuccess={handleSuccess} />
               ) : activeTab === "gallery" ? (
