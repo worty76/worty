@@ -18,6 +18,7 @@ interface BlogPost {
   image: string;
   category: string[];
   datetime: string;
+  readingTime?: string;
   status?: BlogStatus;
   deleted?: boolean;
   deletedAt?: string | null;
