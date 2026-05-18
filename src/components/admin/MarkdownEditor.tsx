@@ -402,7 +402,7 @@ export function MarkdownEditor({
   };
 
   const editorContent = (
-    <div className="w-full">
+    <div className={`w-full ${isFullscreen ? "flex flex-col flex-1 min-h-0" : ""}`}>
       {/* Top bar: tabs + fullscreen + draft indicator */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex gap-2 p-1 bg-white/5 rounded-lg inline-flex border secondary-color-border">
@@ -471,7 +471,7 @@ export function MarkdownEditor({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
-          className="w-full min-h-[600px] p-4 border secondary-color-border rounded-lg bg-white/5 secondary-color-text placeholder-secondary/40 focus:outline-none focus:ring-2 focus:ring-opacity-50 transition-all duration-200 resize-y font-mono text-sm leading-relaxed"
+          className={`w-full p-4 border secondary-color-border rounded-lg bg-white/5 secondary-color-text placeholder-secondary/40 focus:outline-none focus:ring-2 focus:ring-opacity-50 transition-all duration-200 resize-y font-mono text-sm leading-relaxed ${isFullscreen ? "flex-1 min-h-0" : "min-h-[600px]"}`}
         />
       ) : (
         <div className={`w-full p-6 border secondary-color-border rounded-lg bg-white/5 overflow-y-auto ${isFullscreen ? "flex-1" : "min-h-[600px] max-h-[600px]"}`}>

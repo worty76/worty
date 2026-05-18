@@ -39,6 +39,7 @@ interface EditingBlog {
   image: string;
   category: string[];
   datetime: string;
+  readingTime?: string;
   status?: BlogStatus;
 }
 
@@ -171,7 +172,7 @@ export default function AdminPage() {
     setEditingBlog({
       docId: blog.docId, title: blog.title, description: blog.description || "",
       content: blog.content || "", image: blog.image || "", category: blog.category || [],
-      datetime: blog.datetime, status: blog.status || "draft",
+      datetime: blog.datetime, status: blog.status || "draft", readingTime: blog.readingTime || "",
     });
     setCurrentView("form");
   };
