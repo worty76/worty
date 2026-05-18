@@ -455,7 +455,7 @@ export function MarkdownEditor({
               key={i}
               type="button"
               onClick={() => insertMarkdown(btn)}
-              className="p-2 rounded secondary-color-text/70 hover:bg-white/10 hover:secondary-color-text transition-all text-sm"
+              className="p-2 rounded secondary-color-text opacity-70 hover:opacity-100 hover:bg-white/10 transition-all text-sm"
               title={btn.label}
             >
               {btn.icon}
