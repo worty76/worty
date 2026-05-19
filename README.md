@@ -18,11 +18,12 @@
 ## ✨ Features
 
 - **Portfolio** — Profile page with social links and personal info
-- **Blog** — Write and publish posts with markdown support, categories, and status management
+- **Blog** — Markdown-based blog with bilingual support (Vietnamese/English), categories, status management (draft/on progress/published), and auto-save editor
 - **Gallery** — Photo gallery with categories, tags, locations, and featured memories
-- **Music** — Showcase your favorite tracks with album art and Spotify links
-- **Admin Dashboard** — Full content management with sidebar navigation
+- **Music** — Favorite tracks collection with a persistent bottom player bar (YouTube IFrame API), artist filtering, infinite scroll, playback controls (play/pause, next/prev, seek, volume, speed)
+- **Admin Dashboard** — Full CMS with sidebar navigation, soft delete (trash/restore), and confirmation dialogs
 - **Support** — Donation page with bank transfer details
+- **Theme** — Warm dark/light theme toggle with custom color palette
 
 ## 🛠 Tech Stack
 
@@ -32,7 +33,7 @@
 | Language | TypeScript |
 | Styling | Tailwind CSS |
 | CMS | Firebase Firestore |
-| Image CDN | ImageKit |
+| Image CDN | ImageKit + YouTube Thumbnails |
 | Auth | Firebase Authentication |
 | Icons | React Icons |
 
@@ -84,24 +85,59 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 ```
 src/
 ├── app/
-│   ├── (blog)/          # Blog routes
-│   ├── admin/           # Admin dashboard
+│   ├── (blog)/          # Blog routes (list + detail pages)
+│   │   └── [id]/        # Individual blog post
+│   ├── admin/           # Admin dashboard (CMS)
 │   ├── api/             # API routes (ImageKit auth)
 │   ├── gallery/         # Photo gallery page
-│   ├── music/           # Music collection page
+│   ├── music/           # Music collection with bottom player bar
 │   ├── support/         # Donation/support page
 │   └── page.tsx         # Home / portfolio page
 ├── components/
-│   ├── admin/           # Admin forms & lists
-│   ├── gallery/         # Gallery grid & masonry
-│   ├── layouts/         # Navbar
+│   ├── admin/           # Admin forms (Blog, Gallery, Music) + lists
+│   │   ├── BlogForm.tsx     # Blog editor with markdown toolbar & auto-save
+│   │   ├── GalleryForm.tsx  # Gallery upload form
+│   │   ├── MusicForm.tsx    # Music entry form
+│   │   ├── MarkdownEditor.tsx # Reusable markdown editor
+│   │   └── MarkdownGuide.tsx  # Markdown syntax guide
+│   ├── gallery/         # Gallery grid & masonry layout
+│   ├── layouts/         # Navbar component
 │   ├── main/            # Profile component
-│   └── ui/              # Shared UI components
-├── context/             # Auth & theme context
-├── firebase/            # Firebase config
-├── hooks/               # Custom hooks
+│   └── ui/              # Shared UI components (Card, StatusBadge, etc.)
+├── context/             # Auth & theme context providers
+├── firebase/            # Firebase configuration
+├── hooks/               # Custom React hooks
+├── types/               # TypeScript type declarations
 └── utils/               # Utility functions
 ```
+
+## 🎵 Music Player
+
+The music page features a persistent bottom player bar powered by the YouTube IFrame Player API:
+
+- **Playback controls** — Play/pause, previous/next track
+- **Progress bar** — Seekable with time display
+- **Volume** — Slider with mute toggle
+- **Speed** — Cycle through 0.5x → 2x playback rates
+- **Artist filter** — Filter songs by artist with pill chips
+- **Infinite scroll** — Lazy loads 8 tracks at a time
+- **Auto-advance** — Automatically plays next track
+
+## 📝 Blog
+
+- **Bilingual** — Vietnamese and English content stored in the same document, with language toggle
+- **Markdown** — Full markdown support with toolbar (bold, italic, heading, link, image, code, quote, lists)
+- **Auto-save** — Saves to localStorage every 3 seconds
+- **Fullscreen** — Distraction-free writing mode
+- **Status** — Draft (hidden), On Progress (visible teaser, non-clickable), Published (full access)
+- **Soft delete** — Trash/restore from admin
+
+## 🎨 Theme
+
+Custom warm color palette:
+- **Dark mode**: Brown background `rgb(38, 34, 35)` with beige text `rgb(221, 198, 182)`
+- **Light mode**: Swapped via CSS custom properties
+- Theme toggle persists across pages
 
 ## 📄 License
 
