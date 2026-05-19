@@ -8,6 +8,8 @@ const nextConfig = {
       "res.cloudinary.com",
       "www.billboard.com",
       "i.scdn.co",
+      "i.ytimg.com",
+      "i.ytimg.com",
     ],
     remotePatterns: [
       {
@@ -33,6 +35,11 @@ const nextConfig = {
       {
         protocol: "https",
         hostname: "i.scdn.co",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "i.ytimg.com",
         pathname: "/**",
       },
     ],
