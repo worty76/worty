@@ -4,7 +4,7 @@ import { useEffect, useState, memo } from "react";
 import Image from "next/image";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/firebase/config";
-import { FaPlay, FaYoutube } from "react-icons/fa";
+import { FaPlay, FaYoutube, FaTimes } from "react-icons/fa";
 
 export const dynamic = "force-dynamic";
 
@@ -25,11 +25,15 @@ const VideoModal = ({
   onClose,
   videoUrl,
   title,
+  artist,
+  coverImage,
 }: {
   isOpen: boolean;
   onClose: () => void;
   videoUrl?: string;
   title: string;
+  artist: string;
+  coverImage: string;
 }) => {
   if (!isOpen) return null;
 
@@ -39,19 +43,35 @@ const VideoModal = ({
       onClick={onClose}
     >
       <div
-        className="primary-color-bg rounded-xl max-w-4xl w-full overflow-hidden shadow-2xl border border-white/10"
+        className="relative w-full max-w-2xl overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex justify-between items-center p-4 border-b border-white/10">
-          <h3 className="font-semibold secondary-color-text">{title}</h3>
+        {/* Now playing bar at top */}
+        <div className="flex items-center gap-3 p-4 secondary-color-bg rounded-t-2xl border-b border-secondary-color-border/20">
+          <div className="relative w-10 h-10 rounded-lg overflow-hidden flex-shrink-0">
+            <Image
+              src={coverImage}
+              alt={title}
+              fill
+              unoptimized
+              className="object-cover"
+              sizes="40px"
+            />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-medium secondary-color-text truncate">{title}</p>
+            <p className="text-xs secondary-color-text/50 truncate">{artist}</p>
+          </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-white/10 rounded-full transition-colors secondary-color-text"
+            className="p-1.5 secondary-color-text/40 hover:secondary-color-text hover:bg-secondary-color-bg rounded-full transition-colors"
           >
-            ✕
+            <FaTimes size={14} />
           </button>
         </div>
-        <div className="relative aspect-video bg-black">
+
+        {/* Video */}
+        <div className="relative aspect-video bg-black rounded-b-2xl overflow-hidden">
           <iframe
             src={videoUrl}
             className="absolute inset-0 w-full h-full"
@@ -59,79 +79,49 @@ const VideoModal = ({
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
             referrerPolicy="strict-origin-when-cross-origin"
             allowFullScreen
-          ></iframe>
+          />
         </div>
       </div>
     </div>
   );
 };
 
-const MusicRow = memo(
+const MusicCard = memo(
   ({ music, onPlay }: { music: Music; onPlay: () => void }) => {
-    const { title, artist, coverImage, genre, year } = music;
+    const { title, artist, coverImage } = music;
 
     return (
       <div
         onClick={onPlay}
-        className="group flex items-center gap-4 p-3 bg-white/5 border border-white/10 rounded-xl hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 cursor-pointer"
+        className="group cursor-pointer"
       >
-        {/* Play Button */}
-        <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center group-hover:bg-white/20 transition-colors flex-shrink-0">
-          <FaPlay className="secondary-color-text opacity-60 group-hover:opacity-100 ml-0.5 transition-colors" size={14} />
-        </div>
-
-        {/* Cover Image */}
-        <div className="relative w-14 h-14 flex-shrink-0 bg-white/10 rounded-lg overflow-hidden">
+        {/* Cover */}
+        <div className="relative aspect-square rounded-xl overflow-hidden secondary-color-bg/50 mb-3">
           <Image
             src={coverImage}
             alt={title}
             fill
-            quality={100}
             unoptimized
-            className="object-cover"
-            sizes="56px"
+            className="object-cover group-hover:scale-105 transition-transform duration-300"
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 200px"
           />
+          {/* Hover overlay */}
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-300 flex items-center justify-center">
+            <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 scale-75 group-hover:scale-100 transition-all duration-300 shadow-lg">
+              <FaPlay className="text-primary-color-bg ml-0.5" size={16} />
+            </div>
+          </div>
         </div>
 
         {/* Info */}
-        <div className="flex-1 min-w-0">
-          <h3 className="font-semibold secondary-color-text truncate">{title}</h3>
-          <p className="text-sm secondary-color-text opacity-60 truncate">{artist}</p>
-        </div>
-
-        {/* Genre Pills */}
-        <div className="hidden sm:flex flex-wrap gap-1.5">
-          {(genre || []).slice(0, 2).map((g, index) => (
-            <span
-              key={index}
-              className="px-2 py-0.5 text-xs bg-white/10 secondary-color-text rounded-full"
-            >
-              {g}
-            </span>
-          ))}
-        </div>
-
-        {/* Year */}
-        <p className="text-sm secondary-color-text opacity-40 flex-shrink-0 hidden md:block">{year}</p>
-
-        {/* YouTube Link */}
-        {music.spotifyLink && (
-          <a
-            href={music.spotifyLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={(e) => e.stopPropagation()}
-            className="p-2 text-red-500 hover:bg-red-500/10 rounded-full transition-colors flex-shrink-0"
-          >
-            <FaYoutube size={16} />
-          </a>
-        )}
+        <h3 className="text-sm font-medium secondary-color-text truncate">{title}</h3>
+        <p className="text-xs secondary-color-text/45 truncate mt-0.5">{artist}</p>
       </div>
     );
   }
 );
 
-MusicRow.displayName = "MusicRow";
+MusicCard.displayName = "MusicCard";
 
 export default function Music() {
   const [state, setState] = useState({
@@ -188,10 +178,14 @@ export default function Music() {
 
   if (state.isLoading) {
     return (
-      <div className="max-w-4xl mx-auto px-4 py-12">
-        <div className="space-y-3">
+      <div className="max-w-5xl mx-auto px-4 py-12">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
           {[...Array(8)].map((_, i) => (
-            <div key={i} className="h-20 bg-white/5 rounded-xl animate-pulse" />
+            <div key={i}>
+              <div className="aspect-square bg-secondary-color-bg/30 rounded-xl animate-pulse" />
+              <div className="mt-3 h-3 w-3/4 bg-secondary-color-bg/30 rounded animate-pulse" />
+              <div className="mt-1.5 h-2.5 w-1/2 bg-secondary-color-bg/20 rounded animate-pulse" />
+            </div>
           ))}
         </div>
       </div>
@@ -211,17 +205,18 @@ export default function Music() {
   return (
     <>
       <main className="min-h-screen primary-color-bg transition-colors duration-1000">
-        <div className="max-w-4xl mx-auto px-4 py-12">
+        <div className="max-w-5xl mx-auto px-4 py-12">
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-2xl font-bold secondary-color-text">Music</h1>
-            <p className="secondary-color-text opacity-60">{state.music.length} tracks</p>
+            <p className="text-xs uppercase tracking-widest secondary-color-text/30 mb-2">Collection</p>
+            <h1 className="text-2xl font-bold secondary-color-text">Favorite Music</h1>
+            <p className="text-sm secondary-color-text/40 mt-1">{state.music.length} tracks</p>
           </div>
 
-          {/* List */}
-          <div className="space-y-3">
+          {/* Grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
             {state.music.map((item) => (
-              <MusicRow
+              <MusicCard
                 key={item.id}
                 music={item}
                 onPlay={() => handlePlay(item)}
@@ -236,6 +231,8 @@ export default function Music() {
         onClose={handleCloseModal}
         videoUrl={modal.currentMusic?.spotifyLink}
         title={modal.currentMusic?.title || ""}
+        artist={modal.currentMusic?.artist || ""}
+        coverImage={modal.currentMusic?.coverImage || ""}
       />
     </>
   );
