@@ -105,7 +105,7 @@ const BlogCard = memo(({ post, lang }: { post: BlogPost; lang: Lang }) => {
     }
   };
 
-  return (
+  return isPublished ? (
     <Link
       href={`/${docId}`}
       className="flex flex-col gap-2 group transition-transform duration-300 transform-gpu"
@@ -116,7 +116,26 @@ const BlogCard = memo(({ post, lang }: { post: BlogPost; lang: Lang }) => {
         <span ref={titleRef} className="inline-block">
           {displayTitle}
         </span>
-        {!isPublished && status && (
+      </h2>
+      <div className="flex items-center gap-2 text-sm secondary-color-text opacity-60 transition-colors duration-1000">
+        <time dateTime={datetime}>{formatDistance(datetime)}</time>
+        {readingTime && (
+          <>
+            <span>·</span>
+            <span>{readingTime} read</span>
+          </>
+        )}
+      </div>
+    </Link>
+  ) : (
+    <div
+      className="flex flex-col gap-2 cursor-not-allowed opacity-70"
+    >
+      <h2 className="article-title text-xl font-heading font-semibold leading-5 secondary-color-text transition-colors duration-1000">
+        <span ref={titleRef} className="inline-block">
+          {displayTitle}
+        </span>
+        {status && (
           <span className="ml-2">
             <StatusBadge status={status} size="sm" />
           </span>
@@ -131,7 +150,7 @@ const BlogCard = memo(({ post, lang }: { post: BlogPost; lang: Lang }) => {
           </>
         )}
       </div>
-    </Link>
+    </div>
   );
 });
 
@@ -155,7 +174,7 @@ export default function Blog() {
             docId: doc.id,
             ...doc.data(),
           }) as BlogPost)
-          .filter((post) => post.status === "published" && post.deleted !== true);
+          .filter((post) => post.status !== "draft" && post.deleted !== true);
 
         setState((prev) => ({ ...prev, posts: blogsData, isLoading: false }));
       } catch (err) {
