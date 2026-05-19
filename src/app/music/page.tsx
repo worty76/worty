@@ -1,10 +1,19 @@
 "use client";
 
-import { useEffect, useState, memo } from "react";
+import { useEffect, useState, useRef, useCallback, memo } from "react";
 import Image from "next/image";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/firebase/config";
-import { FaPlay, FaYoutube, FaTimes } from "react-icons/fa";
+import {
+  FaPlay,
+  FaPause,
+  FaStepForward,
+  FaStepBackward,
+  FaTimes,
+  FaVolumeUp,
+  FaVolumeDown,
+  FaVolumeMute,
+} from "react-icons/fa";
 
 export const dynamic = "force-dynamic";
 
@@ -20,102 +29,59 @@ interface Music {
   deleted?: boolean;
 }
 
-const VideoModal = ({
-  isOpen,
-  onClose,
-  videoUrl,
-  title,
-  artist,
-  coverImage,
-}: {
-  isOpen: boolean;
-  onClose: () => void;
-  videoUrl?: string;
-  title: string;
-  artist: string;
-  coverImage: string;
-}) => {
-  if (!isOpen) return null;
+function getVideoId(url: string): string | null {
+  const match = url.match(/(?:embed\/|watch\?v=)([a-zA-Z0-9_-]{11})/);
+  return match ? match[1] : null;
+}
 
-  return (
-    <div
-      className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-      onClick={onClose}
-    >
-      <div
-        className="relative w-full max-w-2xl overflow-hidden"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Now playing bar at top */}
-        <div className="flex items-center gap-3 p-4 secondary-color-bg rounded-t-2xl border-b border-secondary-color-border/20">
-          <div className="relative w-10 h-10 rounded-lg overflow-hidden flex-shrink-0">
-            <Image
-              src={coverImage}
-              alt={title}
-              fill
-              unoptimized
-              className="object-cover"
-              sizes="40px"
-            />
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="text-sm font-medium secondary-color-text truncate">{title}</p>
-            <p className="text-xs secondary-color-text/50 truncate">{artist}</p>
-          </div>
-          <button
-            onClick={onClose}
-            className="p-1.5 secondary-color-text/40 hover:secondary-color-text hover:bg-secondary-color-bg rounded-full transition-colors"
-          >
-            <FaTimes size={14} />
-          </button>
-        </div>
+function formatTime(seconds: number): string {
+  const m = Math.floor(seconds / 60);
+  const s = Math.floor(seconds % 60);
+  return `${m}:${s.toString().padStart(2, "0")}`;
+}
 
-        {/* Video */}
-        <div className="relative aspect-video bg-black rounded-b-2xl overflow-hidden">
-          <iframe
-            src={videoUrl}
-            className="absolute inset-0 w-full h-full"
-            title={title}
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            referrerPolicy="strict-origin-when-cross-origin"
-            allowFullScreen
-          />
-        </div>
-      </div>
-    </div>
-  );
-};
+const PLAYBACK_RATES = [0.5, 0.75, 1, 1.25, 1.5, 2];
 
 const MusicCard = memo(
-  ({ music, onPlay }: { music: Music; onPlay: () => void }) => {
-    const { title, artist, coverImage } = music;
-
+  ({ music, onPlay, isCurrentTrack, isPlaying }: {
+    music: Music;
+    onPlay: () => void;
+    isCurrentTrack: boolean;
+    isPlaying: boolean;
+  }) => {
     return (
-      <div
-        onClick={onPlay}
-        className="group cursor-pointer"
-      >
-        {/* Cover */}
+      <div onClick={onPlay} className="group cursor-pointer">
         <div className="relative aspect-square rounded-xl overflow-hidden secondary-color-bg/50 mb-3">
           <Image
-            src={coverImage}
-            alt={title}
+            src={music.coverImage}
+            alt={music.title}
             fill
             unoptimized
             className="object-cover group-hover:scale-105 transition-transform duration-300"
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 200px"
           />
-          {/* Hover overlay */}
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-300 flex items-center justify-center">
-            <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 scale-75 group-hover:scale-100 transition-all duration-300 shadow-lg">
-              <FaPlay className="text-primary-color-bg ml-0.5" size={16} />
-            </div>
+            {isCurrentTrack && isPlaying ? (
+              <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center opacity-100 scale-100 shadow-lg">
+                <div className="flex items-end gap-[3px] h-4">
+                  <span className="w-[3px] bg-primary-color-bg rounded-full animate-[eq_0.8s_ease-in-out_infinite]" />
+                  <span className="w-[3px] bg-primary-color-bg rounded-full animate-[eq_0.8s_ease-in-out_0.2s_infinite]" />
+                  <span className="w-[3px] bg-primary-color-bg rounded-full animate-[eq_0.8s_ease-in-out_0.4s_infinite]" />
+                </div>
+              </div>
+            ) : (
+              <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 scale-75 group-hover:scale-100 transition-all duration-300 shadow-lg">
+                <FaPlay className="text-primary-color-bg ml-0.5" size={16} />
+              </div>
+            )}
           </div>
         </div>
-
-        {/* Info */}
-        <h3 className="text-sm font-medium secondary-color-text truncate">{title}</h3>
-        <p className="text-xs secondary-color-text/45 truncate mt-0.5">{artist}</p>
+        <h3 className={`text-sm font-medium truncate ${isCurrentTrack ? "text-white" : "secondary-color-text"}`}>
+          {music.title}
+        </h3>
+        <p className={`text-xs truncate mt-0.5 ${isCurrentTrack ? "secondary-color-text/70" : "secondary-color-text/45"}`}>
+          {music.artist}
+        </p>
       </div>
     );
   }
@@ -124,59 +90,226 @@ const MusicCard = memo(
 MusicCard.displayName = "MusicCard";
 
 export default function Music() {
-  const [state, setState] = useState({
-    music: [] as Music[],
-    isLoading: true,
-    error: null as string | null,
-  });
-  const [modal, setModal] = useState({
-    isOpen: false,
-    currentMusic: null as Music | null,
-  });
+  const [music, setMusic] = useState<Music[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
+  // Player state
+  const [currentTrackIndex, setCurrentTrackIndex] = useState<number>(-1);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [volume, setVolume] = useState(80);
+  const [playbackRate, setPlaybackRate] = useState(1);
+  const [showPlayer, setShowPlayer] = useState(false);
+
+  const playerRef = useRef<YT.Player | null>(null);
+  const progressRef = useRef<NodeJS.Timeout | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const isApiReady = useRef(false);
+  const apiLoadCallbacks = useRef<(() => void)[]>([]);
+  const handleNextRef = useRef<() => void>(() => {});
+
+  // Load YouTube IFrame API
+  useEffect(() => {
+    if (typeof window !== "undefined" && !window.YT) {
+      window.onYouTubeIframeAPIReady = () => {
+        isApiReady.current = true;
+        apiLoadCallbacks.current.forEach((cb) => cb());
+        apiLoadCallbacks.current = [];
+      };
+
+      const script = document.createElement("script");
+      script.src = "https://www.youtube.com/iframe_api";
+      script.async = true;
+      document.head.appendChild(script);
+    } else if (window.YT) {
+      isApiReady.current = true;
+    }
+  }, []);
+
+  const createPlayer = useCallback((videoId: string) => {
+    const init = () => {
+      if (playerRef.current) {
+        playerRef.current.loadVideoById(videoId);
+        playerRef.current.playVideo();
+        return;
+      }
+
+      if (!containerRef.current) return;
+
+      // Ensure the container has a unique id
+      const playerId = "yt-player-hidden";
+      let existingDiv = document.getElementById(playerId);
+      if (!existingDiv) {
+        existingDiv = document.createElement("div");
+        existingDiv.id = playerId;
+        containerRef.current.appendChild(existingDiv);
+      }
+
+      playerRef.current = new window.YT.Player(playerId, {
+        videoId,
+        playerVars: {
+          autoplay: 1,
+          controls: 0,
+          disablekb: 1,
+          fs: 0,
+          modestbranding: 1,
+          rel: 0,
+        },
+        events: {
+          onReady: (event) => {
+            event.target.setVolume(volume);
+            event.target.setPlaybackRate(playbackRate);
+            setDuration(event.target.getDuration());
+          },
+          onStateChange: (event) => {
+            if (event.data === window.YT.PlayerState.PLAYING) {
+              setIsPlaying(true);
+              setDuration(playerRef.current?.getDuration() || 0);
+              startProgressPoll();
+            } else if (event.data === window.YT.PlayerState.PAUSED) {
+              setIsPlaying(false);
+              stopProgressPoll();
+            } else if (event.data === window.YT.PlayerState.ENDED) {
+              setIsPlaying(false);
+              stopProgressPoll();
+              handleNextRef.current();
+            }
+          },
+        },
+      });
+    };
+
+    if (isApiReady.current) {
+      init();
+    } else {
+      apiLoadCallbacks.current.push(init);
+    }
+  }, [volume, playbackRate]);
+
+  const startProgressPoll = useCallback(() => {
+    stopProgressPoll();
+    progressRef.current = setInterval(() => {
+      if (playerRef.current) {
+        setProgress(playerRef.current.getCurrentTime());
+      }
+    }, 250);
+  }, []);
+
+  const stopProgressPoll = useCallback(() => {
+    if (progressRef.current) {
+      clearInterval(progressRef.current);
+      progressRef.current = null;
+    }
+  }, []);
+
+  // Fetch music
   useEffect(() => {
     const fetchMusic = async () => {
       try {
         const musicCollection = collection(db, "music");
         const musicSnapshot = await getDocs(musicCollection);
-        const musicList = musicSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        })) as Music[];
-
-        setState((prev) => ({
-          ...prev,
-          music: musicList.filter((m) => m.deleted !== true),
-          isLoading: false,
-        }));
-      } catch (error) {
-        setState((prev) => ({
-          ...prev,
-          error: "Failed to fetch music data",
-          isLoading: false,
-        }));
-        console.error("Error fetching music:", error);
+        const musicList = musicSnapshot.docs
+          .map((doc) => ({ id: doc.id, ...doc.data() } as Music))
+          .filter((m) => m.deleted !== true);
+        setMusic(musicList);
+        setIsLoading(false);
+      } catch (err) {
+        setError("Failed to fetch music data");
+        setIsLoading(false);
+        console.error("Error fetching music:", err);
       }
     };
-
     fetchMusic();
   }, []);
 
-  const handlePlay = (music: Music) => {
-    setModal({
-      isOpen: true,
-      currentMusic: music,
-    });
-  };
+  const musicRef = useRef(music);
+  musicRef.current = music;
+  const currentTrackIndexRef = useRef(currentTrackIndex);
+  currentTrackIndexRef.current = currentTrackIndex;
 
-  const handleCloseModal = () => {
-    setModal({
-      isOpen: false,
-      currentMusic: null,
-    });
-  };
+  const handlePlay = useCallback(
+    (index: number) => {
+      const track = musicRef.current[index];
+      if (!track?.spotifyLink) return;
 
-  if (state.isLoading) {
+      const videoId = getVideoId(track.spotifyLink);
+      if (!videoId) return;
+
+      setCurrentTrackIndex(index);
+      setShowPlayer(true);
+      setProgress(0);
+      createPlayer(videoId);
+    },
+    [createPlayer]
+  );
+
+  const handleNextInternal = useCallback(() => {
+    const len = musicRef.current.length;
+    if (len === 0) return;
+    const cur = currentTrackIndexRef.current;
+    const newIndex = cur >= len - 1 ? 0 : cur + 1;
+    handlePlay(newIndex);
+  }, [handlePlay]);
+
+  handleNextRef.current = handleNextInternal;
+
+  const handleTogglePlay = useCallback(() => {
+    if (!playerRef.current) return;
+    if (playerRef.current.getPlayerState() === YT.PlayerState.PLAYING) {
+      playerRef.current.pauseVideo();
+    } else {
+      playerRef.current.playVideo();
+    }
+  }, []);
+
+  const handlePrev = useCallback(() => {
+    const len = musicRef.current.length;
+    if (len === 0) return;
+    const cur = currentTrackIndexRef.current;
+    const newIndex = cur <= 0 ? len - 1 : cur - 1;
+    handlePlay(newIndex);
+  }, [handlePlay]);
+
+  const handleSeek = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (!playerRef.current || !duration) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const ratio = (e.clientX - rect.left) / rect.width;
+    const seekTime = ratio * duration;
+    playerRef.current.seekTo(seekTime, true);
+    setProgress(seekTime);
+  }, [duration]);
+
+  const handleVolumeChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const vol = parseInt(e.target.value);
+    setVolume(vol);
+    playerRef.current?.setVolume(vol);
+  }, []);
+
+  const handleSpeedCycle = useCallback(() => {
+    const currentIdx = PLAYBACK_RATES.indexOf(playbackRate);
+    const nextIdx = (currentIdx + 1) % PLAYBACK_RATES.length;
+    const newRate = PLAYBACK_RATES[nextIdx];
+    setPlaybackRate(newRate);
+    playerRef.current?.setPlaybackRate(newRate);
+  }, [playbackRate]);
+
+  const handleClose = useCallback(() => {
+    playerRef.current?.stopVideo();
+    playerRef.current?.destroy();
+    playerRef.current = null;
+    stopProgressPoll();
+    setShowPlayer(false);
+    setIsPlaying(false);
+    setCurrentTrackIndex(-1);
+    setProgress(0);
+    setDuration(0);
+  }, [stopProgressPoll]);
+
+  const currentTrack = currentTrackIndex >= 0 ? music[currentTrackIndex] : null;
+
+  if (isLoading) {
     return (
       <div className="max-w-5xl mx-auto px-4 py-12">
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
@@ -192,48 +325,186 @@ export default function Music() {
     );
   }
 
-  if (state.error) {
+  if (error) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
         <div className="text-center text-red-400 p-4 rounded-lg bg-red-500/10 border border-red-500/20">
-          <p>{state.error}</p>
+          <p>{error}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <>
-      <main className="min-h-screen primary-color-bg transition-colors duration-1000">
-        <div className="max-w-5xl mx-auto px-4 py-12">
-          {/* Header */}
-          <div className="mb-8">
-            <p className="text-xs uppercase tracking-widest secondary-color-text/30 mb-2">Collection</p>
-            <h1 className="text-2xl font-bold secondary-color-text">Favorite Music</h1>
-            <p className="text-sm secondary-color-text/40 mt-1">{state.music.length} tracks</p>
-          </div>
+    <main className="min-h-screen primary-color-bg transition-colors duration-1000">
+      {/* Hidden YouTube player container */}
+      <div
+        ref={containerRef}
+        style={{
+          position: "absolute",
+          width: "1px",
+          height: "1px",
+          overflow: "hidden",
+          opacity: 0,
+          pointerEvents: "none",
+        }}
+      />
 
-          {/* Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
-            {state.music.map((item) => (
-              <MusicCard
-                key={item.id}
-                music={item}
-                onPlay={() => handlePlay(item)}
+      <div className="max-w-5xl mx-auto px-4 py-12 pb-40">
+        {/* Header */}
+        <div className="mb-8">
+          <p className="text-xs uppercase tracking-widest secondary-color-text/30 mb-2">
+            Collection
+          </p>
+          <h1 className="text-2xl font-bold secondary-color-text">Favorite Music</h1>
+          <p className="text-sm secondary-color-text/40 mt-1">{music.length} tracks</p>
+        </div>
+
+        {/* Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
+          {music.map((item, idx) => (
+            <MusicCard
+              key={item.id}
+              music={item}
+              onPlay={() => handlePlay(idx)}
+              isCurrentTrack={idx === currentTrackIndex}
+              isPlaying={idx === currentTrackIndex && isPlaying}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Bottom Player Bar */}
+      <div
+        className={`fixed bottom-0 left-0 right-0 z-50 transition-transform duration-300 ease-out ${
+          showPlayer ? "translate-y-0" : "translate-y-full"
+        }`}
+      >
+        {/* Progress bar - clickable to seek */}
+        <div
+          className="h-1 bg-secondary-color-bg/30 cursor-pointer group"
+          onClick={handleSeek}
+        >
+          <div
+            className="h-full bg-amber-500/80 group-hover:bg-amber-500 transition-colors"
+            style={{ width: duration ? `${(progress / duration) * 100}%` : "0%" }}
+          />
+        </div>
+
+        {/* Controls */}
+        <div className="secondary-color-bg/95 backdrop-blur-xl border-t border-secondary-color-border/10">
+          <div className="max-w-5xl mx-auto px-4 py-2.5 flex items-center gap-3">
+            {/* Song info */}
+            {currentTrack && (
+              <div className="flex items-center gap-3 min-w-0 flex-1">
+                <div className="relative w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 shadow-lg">
+                  <Image
+                    src={currentTrack.coverImage}
+                    alt={currentTrack.title}
+                    fill
+                    unoptimized
+                    className="object-cover"
+                    sizes="40px"
+                  />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-medium secondary-color-text truncate">
+                    {currentTrack.title}
+                  </p>
+                  <p className="text-xs secondary-color-text/50 truncate">
+                    {currentTrack.artist}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Center controls */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handlePrev}
+                className="p-2 secondary-color-text/60 hover:text-white transition-colors"
+              >
+                <FaStepBackward size={14} />
+              </button>
+              <button
+                onClick={handleTogglePlay}
+                className="w-9 h-9 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-colors"
+              >
+                {isPlaying ? (
+                  <FaPause className="text-white" size={14} />
+                ) : (
+                  <FaPlay className="text-white ml-0.5" size={14} />
+                )}
+              </button>
+              <button
+                onClick={handleNextInternal}
+                className="p-2 secondary-color-text/60 hover:text-white transition-colors"
+              >
+                <FaStepForward size={14} />
+              </button>
+            </div>
+
+            {/* Time display */}
+            <div className="text-[11px] secondary-color-text/40 font-mono hidden sm:flex items-center gap-1.5 w-24 justify-center">
+              <span>{formatTime(progress)}</span>
+              <span>/</span>
+              <span>{formatTime(duration)}</span>
+            </div>
+
+            {/* Volume control - hidden on mobile */}
+            <div className="hidden sm:flex items-center gap-2">
+              <button
+                onClick={() => {
+                  const newVol = volume > 0 ? 0 : 80;
+                  setVolume(newVol);
+                  playerRef.current?.setVolume(newVol);
+                }}
+                className="secondary-color-text/60 hover:text-white transition-colors"
+              >
+                {volume === 0 ? (
+                  <FaVolumeMute size={14} />
+                ) : volume < 50 ? (
+                  <FaVolumeDown size={14} />
+                ) : (
+                  <FaVolumeUp size={14} />
+                )}
+              </button>
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={volume}
+                onChange={handleVolumeChange}
+                className="w-20 h-1 accent-amber-500 cursor-pointer"
               />
-            ))}
+            </div>
+
+            {/* Speed control */}
+            <button
+              onClick={handleSpeedCycle}
+              className="text-[11px] font-bold secondary-color-text/60 hover:text-white px-2 py-1 rounded bg-white/5 hover:bg-white/10 transition-colors"
+            >
+              {playbackRate}x
+            </button>
+
+            {/* Close button */}
+            <button
+              onClick={handleClose}
+              className="p-2 secondary-color-text/40 hover:text-white transition-colors ml-1"
+            >
+              <FaTimes size={14} />
+            </button>
           </div>
         </div>
-      </main>
+      </div>
 
-      <VideoModal
-        isOpen={modal.isOpen}
-        onClose={handleCloseModal}
-        videoUrl={modal.currentMusic?.spotifyLink}
-        title={modal.currentMusic?.title || ""}
-        artist={modal.currentMusic?.artist || ""}
-        coverImage={modal.currentMusic?.coverImage || ""}
-      />
-    </>
+      {/* Keyframe for equalizer animation */}
+      <style jsx global>{`
+        @keyframes eq {
+          0%, 100% { height: 4px; }
+          50% { height: 16px; }
+        }
+      `}</style>
+    </main>
   );
 }
