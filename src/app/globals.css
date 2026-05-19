@@ -178,14 +178,23 @@ p {
 /* Prose / Code blocks dark theme */
 .prose pre {
   background-color: rgb(30, 26, 27) !important;
-  border: 1px solid rgba(221, 198, 182, 0.1) !important;
+  border: none !important;
   border-radius: 0.75rem !important;
+  padding: 1rem !important;
 }
 
 .prose code {
   color: var(--color-primary-text) !important;
   border: none !important;
+  background: rgba(221, 198, 182, 0.08) !important;
+  padding: 0.15rem 0.4rem !important;
+  border-radius: 0.25rem !important;
+  font-size: 0.875em !important;
+}
+
+.prose pre code {
   background: transparent !important;
+  padding: 0 !important;
 }
 
 .prose code::before,
