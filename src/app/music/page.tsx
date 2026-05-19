@@ -105,6 +105,7 @@ export default function Music() {
   const [filterArtist, setFilterArtist] = useState<string | null>(null);
 
   const artists = Array.from(new Set(music.map((m) => m.artist))).sort();
+  const artistCounts = artists.reduce((acc, a) => { acc[a] = music.filter(m => m.artist === a).length; return acc; }, {} as Record<string, number>);
   const filteredMusic = filterArtist ? music.filter((m) => m.artist === filterArtist) : music;
 
   const playerRef = useRef<YT.Player | null>(null);
@@ -377,7 +378,7 @@ export default function Music() {
                     : "bg-white/5 secondary-color-text opacity-60 hover:opacity-100"
                 }`}
               >
-                All
+                All ({music.length})
               </button>
               {artists.map((artist) => (
                 <button
@@ -389,7 +390,7 @@ export default function Music() {
                       : "bg-white/5 secondary-color-text opacity-60 hover:opacity-100"
                   }`}
                 >
-                  {artist}
+                  {artist} ({artistCounts[artist]})
                 </button>
               ))}
             </div>
