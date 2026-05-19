@@ -71,7 +71,7 @@ const MusicCard = memo(
               </div>
             ) : (
               <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 scale-75 group-hover:scale-100 transition-all duration-300 shadow-lg">
-                <FaPlay className="text-primary-color-bg ml-0.5" size={16} />
+                <FaPlay className="secondary-color-text ml-0.5" size={16} />
               </div>
             )}
           </div>
@@ -422,7 +422,7 @@ export default function Music() {
             <div className="flex items-center gap-2">
               <button
                 onClick={handlePrev}
-                className="p-2 secondary-color-text/60 hover:text-white transition-colors"
+                className="p-2 secondary-color-text/60 hover:secondary-color-text transition-colors"
               >
                 <FaStepBackward size={14} />
               </button>
@@ -431,14 +431,14 @@ export default function Music() {
                 className="w-9 h-9 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-colors"
               >
                 {isPlaying ? (
-                  <FaPause className="text-white" size={14} />
+                  <FaPause className="secondary-color-text" size={14} />
                 ) : (
-                  <FaPlay className="text-white ml-0.5" size={14} />
+                  <FaPlay className="secondary-color-text ml-0.5" size={14} />
                 )}
               </button>
               <button
                 onClick={handleNextInternal}
-                className="p-2 secondary-color-text/60 hover:text-white transition-colors"
+                className="p-2 secondary-color-text/60 hover:secondary-color-text transition-colors"
               >
                 <FaStepForward size={14} />
               </button>
@@ -459,7 +459,7 @@ export default function Music() {
                   setVolume(newVol);
                   playerRef.current?.setVolume(newVol);
                 }}
-                className="secondary-color-text/60 hover:text-white transition-colors"
+                className="secondary-color-text/60 hover:secondary-color-text transition-colors"
               >
                 {volume === 0 ? (
                   <FaVolumeMute size={14} />
@@ -482,7 +482,7 @@ export default function Music() {
             {/* Speed control */}
             <button
               onClick={handleSpeedCycle}
-              className="text-[11px] font-bold secondary-color-text/60 hover:text-white px-2 py-1 rounded bg-white/5 hover:bg-white/10 transition-colors"
+              className="text-[11px] font-bold secondary-color-text/60 hover:secondary-color-text px-2 py-1 rounded bg-white/5 hover:bg-white/10 transition-colors"
             >
               {playbackRate}x
             </button>
@@ -490,7 +490,7 @@ export default function Music() {
             {/* Close button */}
             <button
               onClick={handleClose}
-              className="p-2 secondary-color-text/40 hover:text-white transition-colors ml-1"
+              className="p-2 secondary-color-text/40 hover:secondary-color-text transition-colors ml-1"
             >
               <FaTimes size={14} />
             </button>
