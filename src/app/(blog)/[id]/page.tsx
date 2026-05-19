@@ -454,7 +454,7 @@ export default function Page({ params }: { params: { id: string } }) {
                      prose-headings:mt-8 prose-headings:mb-4
                      prose-p:mb-6 prose-ul:my-6 prose-li:my-2
                      prose-h2:text-2xl prose-h3:text-xl
-                     prose-code:text-sm prose-pre:bg-gray-100
+                     prose-code:text-sm prose-pre:bg-[rgb(30,26,27)] prose-pre:border prose-pre:border-[rgba(221,198,182,0.1)] prose-pre:rounded-lg
                      max-w-none"
           remarkPlugins={[remarkGfm]}
           rehypePlugins={[rehypeRaw]}

@@ -175,6 +175,24 @@ p {
   border-opacity: 0.25;
 }
 
+/* Prose / Code blocks dark theme */
+.prose pre {
+  background-color: rgb(30, 26, 27) !important;
+  border: 1px solid rgba(221, 198, 182, 0.1) !important;
+  border-radius: 0.75rem !important;
+}
+
+.prose code {
+  color: var(--color-primary-text) !important;
+  border: none !important;
+  background: transparent !important;
+}
+
+.prose code::before,
+.prose code::after {
+  content: none !important;
+}
+
 /* Scrollbar Styles */
 ::-webkit-scrollbar {
   width: 10px;
