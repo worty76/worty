@@ -107,6 +107,29 @@ export default function Music() {
   const artists = Array.from(new Set(music.map((m) => m.artist))).sort();
   const artistCounts = artists.reduce((acc, a) => { acc[a] = music.filter(m => m.artist === a).length; return acc; }, {} as Record<string, number>);
   const filteredMusic = filterArtist ? music.filter((m) => m.artist === filterArtist) : music;
+  const ITEMS_PER_PAGE = 8;
+  const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
+  const visibleMusic = filteredMusic.slice(0, visibleCount);
+
+  // Reset visible count when filter changes
+  useEffect(() => {
+    setVisibleCount(ITEMS_PER_PAGE);
+  }, [filterArtist]);
+
+  // Infinite scroll
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && visibleCount < filteredMusic.length) {
+          setVisibleCount((prev) => Math.min(prev + ITEMS_PER_PAGE, filteredMusic.length));
+        }
+      },
+      { rootMargin: "200px" }
+    );
+    if (sentinelRef.current) observer.observe(sentinelRef.current);
+    return () => observer.disconnect();
+  }, [visibleCount, filteredMusic.length]);
 
   const playerRef = useRef<YT.Player | null>(null);
   const progressRef = useRef<NodeJS.Timeout | null>(null);
@@ -399,7 +422,7 @@ export default function Music() {
 
         {/* Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
-          {filteredMusic.map((item) => {
+          {visibleMusic.map((item) => {
             const idx = music.indexOf(item);
             return (
               <MusicCard
@@ -412,6 +435,12 @@ export default function Music() {
             );
           })}
         </div>
+        {/* Infinite scroll sentinel */}
+        {visibleCount < filteredMusic.length && (
+          <div ref={sentinelRef} className="flex justify-center py-8">
+            <div className="w-5 h-5 border-2 border-[rgb(221,198,182)]/20 border-t-[rgb(221,198,182)] rounded-full animate-spin" />
+          </div>
+        )}
       </div>
 
       {/* Bottom Player Bar */}
