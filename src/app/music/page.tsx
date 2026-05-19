@@ -101,7 +101,7 @@ const MusicRow = memo(
 
         {/* Genre Pills */}
         <div className="hidden sm:flex flex-wrap gap-1.5">
-          {genre.slice(0, 2).map((g, index) => (
+          {(genre || []).slice(0, 2).map((g, index) => (
             <span
               key={index}
               className="px-2 py-0.5 text-xs bg-white/10 secondary-color-text rounded-full"
