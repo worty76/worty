@@ -102,6 +102,10 @@ export default function Music() {
   const [volume, setVolume] = useState(80);
   const [playbackRate, setPlaybackRate] = useState(1);
   const [showPlayer, setShowPlayer] = useState(false);
+  const [filterArtist, setFilterArtist] = useState<string | null>(null);
+
+  const artists = Array.from(new Set(music.map((m) => m.artist))).sort();
+  const filteredMusic = filterArtist ? music.filter((m) => m.artist === filterArtist) : music;
 
   const playerRef = useRef<YT.Player | null>(null);
   const progressRef = useRef<NodeJS.Timeout | null>(null);
@@ -357,20 +361,55 @@ export default function Music() {
             Collection
           </p>
           <h1 className="text-2xl font-bold secondary-color-text">Favorite Music</h1>
-          <p className="text-sm secondary-color-text opacity-40 mt-1">{music.length} tracks</p>
+          <p className="text-sm secondary-color-text opacity-40 mt-1">{filteredMusic.length} tracks</p>
         </div>
+
+        {/* Artist filter */}
+        {artists.length > 0 && (
+          <div className="mb-8">
+            <p className="text-xs uppercase tracking-widest secondary-color-text opacity-30 mb-3">Artists</p>
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => setFilterArtist(null)}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                  filterArtist === null
+                    ? "bg-[rgb(221,198,182)] text-[rgb(38,34,35)]"
+                    : "bg-white/5 secondary-color-text opacity-60 hover:opacity-100"
+                }`}
+              >
+                All
+              </button>
+              {artists.map((artist) => (
+                <button
+                  key={artist}
+                  onClick={() => setFilterArtist(artist)}
+                  className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                    filterArtist === artist
+                      ? "bg-[rgb(221,198,182)] text-[rgb(38,34,35)]"
+                      : "bg-white/5 secondary-color-text opacity-60 hover:opacity-100"
+                  }`}
+                >
+                  {artist}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
-          {music.map((item, idx) => (
-            <MusicCard
-              key={item.id}
-              music={item}
-              onPlay={() => handlePlay(idx)}
-              isCurrentTrack={idx === currentTrackIndex}
-              isPlaying={idx === currentTrackIndex && isPlaying}
-            />
-          ))}
+          {filteredMusic.map((item) => {
+            const idx = music.indexOf(item);
+            return (
+              <MusicCard
+                key={item.id}
+                music={item}
+                onPlay={() => handlePlay(idx)}
+                isCurrentTrack={idx === currentTrackIndex}
+                isPlaying={idx === currentTrackIndex && isPlaying}
+              />
+            );
+          })}
         </div>
       </div>
 
