@@ -71,15 +71,15 @@ const MusicCard = memo(
               </div>
             ) : (
               <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 scale-75 group-hover:scale-100 transition-all duration-300 shadow-lg">
-                <FaPlay className="secondary-color-text ml-0.5" size={16} />
+                <FaPlay className="text-[rgb(221,198,182)] ml-0.5" size={16} />
               </div>
             )}
           </div>
         </div>
-        <h3 className={`text-sm font-medium truncate ${isCurrentTrack ? "text-white" : "secondary-color-text"}`}>
+        <h3 className={`text-sm font-medium truncate ${isCurrentTrack ? "text-white" : "text-[rgb(221,198,182)]"}`}>
           {music.title}
         </h3>
-        <p className={`text-xs truncate mt-0.5 ${isCurrentTrack ? "secondary-color-text/70" : "secondary-color-text/45"}`}>
+        <p className={`text-xs truncate mt-0.5 ${isCurrentTrack ? "text-[rgb(221,198,182)]/70" : "text-[rgb(221,198,182)]/45"}`}>
           {music.artist}
         </p>
       </div>
@@ -353,11 +353,11 @@ export default function Music() {
       <div className="max-w-5xl mx-auto px-4 py-12 pb-40">
         {/* Header */}
         <div className="mb-8">
-          <p className="text-xs uppercase tracking-widest secondary-color-text/30 mb-2">
+          <p className="text-xs uppercase tracking-widest text-[rgb(221,198,182)]/30 mb-2">
             Collection
           </p>
           <h1 className="text-2xl font-bold secondary-color-text">Favorite Music</h1>
-          <p className="text-sm secondary-color-text/40 mt-1">{music.length} tracks</p>
+          <p className="text-sm text-[rgb(221,198,182)]/40 mt-1">{music.length} tracks</p>
         </div>
 
         {/* Grid */}
@@ -411,7 +411,7 @@ export default function Music() {
                   <p className="text-sm font-medium secondary-color-text truncate">
                     {currentTrack.title}
                   </p>
-                  <p className="text-xs secondary-color-text/50 truncate">
+                  <p className="text-xs text-[rgb(221,198,182)]/50 truncate">
                     {currentTrack.artist}
                   </p>
                 </div>
@@ -422,7 +422,7 @@ export default function Music() {
             <div className="flex items-center gap-2">
               <button
                 onClick={handlePrev}
-                className="p-2 secondary-color-text/60 hover:secondary-color-text transition-colors"
+                className="p-2 text-[rgb(221,198,182)]/60 hover:text-[rgb(221,198,182)] transition-colors"
               >
                 <FaStepBackward size={14} />
               </button>
@@ -431,21 +431,21 @@ export default function Music() {
                 className="w-9 h-9 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-colors"
               >
                 {isPlaying ? (
-                  <FaPause className="secondary-color-text" size={14} />
+                  <FaPause className="text-[rgb(221,198,182)]" size={14} />
                 ) : (
-                  <FaPlay className="secondary-color-text ml-0.5" size={14} />
+                  <FaPlay className="text-[rgb(221,198,182)] ml-0.5" size={14} />
                 )}
               </button>
               <button
                 onClick={handleNextInternal}
-                className="p-2 secondary-color-text/60 hover:secondary-color-text transition-colors"
+                className="p-2 text-[rgb(221,198,182)]/60 hover:text-[rgb(221,198,182)] transition-colors"
               >
                 <FaStepForward size={14} />
               </button>
             </div>
 
             {/* Time display */}
-            <div className="text-[11px] secondary-color-text/40 font-mono hidden sm:flex items-center gap-1.5 w-24 justify-center">
+            <div className="text-[11px] text-[rgb(221,198,182)]/40 font-mono hidden sm:flex items-center gap-1.5 w-24 justify-center">
               <span>{formatTime(progress)}</span>
               <span>/</span>
               <span>{formatTime(duration)}</span>
@@ -459,7 +459,7 @@ export default function Music() {
                   setVolume(newVol);
                   playerRef.current?.setVolume(newVol);
                 }}
-                className="secondary-color-text/60 hover:secondary-color-text transition-colors"
+                className="text-[rgb(221,198,182)]/60 hover:text-[rgb(221,198,182)] transition-colors"
               >
                 {volume === 0 ? (
                   <FaVolumeMute size={14} />
@@ -482,7 +482,7 @@ export default function Music() {
             {/* Speed control */}
             <button
               onClick={handleSpeedCycle}
-              className="text-[11px] font-bold secondary-color-text/60 hover:secondary-color-text px-2 py-1 rounded bg-white/5 hover:bg-white/10 transition-colors"
+              className="text-[11px] font-bold text-[rgb(221,198,182)]/60 hover:text-[rgb(221,198,182)] px-2 py-1 rounded bg-white/5 hover:bg-white/10 transition-colors"
             >
               {playbackRate}x
             </button>
@@ -490,7 +490,7 @@ export default function Music() {
             {/* Close button */}
             <button
               onClick={handleClose}
-              className="p-2 secondary-color-text/40 hover:secondary-color-text transition-colors ml-1"
+              className="p-2 text-[rgb(221,198,182)]/40 hover:text-[rgb(221,198,182)] transition-colors ml-1"
             >
               <FaTimes size={14} />
             </button>
