@@ -464,7 +464,13 @@ export default function Page({ params }: { params: { id: string } }) {
         </ReactMarkdown>
       </article>
 
-      <div className="mt-16 mb-8 text-center">
+      {/* Written by human notice */}
+      <div className="mt-12 mb-8 flex items-center justify-center gap-2 secondary-color-text opacity-40 text-xs">
+        <span>✍️</span>
+        <em>Written by hand — no AI involved in creating this content.</em>
+      </div>
+
+      <div className="mb-8 text-center">
         <h3 className="text-xl font-semibold secondary-color-text mb-4">
           Did you enjoy this article?
         </h3>
