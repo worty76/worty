@@ -134,11 +134,6 @@ export default function BucketListPage() {
                 key={item.id}
                 className="flex items-center gap-3 py-2.5 px-2 rounded-lg hover:bg-white/[0.03] transition-colors"
               >
-                {/* Number */}
-                <span className="text-xs font-mono secondary-color-text opacity-25 w-6 text-right shrink-0">
-                  {item.order}
-                </span>
-
                 {/* Check */}
                 {item.completed ? (
                   <span className="shrink-0 text-emerald-500"><FaCheck size={10} /></span>
