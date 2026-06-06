@@ -5,9 +5,11 @@ import { useRouter } from "next/navigation";
 import { BlogForm } from "@/components/admin/BlogForm";
 import { GalleryForm } from "@/components/admin/GalleryForm";
 import { MusicForm } from "@/components/admin/MusicForm";
+import { BucketListForm } from "@/components/admin/BucketListForm";
 import { BlogList } from "@/components/admin/BlogList";
 import { GalleryList } from "@/components/admin/GalleryList";
 import { MusicList } from "@/components/admin/MusicList";
+import { BucketList } from "@/components/admin/BucketList";
 import { useAuth } from "@/context/auth-context";
 import { db } from "@/firebase/config";
 import {
@@ -28,7 +30,7 @@ import { BlogStatus } from "@/components/ui/StatusBadge";
 
 export const dynamic = "force-dynamic";
 
-type Tab = "home" | "blog" | "gallery" | "music";
+type Tab = "home" | "blog" | "gallery" | "music" | "bucketlist";
 type View = "form" | "list";
 
 interface EditingBlog {
@@ -70,10 +72,19 @@ interface EditingMusic {
   spotifyLink?: string;
 }
 
+interface EditingBucketItem {
+  id?: string;
+  title: string;
+  category: string;
+  order: number;
+  completed: boolean;
+}
+
 interface Stats {
   blogCount: number;
   galleryCount: number;
   musicCount: number;
+  bucketCount: number;
 }
 
 const NAV_ITEMS: { key: Tab; label: string; icon: React.ReactNode }[] = [
@@ -81,6 +92,7 @@ const NAV_ITEMS: { key: Tab; label: string; icon: React.ReactNode }[] = [
   { key: "blog", label: "Blog Posts", icon: <FaPen size={16} /> },
   { key: "gallery", label: "Gallery", icon: <FaImages size={16} /> },
   { key: "music", label: "Music", icon: <FaMusic size={16} /> },
+  { key: "bucketlist", label: "Bucket List", icon: <FaList size={16} /> },
 ];
 
 export default function AdminPage() {
@@ -89,10 +101,11 @@ export default function AdminPage() {
   const [editingBlog, setEditingBlog] = useState<EditingBlog | null>(null);
   const [editingGallery, setEditingGallery] = useState<EditingGallery | null>(null);
   const [editingMusic, setEditingMusic] = useState<EditingMusic | null>(null);
+  const [editingBucketItem, setEditingBucketItem] = useState<EditingBucketItem | null>(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [existingTags, setExistingTags] = useState<string[]>([]);
   const [existingGenres, setExistingGenres] = useState<string[]>([]);
-  const [stats, setStats] = useState<Stats>({ blogCount: 0, galleryCount: 0, musicCount: 0 });
+  const [stats, setStats] = useState<Stats>({ blogCount: 0, galleryCount: 0, musicCount: 0, bucketCount: 0 });
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const { user, loading, logOut } = useAuth();
   const router = useRouter();
@@ -108,15 +121,17 @@ export default function AdminPage() {
     const fetchStats = async () => {
       try {
         const { collection, getDocs } = await import("firebase/firestore");
-        const [blogSnap, gallerySnap, musicSnap] = await Promise.all([
+        const [blogSnap, gallerySnap, musicSnap, bucketSnap] = await Promise.all([
           getDocs(collection(db, "blog")),
           getDocs(collection(db, "gallery")),
           getDocs(collection(db, "music")),
+          getDocs(collection(db, "bucketlist")),
         ]);
         setStats({
           blogCount: blogSnap.size,
           galleryCount: gallerySnap.size,
           musicCount: musicSnap.size,
+          bucketCount: bucketSnap.size,
         });
       } catch (e) {
         console.error("Error fetching stats:", e);
@@ -201,10 +216,19 @@ export default function AdminPage() {
     setCurrentView("form");
   };
 
+  const handleBucketEdit = (item: any) => {
+    setEditingBucketItem({
+      id: item.id, title: item.title, category: item.category,
+      order: item.order, completed: item.completed,
+    });
+    setCurrentView("form");
+  };
+
   const handleNewPost = () => {
     setEditingBlog(null);
     setEditingGallery(null);
     setEditingMusic(null);
+    setEditingBucketItem(null);
     setCurrentView("form");
   };
 
@@ -213,6 +237,7 @@ export default function AdminPage() {
     setEditingBlog(null);
     setEditingGallery(null);
     setEditingMusic(null);
+    setEditingBucketItem(null);
     setCurrentView("list");
   };
 
@@ -220,6 +245,7 @@ export default function AdminPage() {
     setEditingBlog(null);
     setEditingGallery(null);
     setEditingMusic(null);
+    setEditingBucketItem(null);
     setCurrentView("list");
   };
 
@@ -234,6 +260,7 @@ export default function AdminPage() {
     setEditingBlog(null);
     setEditingGallery(null);
     setEditingMusic(null);
+    setEditingBucketItem(null);
     setMobileNavOpen(false);
   };
 
@@ -242,22 +269,27 @@ export default function AdminPage() {
       ? { title: editingBlog?.docId ? "Edit Blog Post" : "Create New Post", description: editingBlog?.docId ? "Update your existing blog post" : "Share your thoughts with the world" }
       : activeTab === "gallery"
       ? { title: editingGallery?.id ? "Edit Memory" : "Add New Memory", description: editingGallery?.id ? "Update your memory" : "Add a new moment to your gallery" }
-      : { title: editingMusic?.id ? "Edit Track" : "Add New Track", description: editingMusic?.id ? "Update this track" : "Add a new track to your collection" };
+      : activeTab === "music"
+      ? { title: editingMusic?.id ? "Edit Track" : "Add New Track", description: editingMusic?.id ? "Update this track" : "Add a new track to your collection" }
+      : { title: editingBucketItem?.id ? "Edit Item" : "Add Bucket List Item", description: editingBucketItem?.id ? "Update this goal" : "Add a new goal to your list" };
 
   const listHeaderInfo =
     activeTab === "blog"
       ? { title: "Your Blog Posts", description: "Manage and edit your blog posts" }
       : activeTab === "gallery"
       ? { title: "Your Memories", description: "Manage your photo gallery" }
-      : { title: "Your Music", description: "Manage your music collection" };
+      : activeTab === "music"
+      ? { title: "Your Music", description: "Manage your music collection" }
+      : { title: "Your Bucket List", description: "Manage your goals and dreams" };
 
-  const contentTab = activeTab as "blog" | "gallery" | "music";
+  const contentTab = activeTab as "blog" | "gallery" | "music" | "bucketlist";
 
   // Stats cards
   const statCards = [
     { label: "Blog Posts", count: stats.blogCount, icon: <FaPen size={20} />, color: "from-blue-500/20 to-blue-600/5" },
     { label: "Gallery Items", count: stats.galleryCount, icon: <FaImages size={20} />, color: "from-emerald-500/20 to-emerald-600/5" },
     { label: "Music Tracks", count: stats.musicCount, icon: <FaMusic size={20} />, color: "from-purple-500/20 to-purple-600/5" },
+    { label: "Bucket List", count: stats.bucketCount, icon: <FaList size={20} />, color: "from-amber-500/20 to-amber-600/5" },
   ];
 
   const renderContent = () => {
@@ -270,11 +302,11 @@ export default function AdminPage() {
             <p className="secondary-color-text opacity-60 text-sm">Welcome back. Here&apos;s an overview of your content.</p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {statCards.map((card) => (
               <button
                 key={card.label}
-                onClick={() => handleTabChange(card.label.toLowerCase().includes("blog") ? "blog" : card.label.toLowerCase().includes("gallery") ? "gallery" : "music")}
+                onClick={() => handleTabChange(card.label.toLowerCase().includes("blog") ? "blog" : card.label.toLowerCase().includes("gallery") ? "gallery" : card.label.toLowerCase().includes("music") ? "music" : "bucketlist")}
                 className="relative overflow-hidden rounded-2xl border border-[rgba(221,198,182,0.08)] bg-gradient-to-br hover:border-[rgba(221,198,182,0.2)] transition-all duration-200 text-left group"
               >
                 <div className={`absolute inset-0 bg-gradient-to-br ${card.color} opacity-60 group-hover:opacity-80 transition-opacity`} />
@@ -292,7 +324,7 @@ export default function AdminPage() {
           {/* Quick actions */}
           <div>
             <h3 className="secondary-color-text font-heading font-semibold mb-4">Quick Actions</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               <Button variant="secondary" fullWidth onClick={() => { setActiveTab("blog"); handleNewPost(); }} icon={<FaPlus size={14} />}>
                 New Blog Post
               </Button>
@@ -301,6 +333,9 @@ export default function AdminPage() {
               </Button>
               <Button variant="secondary" fullWidth onClick={() => { setActiveTab("music"); handleNewPost(); }} icon={<FaPlus size={14} />}>
                 New Music Track
+              </Button>
+              <Button variant="secondary" fullWidth onClick={() => { setActiveTab("bucketlist"); handleNewPost(); }} icon={<FaPlus size={14} />}>
+                New Bucket List Item
               </Button>
             </div>
           </div>
@@ -323,8 +358,10 @@ export default function AdminPage() {
                 <BlogForm initialData={editingBlog || undefined} onSuccess={handleSuccess} />
               ) : activeTab === "gallery" ? (
                 <GalleryForm initialData={editingGallery || undefined} onSuccess={handleSuccess} existingTags={existingTags} />
-              ) : (
+              ) : activeTab === "music" ? (
                 <MusicForm initialData={editingMusic || undefined} onSuccess={handleSuccess} existingGenres={existingGenres} />
+              ) : (
+                <BucketListForm initialData={editingBucketItem || undefined} onSuccess={handleSuccess} />
               )}
             </div>
           </Card>
@@ -350,8 +387,10 @@ export default function AdminPage() {
               <BlogList onEdit={handleBlogEdit} refreshTrigger={refreshTrigger} />
             ) : activeTab === "gallery" ? (
               <GalleryList onEdit={handleGalleryEdit} refreshTrigger={refreshTrigger} />
-            ) : (
+            ) : activeTab === "music" ? (
               <MusicList onEdit={handleMusicEdit} refreshTrigger={refreshTrigger} />
+            ) : (
+              <BucketList onEdit={handleBucketEdit} refreshTrigger={refreshTrigger} />
             )}
           </div>
         </Card>
