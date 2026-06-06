@@ -3,9 +3,7 @@
 import { useState, useEffect } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/firebase/config";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCheck,  } from "@fortawesome/free-solid-svg-icons";
-import { LoadingSpinner } from "@/components/ui/LoadingStates";
+import { FaCheck } from "react-icons/fa";
 
 export const dynamic = "force-dynamic";
 
@@ -61,68 +59,57 @@ export default function BucketListPage() {
   if (loading) {
     return (
       <main className="min-h-screen primary-color-bg flex items-center justify-center">
-        <LoadingSpinner />
+        <div className="text-[rgb(221,198,182)] opacity-40 text-sm">Loading...</div>
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen primary-color-bg px-4 sm:px-8 md:px-16 lg:px-24 py-12">
-      <div className="max-w-3xl mx-auto">
+    <main className="min-h-screen primary-color-bg px-4 py-12">
+      <div className="max-w-2xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="secondary-color-text font-heading text-3xl sm:text-4xl font-bold mb-2">
-            Things to Do Before I Die
-          </h1>
-          <p className="text-[rgb(221,198,182)]/50 text-sm">
-            A personal list of goals, dreams, and experiences.
+        <div className="mb-6">
+          <p className="text-xs uppercase tracking-widest secondary-color-text opacity-30 mb-2">Personal</p>
+          <h1 className="secondary-color-text text-2xl font-bold">100 Things To Do Before I Die</h1>
+          <p className="text-sm secondary-color-text opacity-40 mt-1">
+            {completedCount} of {totalCount} completed
           </p>
         </div>
 
-        {/* Progress */}
+        {/* Progress bar */}
         <div className="mb-8">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[rgb(221,198,182)]/70 text-sm font-medium">
-              {completedCount}/{totalCount} completed
-            </span>
-            <span className="text-[rgb(221,198,182)]/50 text-sm">{percentage}%</span>
-          </div>
-          <div className="w-full h-1.5 rounded-full bg-white/5 overflow-hidden">
+          <div className="w-full h-1 rounded-full bg-white/5 overflow-hidden">
             <div
-              className="h-full rounded-full bg-amber-600/80 transition-all duration-500"
-              style={{ width: `${percentage}%` }}
+              className="h-full rounded-full transition-all duration-500"
+              style={{ width: `${percentage}%`, backgroundColor: "rgb(217, 164, 65)" }}
             />
           </div>
         </div>
 
         {/* Filters */}
-        <div className="space-y-3 mb-8">
-          {/* Status pills */}
-          <div className="flex gap-2 flex-wrap">
+        <div className="mb-6">
+          <div className="flex gap-2 flex-wrap mb-2">
             {STATUS_FILTERS.map((s) => (
               <button
                 key={s}
                 onClick={() => setStatusFilter(s)}
-                className={`px-3 py-1 rounded-lg text-xs font-medium transition-all ${
+                className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                   statusFilter === s
-                    ? "bg-white/10 text-[rgb(221,198,182)]"
-                    : "text-[rgb(221,198,182)]/40 hover:text-[rgb(221,198,182)]/70 hover:bg-white/[0.03]"
+                    ? "bg-[rgb(221,198,182)] text-[rgb(38,34,35)]"
+                    : "bg-white/5 secondary-color-text opacity-50 hover:opacity-80"
                 }`}
               >
                 {s}
               </button>
             ))}
-          </div>
-          {/* Category pills */}
-          <div className="flex gap-2 flex-wrap">
-            {categories.map((cat) => (
+            {categories.filter(c => c !== "All").map((cat) => (
               <button
                 key={cat}
                 onClick={() => setCategoryFilter(cat)}
-                className={`px-3 py-1 rounded-lg text-xs font-medium transition-all ${
+                className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                   categoryFilter === cat
-                    ? "bg-white/10 text-[rgb(221,198,182)]"
-                    : "bg-white/5 text-[rgb(221,198,182)]/50 hover:text-[rgb(221,198,182)]/80"
+                    ? "bg-[rgb(221,198,182)] text-[rgb(38,34,35)]"
+                    : "bg-white/5 secondary-color-text opacity-50 hover:opacity-80"
                 }`}
               >
                 {cat}
@@ -132,42 +119,38 @@ export default function BucketListPage() {
         </div>
 
         {/* List */}
-        <div className="space-y-1">
+        <div className="space-y-0.5">
           {filtered.length === 0 ? (
-            <p className="text-[rgb(221,198,182)]/30 text-sm text-center py-12">
-              No items found.
-            </p>
+            <p className="secondary-color-text opacity-30 text-sm text-center py-12">No items yet.</p>
           ) : (
             filtered.map((item) => (
               <div
                 key={item.id}
-                className={`flex items-center gap-4 px-3 py-2.5 rounded-lg transition-all hover:bg-white/[0.03] ${
-                  item.completed ? "opacity-50" : ""
-                }`}
+                className="flex items-center gap-3 py-2.5 px-2 rounded-lg hover:bg-white/[0.03] transition-colors"
               >
                 {/* Number */}
-                <span className="text-[rgb(221,198,182)]/25 text-xs font-mono w-8 text-right shrink-0">
+                <span className="text-xs font-mono secondary-color-text opacity-25 w-6 text-right shrink-0">
                   {item.order}
                 </span>
 
-                {/* Checkmark */}
-                <span className={`shrink-0 ${item.completed ? "text-emerald-500" : "text-[rgb(221,198,182)]/15"}`}>
-                  <FontAwesomeIcon icon={faCheck} size="xs" />
-                </span>
+                {/* Check */}
+                {item.completed ? (
+                  <span className="shrink-0 text-emerald-500"><FaCheck size={10} /></span>
+                ) : (
+                  <span className="shrink-0 w-2.5 h-2.5 rounded-full border border-[rgb(221,198,182)]/20" />
+                )}
 
                 {/* Title */}
-                <span
-                  className={`flex-1 text-sm ${
-                    item.completed
-                      ? "line-through text-[rgb(221,198,182)]/40"
-                      : "text-[rgb(221,198,182)]"
-                  }`}
-                >
+                <span className={`flex-1 text-sm ${
+                  item.completed
+                    ? "secondary-color-text opacity-45"
+                    : "secondary-color-text"
+                }`}>
                   {item.title}
                 </span>
 
-                {/* Category badge */}
-                <span className="shrink-0 px-2 py-0.5 rounded text-[10px] font-medium bg-white/5 text-[rgb(221,198,182)]/50">
+                {/* Category */}
+                <span className="shrink-0 px-2 py-0.5 rounded text-[10px] bg-white/5 secondary-color-text opacity-40">
                   {item.category}
                 </span>
               </div>
