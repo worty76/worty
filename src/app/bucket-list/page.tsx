@@ -87,8 +87,9 @@ export default function BucketListPage() {
         </div>
 
         {/* Filters */}
-        <div className="mb-6">
-          <div className="flex gap-2 flex-wrap mb-2">
+        <div className="mb-6 space-y-2">
+          {/* Status */}
+          <div className="flex gap-2 flex-wrap">
             {STATUS_FILTERS.map((s) => (
               <button
                 key={s}
@@ -102,20 +103,25 @@ export default function BucketListPage() {
                 {s}
               </button>
             ))}
-            {categories.filter(c => c !== "All").map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setCategoryFilter(cat)}
-                className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                  categoryFilter === cat
-                    ? "bg-[rgb(221,198,182)] text-[rgb(38,34,35)]"
-                    : "bg-white/5 secondary-color-text opacity-50 hover:opacity-80"
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
           </div>
+          {/* Category */}
+          {categories.length > 2 && (
+            <div className="flex gap-2 flex-wrap">
+              {categories.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setCategoryFilter(cat)}
+                  className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                    categoryFilter === cat
+                      ? "bg-[rgb(221,198,182)] text-[rgb(38,34,35)]"
+                      : "bg-white/5 secondary-color-text opacity-50 hover:opacity-80"
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* List */}
