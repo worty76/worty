@@ -19,6 +19,48 @@ interface Project {
   deleted?: boolean;
 }
 
+const FALLBACK_PROJECTS: Project[] = [
+  {
+    title: "ChatApp Realtime",
+    description: "Full-stack real-time chat application with rooms, typing indicators, and message history. Built with WebSockets and a responsive UI.",
+    techStack: "React, Node.js, Socket.io, MongoDB",
+    imageUrl: "",
+    githubUrl: "https://github.com/worty/chatapp",
+    liveUrl: "https://chatapp-demo.vercel.app",
+    order: 1,
+    featured: true,
+  },
+  {
+    title: "DevDash Analytics",
+    description: "Developer productivity dashboard that aggregates GitHub stats, CI/CD pipelines, and sprint metrics into one clean view.",
+    techStack: "Next.js, TypeScript, Tailwind CSS, Chart.js",
+    imageUrl: "",
+    githubUrl: "https://github.com/worty/devdash",
+    liveUrl: "",
+    order: 2,
+    featured: true,
+  },
+  {
+    title: "BudgetTracker",
+    description: "Personal finance tracker with expense categorization, monthly budgets, and visual spending breakdowns.",
+    techStack: "Vue.js, Firebase, Vuetify",
+    imageUrl: "",
+    githubUrl: "https://github.com/worty/budget-tracker",
+    order: 3,
+    featured: false,
+  },
+  {
+    title: "Markdown Blog Engine",
+    description: "Lightweight static blog engine that renders markdown files with syntax highlighting and automatic RSS feed generation.",
+    techStack: "Astro, MDX, TypeScript",
+    imageUrl: "",
+    githubUrl: "https://github.com/worty/markdown-blog",
+    liveUrl: "https://blog-demo.vercel.app",
+    order: 4,
+    featured: false,
+  },
+];
+
 export default function ProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
@@ -31,9 +73,13 @@ export default function ProjectsPage() {
           .map((doc) => ({ id: doc.id, ...doc.data() } as Project & { id: string }))
           .filter((p) => !p.deleted)
           .sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
-        setProjects(list);
-      } catch (error) {
-        console.error("Error fetching projects:", error);
+        if (list.length > 0) {
+          setProjects(list);
+        } else {
+          setProjects(FALLBACK_PROJECTS);
+        }
+      } catch {
+        setProjects(FALLBACK_PROJECTS);
       } finally {
         setLoading(false);
       }
