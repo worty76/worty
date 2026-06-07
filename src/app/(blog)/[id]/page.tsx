@@ -427,7 +427,7 @@ export default function Page({ params }: { params: { id: string } }) {
             {blog.readingTime && <span> · {displayReadingTime} read</span>}
           </time>
           <p className="mt-3 text-xs font-medium secondary-color-text opacity-50 border-l-2 border-[rgb(217,164,65)] pl-3">
-            Dat wrote this manually without relying on AI
+            100% human-written by Dat.
           </p>
         </div>
       </main>
