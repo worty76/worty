@@ -388,26 +388,26 @@ export default function Page({ params }: { params: { id: string } }) {
                 </div>
               ))}
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-0.5 bg-white/[0.04] rounded-full p-0.5">
               <button
                 onClick={() => setLang("en")}
-                className={`px-3 py-1 rounded-md text-xs font-medium transition-all ${
+                className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
                   lang === "en"
-                    ? "bg-white/[0.12] secondary-color-text border border-[rgba(221,198,182,0.2)]"
-                    : "secondary-color-text opacity-40 hover:opacity-70 border border-transparent"
+                    ? "bg-white/[0.12] secondary-color-text"
+                    : "secondary-color-text opacity-30 hover:opacity-60"
                 }`}
               >
-                EN
+                English
               </button>
               <button
                 onClick={() => setLang("vi")}
-                className={`px-3 py-1 rounded-md text-xs font-medium transition-all ${
+                className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
                   lang === "vi"
-                    ? "bg-white/[0.12] secondary-color-text border border-[rgba(221,198,182,0.2)]"
-                    : "secondary-color-text opacity-40 hover:opacity-70 border border-transparent"
+                    ? "bg-white/[0.12] secondary-color-text"
+                    : "secondary-color-text opacity-30 hover:opacity-60"
                 }`}
               >
-                VI
+                Tiếng Việt
               </button>
             </div>
           </div>
