@@ -232,7 +232,7 @@ export default function Blog() {
                   : "secondary-color-text opacity-30 hover:opacity-60"
               }`}
             >
-              English
+              EN
             </button>
             <button
               onClick={() => setLang("vi")}
@@ -242,7 +242,7 @@ export default function Blog() {
                   : "secondary-color-text opacity-30 hover:opacity-60"
               }`}
             >
-              Tiếng Việt
+              VI
             </button>
           </div>
       </div>
