@@ -446,6 +446,7 @@ export default function Page({ params }: { params: { id: string } }) {
         <p className="text-lg secondary-color-text italic text-center my-8 font-light duration-1000">
           {displayDescription}
         </p>
+        <p className="text-xs secondary-color-text opacity-25 mb-6">— human written, no AI</p>
         <ReactMarkdown
           className="prose-headings:secondary-color-text prose-p:secondary-color-text prose-p:opacity-90
                      prose-a:secondary-color-text hover:prose-a:opacity-80
@@ -463,12 +464,6 @@ export default function Page({ params }: { params: { id: string } }) {
           {displayContent || ""}
         </ReactMarkdown>
       </article>
-
-      {/* Written by human notice */}
-      <div className="mt-12 mb-8 flex items-center justify-center gap-2 secondary-color-text opacity-40 text-xs">
-        <span>✍️</span>
-        <em>Written by hand — no AI involved in creating this content.</em>
-      </div>
 
       <div className="mb-8 text-center">
         <h3 className="text-xl font-semibold secondary-color-text mb-4">
