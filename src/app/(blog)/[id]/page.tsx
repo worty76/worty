@@ -426,6 +426,9 @@ export default function Page({ params }: { params: { id: string } }) {
             })}
             {blog.readingTime && <span> · {displayReadingTime} read</span>}
           </time>
+          <p className="mt-3 text-xs font-medium secondary-color-text opacity-50 border-l-2 border-[rgb(217,164,65)] pl-3">
+            Dat wrote this manually without relying on AI
+          </p>
         </div>
       </main>
 
@@ -446,7 +449,6 @@ export default function Page({ params }: { params: { id: string } }) {
         <p className="text-lg secondary-color-text italic text-center my-8 font-light duration-1000">
           {displayDescription}
         </p>
-        <p className="text-xs secondary-color-text opacity-25 mb-6">— human written, no AI</p>
         <ReactMarkdown
           className="prose-headings:secondary-color-text prose-p:secondary-color-text prose-p:opacity-90
                      prose-a:secondary-color-text hover:prose-a:opacity-80
