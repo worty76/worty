@@ -6,10 +6,12 @@ import { BlogForm } from "@/components/admin/BlogForm";
 import { GalleryForm } from "@/components/admin/GalleryForm";
 import { MusicForm } from "@/components/admin/MusicForm";
 import { BucketListForm } from "@/components/admin/BucketListForm";
+import { ProjectForm } from "@/components/admin/ProjectForm";
 import { BlogList } from "@/components/admin/BlogList";
 import { GalleryList } from "@/components/admin/GalleryList";
 import { MusicList } from "@/components/admin/MusicList";
 import { BucketList } from "@/components/admin/BucketList";
+import { ProjectList } from "@/components/admin/ProjectList";
 import { useAuth } from "@/context/auth-context";
 import { db } from "@/firebase/config";
 import {
@@ -22,6 +24,7 @@ import {
   FaUserCircle,
   FaHome,
   FaArrowLeft,
+  FaCode,
 } from "react-icons/fa";
 import { Card, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -30,7 +33,7 @@ import { BlogStatus } from "@/components/ui/StatusBadge";
 
 export const dynamic = "force-dynamic";
 
-type Tab = "home" | "blog" | "gallery" | "music" | "bucketlist";
+type Tab = "home" | "blog" | "gallery" | "music" | "bucketlist" | "projects";
 type View = "form" | "list";
 
 interface EditingBlog {
@@ -80,11 +83,24 @@ interface EditingBucketItem {
   completed: boolean;
 }
 
+interface EditingProject {
+  docId?: string;
+  title: string;
+  description: string;
+  techStack: string;
+  imageUrl: string;
+  githubUrl?: string;
+  liveUrl?: string;
+  order: number;
+  featured: boolean;
+}
+
 interface Stats {
   blogCount: number;
   galleryCount: number;
   musicCount: number;
   bucketCount: number;
+  projectCount: number;
 }
 
 const NAV_ITEMS: { key: Tab; label: string; icon: React.ReactNode }[] = [
@@ -93,6 +109,7 @@ const NAV_ITEMS: { key: Tab; label: string; icon: React.ReactNode }[] = [
   { key: "gallery", label: "Gallery", icon: <FaImages size={16} /> },
   { key: "music", label: "Music", icon: <FaMusic size={16} /> },
   { key: "bucketlist", label: "Bucket List", icon: <FaList size={16} /> },
+  { key: "projects", label: "Projects", icon: <FaCode size={16} /> },
 ];
 
 export default function AdminPage() {
@@ -102,10 +119,11 @@ export default function AdminPage() {
   const [editingGallery, setEditingGallery] = useState<EditingGallery | null>(null);
   const [editingMusic, setEditingMusic] = useState<EditingMusic | null>(null);
   const [editingBucketItem, setEditingBucketItem] = useState<EditingBucketItem | null>(null);
+  const [editingProject, setEditingProject] = useState<EditingProject | null>(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [existingTags, setExistingTags] = useState<string[]>([]);
   const [existingGenres, setExistingGenres] = useState<string[]>([]);
-  const [stats, setStats] = useState<Stats>({ blogCount: 0, galleryCount: 0, musicCount: 0, bucketCount: 0 });
+  const [stats, setStats] = useState<Stats>({ blogCount: 0, galleryCount: 0, musicCount: 0, bucketCount: 0, projectCount: 0 });
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const { user, loading, logOut } = useAuth();
   const router = useRouter();
@@ -121,17 +139,19 @@ export default function AdminPage() {
     const fetchStats = async () => {
       try {
         const { collection, getDocs } = await import("firebase/firestore");
-        const [blogSnap, gallerySnap, musicSnap, bucketSnap] = await Promise.all([
+        const [blogSnap, gallerySnap, musicSnap, bucketSnap, projectSnap] = await Promise.all([
           getDocs(collection(db, "blog")),
           getDocs(collection(db, "gallery")),
           getDocs(collection(db, "music")),
           getDocs(collection(db, "bucketlist")),
+          getDocs(collection(db, "projects")),
         ]);
         setStats({
           blogCount: blogSnap.size,
           galleryCount: gallerySnap.size,
           musicCount: musicSnap.size,
           bucketCount: bucketSnap.size,
+          projectCount: projectSnap.size,
         });
       } catch (e) {
         console.error("Error fetching stats:", e);
@@ -224,11 +244,21 @@ export default function AdminPage() {
     setCurrentView("form");
   };
 
+  const handleProjectEdit = (item: any) => {
+    setEditingProject({
+      docId: item.docId, title: item.title, description: item.description,
+      techStack: item.techStack, imageUrl: item.imageUrl, githubUrl: item.githubUrl,
+      liveUrl: item.liveUrl, order: item.order, featured: item.featured,
+    });
+    setCurrentView("form");
+  };
+
   const handleNewPost = () => {
     setEditingBlog(null);
     setEditingGallery(null);
     setEditingMusic(null);
     setEditingBucketItem(null);
+    setEditingProject(null);
     setCurrentView("form");
   };
 
@@ -238,6 +268,7 @@ export default function AdminPage() {
     setEditingGallery(null);
     setEditingMusic(null);
     setEditingBucketItem(null);
+    setEditingProject(null);
     setCurrentView("list");
   };
 
@@ -246,6 +277,7 @@ export default function AdminPage() {
     setEditingGallery(null);
     setEditingMusic(null);
     setEditingBucketItem(null);
+    setEditingProject(null);
     setCurrentView("list");
   };
 
@@ -261,6 +293,7 @@ export default function AdminPage() {
     setEditingGallery(null);
     setEditingMusic(null);
     setEditingBucketItem(null);
+    setEditingProject(null);
     setMobileNavOpen(false);
   };
 
@@ -271,6 +304,8 @@ export default function AdminPage() {
       ? { title: editingGallery?.id ? "Edit Memory" : "Add New Memory", description: editingGallery?.id ? "Update your memory" : "Add a new moment to your gallery" }
       : activeTab === "music"
       ? { title: editingMusic?.id ? "Edit Track" : "Add New Track", description: editingMusic?.id ? "Update this track" : "Add a new track to your collection" }
+      : activeTab === "projects"
+      ? { title: editingProject?.docId ? "Edit Project" : "Add New Project", description: editingProject?.docId ? "Update this project" : "Add a new project to your showcase" }
       : { title: editingBucketItem?.id ? "Edit Item" : "Add Bucket List Item", description: editingBucketItem?.id ? "Update this goal" : "Add a new goal to your list" };
 
   const listHeaderInfo =
@@ -280,6 +315,8 @@ export default function AdminPage() {
       ? { title: "Your Memories", description: "Manage your photo gallery" }
       : activeTab === "music"
       ? { title: "Your Music", description: "Manage your music collection" }
+      : activeTab === "projects"
+      ? { title: "Your Projects", description: "Manage your project showcase" }
       : { title: "Your Bucket List", description: "Manage your goals and dreams" };
 
   const contentTab = activeTab as "blog" | "gallery" | "music" | "bucketlist";
@@ -290,6 +327,7 @@ export default function AdminPage() {
     { label: "Gallery Items", count: stats.galleryCount, icon: <FaImages size={20} />, color: "from-emerald-500/20 to-emerald-600/5" },
     { label: "Music Tracks", count: stats.musicCount, icon: <FaMusic size={20} />, color: "from-purple-500/20 to-purple-600/5" },
     { label: "Bucket List", count: stats.bucketCount, icon: <FaList size={20} />, color: "from-amber-500/20 to-amber-600/5" },
+    { label: "Projects", count: stats.projectCount, icon: <FaCode size={20} />, color: "from-cyan-500/20 to-cyan-600/5" },
   ];
 
   const renderContent = () => {
@@ -306,7 +344,7 @@ export default function AdminPage() {
             {statCards.map((card) => (
               <button
                 key={card.label}
-                onClick={() => handleTabChange(card.label.toLowerCase().includes("blog") ? "blog" : card.label.toLowerCase().includes("gallery") ? "gallery" : card.label.toLowerCase().includes("music") ? "music" : "bucketlist")}
+                onClick={() => handleTabChange(card.label.toLowerCase().includes("blog") ? "blog" : card.label.toLowerCase().includes("gallery") ? "gallery" : card.label.toLowerCase().includes("music") ? "music" : card.label.toLowerCase().includes("project") ? "projects" : "bucketlist")}
                 className="relative overflow-hidden rounded-2xl border border-[rgba(221,198,182,0.08)] bg-gradient-to-br hover:border-[rgba(221,198,182,0.2)] transition-all duration-200 text-left group"
               >
                 <div className={`absolute inset-0 bg-gradient-to-br ${card.color} opacity-60 group-hover:opacity-80 transition-opacity`} />
@@ -324,7 +362,7 @@ export default function AdminPage() {
           {/* Quick actions */}
           <div>
             <h3 className="secondary-color-text font-heading font-semibold mb-4">Quick Actions</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
               <Button variant="secondary" fullWidth onClick={() => { setActiveTab("blog"); handleNewPost(); }} icon={<FaPlus size={14} />}>
                 New Blog Post
               </Button>
@@ -336,6 +374,9 @@ export default function AdminPage() {
               </Button>
               <Button variant="secondary" fullWidth onClick={() => { setActiveTab("bucketlist"); handleNewPost(); }} icon={<FaPlus size={14} />}>
                 New Bucket List Item
+              </Button>
+              <Button variant="secondary" fullWidth onClick={() => { setActiveTab("projects"); handleNewPost(); }} icon={<FaPlus size={14} />}>
+                New Project
               </Button>
             </div>
           </div>
@@ -360,6 +401,8 @@ export default function AdminPage() {
                 <GalleryForm initialData={editingGallery || undefined} onSuccess={handleSuccess} existingTags={existingTags} />
               ) : activeTab === "music" ? (
                 <MusicForm initialData={editingMusic || undefined} onSuccess={handleSuccess} existingGenres={existingGenres} />
+              ) : activeTab === "projects" ? (
+                <ProjectForm initialData={editingProject || undefined} onSuccess={handleSuccess} />
               ) : (
                 <BucketListForm initialData={editingBucketItem || undefined} onSuccess={handleSuccess} />
               )}
@@ -389,6 +432,8 @@ export default function AdminPage() {
               <GalleryList onEdit={handleGalleryEdit} refreshTrigger={refreshTrigger} />
             ) : activeTab === "music" ? (
               <MusicList onEdit={handleMusicEdit} refreshTrigger={refreshTrigger} />
+            ) : activeTab === "projects" ? (
+              <ProjectList onEdit={handleProjectEdit} refreshTrigger={refreshTrigger} />
             ) : (
               <BucketList onEdit={handleBucketEdit} refreshTrigger={refreshTrigger} />
             )}

@@ -10,6 +10,7 @@ import {
   faSun,
   faMoon,
   faList,
+  faCode,
 } from "@fortawesome/free-solid-svg-icons";
 import { usePathname } from "next/navigation";
 import { useTheme } from "@/context/theme-context";
@@ -22,6 +23,7 @@ export default function Navbar() {
   const navLinks = [
     { href: "/", icon: faHome, label: "Home" },
     { href: "/gallery", icon: faImages, label: "Gallery" },
+    { href: "/projects", icon: faCode, label: "Projects" },
     { href: "/bucket-list", icon: faList, label: "Bucket List" },
     { href: "/support", icon: faHandshakeAngle, label: "Support" },
   ];
@@ -46,7 +48,7 @@ export default function Navbar() {
         </div>
 
         <div className="flex items-center gap-2 py-3">
-          {visibleLinks.slice(0, 3).map((link) => (
+          {visibleLinks.slice(0, 4).map((link) => (
             <Link
               key={link.href}
               href={link.href}
