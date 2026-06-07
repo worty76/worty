@@ -92,7 +92,7 @@ const BlogCard = memo(({ post, lang }: { post: BlogPost; lang: Lang }) => {
       color: color,
       padding: 2,
       strokeWidth: 2,
-      animationDuration: 400,
+      animationDuration: 800,
     });
 
     annotationRef.current.show();
