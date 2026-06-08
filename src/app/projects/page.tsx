@@ -106,105 +106,75 @@ export default function ProjectsPage() {
         {projects.length === 0 ? (
           <p className="text-center secondary-color-text opacity-40 text-lg">No projects yet. Check back soon!</p>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 lg:gap-6">
+          <div className="max-w-3xl mx-auto space-y-4">
             {projects.map((project) => (
-              <div
+              <a
                 key={project.title}
-                className={`group relative rounded-2xl overflow-hidden transition-all duration-300 hover:translate-y-[-4px] ${
+                href={project.liveUrl || project.githubUrl || "#"}
+                target={project.liveUrl || project.githubUrl ? "_blank" : undefined}
+                rel="noopener noreferrer"
+                className={`group flex items-center gap-5 rounded-xl p-5 transition-all duration-200 hover:bg-white/[0.06] border ${
                   project.featured
-                    ? "bg-gradient-to-br from-amber-500/10 to-white/[0.04] border border-amber-500/30 hover:border-amber-400/50 shadow-lg shadow-amber-500/5 hover:shadow-amber-500/10"
-                    : "bg-white/[0.04] border border-white/[0.08] hover:border-white/20 shadow-lg shadow-black/20 hover:shadow-black/30"
+                    ? "border-amber-500/20 hover:border-amber-500/40 bg-amber-500/[0.04]"
+                    : "border-white/[0.06] bg-white/[0.02]"
                 }`}
               >
-                {/* Featured badge */}
-                {project.featured && (
-                  <div className="absolute top-3 right-3 z-10 flex items-center gap-1 px-2.5 py-1 bg-amber-500/90 text-primary-color-bg rounded-full text-[10px] font-bold uppercase tracking-wider">
-                    <span className="w-1.5 h-1.5 rounded-full bg-primary-color-bg/60" />
-                    Featured
-                  </div>
-                )}
-
-                {/* Cover image */}
-                <div className="relative aspect-[16/10] w-full overflow-hidden">
+                {/* Thumbnail */}
+                <div className="shrink-0 w-16 h-16 rounded-lg overflow-hidden bg-white/[0.06] flex items-center justify-center">
                   {project.imageUrl ? (
                     <Image
                       src={project.imageUrl}
                       alt={project.title}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
-                      sizes="(max-width: 640px) 100vw, 50vw"
+                      width={64}
+                      height={64}
+                      className="object-cover"
                     />
                   ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-white/[0.06] via-white/[0.02] to-transparent flex items-center justify-center">
-                      <div className="text-center">
-                        <div className="text-3xl mb-1 opacity-15">
-                          {project.title.charAt(0)}
-                        </div>
-                        <span className="secondary-color-text opacity-15 text-xs font-medium tracking-wide uppercase">
-                          {project.title.split(" ")[0]}
-                        </span>
-                      </div>
-                    </div>
+                    <span className="secondary-color-text/20 text-xl font-bold font-heading">
+                      {project.title.charAt(0)}
+                    </span>
                   )}
                 </div>
 
-                {/* Content */}
-                <div className="p-5 pb-6">
-                  <h3 className="secondary-color-text font-semibold font-heading text-xl mb-2 line-clamp-1">
-                    {project.title}
-                  </h3>
-
-                  <p className="secondary-color-text opacity-50 text-sm leading-relaxed line-clamp-2 mb-5">
-                    {project.description}
-                  </p>
-
-                  {/* Tech stack pills */}
-                  {project.techStack && (
-                    <div className="flex flex-wrap gap-2 mb-5">
-                      {project.techStack.split(",").map((tech) => {
-                        const t = tech.trim();
-                        return t ? (
-                          <span
-                            key={t}
-                            className="bg-white/[0.06] text-secondary-color-text/60 text-[11px] font-medium px-3 py-1 rounded-lg border border-white/[0.06]"
-                          >
-                            {t}
-                          </span>
-                        ) : null;
-                      })}
-                    </div>
-                  )}
-
-                  {/* Links */}
-                  <div className="flex items-center gap-4 pt-3 border-t border-white/[0.06]">
-                    {project.githubUrl && (
-                      <a
-                        href={project.githubUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 text-secondary-color-text/40 hover:text-secondary-color-text text-sm transition-colors"
-                      >
-                        <FaGithub size={16} />
-                        <span>Source</span>
-                      </a>
-                    )}
-                    {project.liveUrl && (
-                      <a
-                        href={project.liveUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 text-secondary-color-text/40 hover:text-secondary-color-text text-sm transition-colors"
-                      >
-                        <FaExternalLinkAlt size={12} />
-                        <span>Live Demo</span>
-                      </a>
-                    )}
-                    {!project.githubUrl && !project.liveUrl && (
-                      <span className="text-secondary-color-text/20 text-xs italic">No links available</span>
+                {/* Info */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="secondary-color-text font-semibold font-heading text-base truncate">
+                      {project.title}
+                    </h3>
+                    {project.featured && (
+                      <span className="shrink-0 text-[9px] font-bold uppercase tracking-wider text-amber-400/80 bg-amber-500/10 px-2 py-0.5 rounded-full">
+                        Featured
+                      </span>
                     )}
                   </div>
+                  <p className="secondary-color-text/50 text-sm leading-relaxed line-clamp-1">
+                    {project.description}
+                  </p>
                 </div>
-              </div>
+
+                {/* Tech pills */}
+                <div className="hidden sm:flex flex-wrap gap-1.5 shrink-0">
+                  {project.techStack?.split(",").slice(0, 3).map((tech) => {
+                    const t = tech.trim();
+                    return t ? (
+                      <span
+                        key={t}
+                        className="bg-white/[0.05] text-secondary-color-text/40 text-[10px] font-medium px-2 py-0.5 rounded-md"
+                      >
+                        {t}
+                      </span>
+                    ) : null;
+                  })}
+                </div>
+
+                {/* Arrow */}
+                <div className="shrink-0 text-secondary-color-text/20 group-hover:text-secondary-color-text/60 transition-colors">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="rotate-[-30deg] group-hover:rotate-[-45deg] group-hover:translate-x-0.5 transition-all duration-200">
+                    <path d="M4 12L12 4M12 4H6M12 4V10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+              </a>
             ))}
           </div>
         )}
