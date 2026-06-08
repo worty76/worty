@@ -1,7 +1,7 @@
 "use client";
 
 import "./globals.css";
-import { Space_Grotesk, Inter } from "next/font/google";
+import { Space_Grotesk, DM_Sans } from "next/font/google";
 import Navbar from "../components/layouts/Navbar";
 import { ThemeProvider } from "@/context/theme-context";
 import { AuthProvider } from "@/context/auth-context";
@@ -15,10 +15,11 @@ const heading = Space_Grotesk({
   weight: ["400", "500", "600", "700"],
 });
 
-const body = Inter({
+const body = DM_Sans({
   subsets: ["latin"],
   variable: "--font-body",
   display: "swap",
+  weight: ["400", "500", "600", "700"],
 });
 
 export default function RootLayout({

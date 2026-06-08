@@ -160,7 +160,7 @@ export default function ProjectsPage() {
                     return t ? (
                       <span
                         key={t}
-                        className="bg-white/[0.05] text-secondary-color-text/40 text-[10px] font-medium px-2 py-0.5 rounded-md"
+                        className="bg-white/[0.05] text-secondary-color-text/40 text-xs font-medium px-2.5 py-1 rounded-md"
                       >
                         {t}
                       </span>
