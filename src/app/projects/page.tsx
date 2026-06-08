@@ -113,14 +113,14 @@ export default function ProjectsPage() {
                 href={project.liveUrl || project.githubUrl || "#"}
                 target={project.liveUrl || project.githubUrl ? "_blank" : undefined}
                 rel="noopener noreferrer"
-                className={`group flex items-center gap-5 rounded-xl p-5 transition-all duration-200 hover:bg-white/[0.06] border ${
+                className={`group flex items-center gap-5 rounded-xl p-6 transition-all duration-200 hover:bg-white/[0.06] border ${
                   project.featured
                     ? "border-amber-500/20 hover:border-amber-500/40 bg-amber-500/[0.04]"
                     : "border-white/[0.06] bg-white/[0.02]"
                 }`}
               >
                 {/* Thumbnail */}
-                <div className="shrink-0 w-16 h-16 rounded-lg overflow-hidden bg-white/[0.06] flex items-center justify-center">
+                <div className="shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-white/[0.06] flex items-center justify-center">
                   {project.imageUrl ? (
                     <Image
                       src={project.imageUrl}
@@ -148,7 +148,7 @@ export default function ProjectsPage() {
                       </span>
                     )}
                   </div>
-                  <p className="secondary-color-text/50 text-sm leading-relaxed line-clamp-1">
+                  <p className="secondary-color-text/50 text-sm leading-relaxed line-clamp-2">
                     {project.description}
                   </p>
                 </div>
