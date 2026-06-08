@@ -106,57 +106,67 @@ export default function ProjectsPage() {
         {projects.length === 0 ? (
           <p className="text-center secondary-color-text opacity-40 text-lg">No projects yet. Check back soon!</p>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 lg:gap-6">
             {projects.map((project) => (
               <div
                 key={project.title}
-                className={`group bg-white/5 border rounded-xl overflow-hidden transition-all duration-200 hover:bg-white/[0.08] hover:scale-[1.02] ${
+                className={`group relative rounded-2xl overflow-hidden transition-all duration-300 hover:translate-y-[-4px] ${
                   project.featured
-                    ? "border-amber-500/40 hover:border-amber-500/60"
-                    : "border-white/10 hover:border-white/20"
+                    ? "bg-gradient-to-br from-amber-500/10 to-white/[0.04] border border-amber-500/30 hover:border-amber-400/50 shadow-lg shadow-amber-500/5 hover:shadow-amber-500/10"
+                    : "bg-white/[0.04] border border-white/[0.08] hover:border-white/20 shadow-lg shadow-black/20 hover:shadow-black/30"
                 }`}
               >
+                {/* Featured badge */}
+                {project.featured && (
+                  <div className="absolute top-3 right-3 z-10 flex items-center gap-1 px-2.5 py-1 bg-amber-500/90 text-primary-color-bg rounded-full text-[10px] font-bold uppercase tracking-wider">
+                    <span className="w-1.5 h-1.5 rounded-full bg-primary-color-bg/60" />
+                    Featured
+                  </div>
+                )}
+
                 {/* Cover image */}
-                <div className="relative aspect-video w-full overflow-hidden">
+                <div className="relative aspect-[16/10] w-full overflow-hidden">
                   {project.imageUrl ? (
                     <Image
                       src={project.imageUrl}
                       alt={project.title}
                       fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-300"
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      sizes="(max-width: 640px) 100vw, 50vw"
                     />
                   ) : (
-                    <div className="w-full h-full bg-white/[0.03] flex items-center justify-center">
-                      <span className="secondary-color-text opacity-20 text-sm">No image</span>
+                    <div className="w-full h-full bg-gradient-to-br from-white/[0.06] via-white/[0.02] to-transparent flex items-center justify-center">
+                      <div className="text-center">
+                        <div className="text-3xl mb-1 opacity-15">
+                          {project.title.charAt(0)}
+                        </div>
+                        <span className="secondary-color-text opacity-15 text-xs font-medium tracking-wide uppercase">
+                          {project.title.split(" ")[0]}
+                        </span>
+                      </div>
                     </div>
                   )}
                 </div>
 
                 {/* Content */}
-                <div className="p-5">
-                  <div className="flex items-start justify-between mb-2">
-                    <h3 className="secondary-color-text font-semibold font-heading text-lg line-clamp-1 flex-1">
-                      {project.title}
-                    </h3>
-                    {project.featured && (
-                      <span className="ml-2 w-2.5 h-2.5 rounded-full bg-amber-400 shrink-0 mt-1.5" title="Featured" />
-                    )}
-                  </div>
+                <div className="p-5 pb-6">
+                  <h3 className="secondary-color-text font-semibold font-heading text-xl mb-2 line-clamp-1">
+                    {project.title}
+                  </h3>
 
-                  <p className="secondary-color-text opacity-60 text-sm line-clamp-2 mb-4">
+                  <p className="secondary-color-text opacity-50 text-sm leading-relaxed line-clamp-2 mb-5">
                     {project.description}
                   </p>
 
                   {/* Tech stack pills */}
                   {project.techStack && (
-                    <div className="flex flex-wrap gap-1.5 mb-4">
+                    <div className="flex flex-wrap gap-2 mb-5">
                       {project.techStack.split(",").map((tech) => {
                         const t = tech.trim();
                         return t ? (
                           <span
                             key={t}
-                            className="bg-white/5 text-[rgb(221,198,182)]/50 text-[10px] px-2.5 py-1 rounded-full"
+                            className="bg-white/[0.06] text-secondary-color-text/60 text-[11px] font-medium px-3 py-1 rounded-lg border border-white/[0.06]"
                           >
                             {t}
                           </span>
@@ -166,16 +176,16 @@ export default function ProjectsPage() {
                   )}
 
                   {/* Links */}
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-4 pt-3 border-t border-white/[0.06]">
                     {project.githubUrl && (
                       <a
                         href={project.githubUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-[rgb(221,198,182)]/50 hover:text-[rgb(221,198,182)] transition-colors"
-                        title="GitHub"
+                        className="flex items-center gap-2 text-secondary-color-text/40 hover:text-secondary-color-text text-sm transition-colors"
                       >
-                        <FaGithub size={18} />
+                        <FaGithub size={16} />
+                        <span>Source</span>
                       </a>
                     )}
                     {project.liveUrl && (
@@ -183,11 +193,14 @@ export default function ProjectsPage() {
                         href={project.liveUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-[rgb(221,198,182)]/50 hover:text-[rgb(221,198,182)] transition-colors"
-                        title="Live Demo"
+                        className="flex items-center gap-2 text-secondary-color-text/40 hover:text-secondary-color-text text-sm transition-colors"
                       >
-                        <FaExternalLinkAlt size={14} />
+                        <FaExternalLinkAlt size={12} />
+                        <span>Live Demo</span>
                       </a>
+                    )}
+                    {!project.githubUrl && !project.liveUrl && (
+                      <span className="text-secondary-color-text/20 text-xs italic">No links available</span>
                     )}
                   </div>
                 </div>
