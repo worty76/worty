@@ -11,7 +11,7 @@ export default function Home() {
 
       <section>
         <h1 className="py-7 text-2xl duration-1000">
-          Hello there! My name is Le Thanh Dat, and I am a GO Developer with a
+          Hello there! My name is Le Thanh Dat, I’m just a normal guy with no fancy achievements or extraordinary background, just someone trying to grow, learn, and become a little better every single day. I’m also a GO Developer with a
           strong passion for building scalable and efficient applications.
         </h1>
 
