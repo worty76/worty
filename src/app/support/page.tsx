@@ -2,16 +2,10 @@
 
 import Image from "next/image";
 import { toast } from "react-hot-toast";
-import agribank from "../../../public/images/agribank.jpg";
 import mbbank from "../../../public/images/mbbank.png";
 
 export default function Support() {
   const myBanks = [
-    {
-      bankLogo: agribank,
-      message: "Agribank - 2015220027660 - LE THANH DAT",
-      clipboard: "2015220027660",
-    },
     {
       bankLogo: mbbank,
       message: "MB Bank - 0388121738 - LE THANH DAT",
