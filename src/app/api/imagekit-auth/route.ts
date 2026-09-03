@@ -14,7 +14,7 @@ export async function POST(request: Request) {
 
   try {
     const token = crypto.randomBytes(16).toString("hex");
-    const expire = Math.floor(Date.now() / 1000) + 3600; // 1 hour from now
+    const expire = Math.floor(Date.now() / 1000) + 1800; // ImageKit rejects expire >= 1h, so use 30 min
 
     // Create signature
     const signature = crypto
