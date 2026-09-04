@@ -56,7 +56,7 @@ export function ProfileSettings() {
     <div className="space-y-6">
       <ImageUpload value={avatarUrl} onChange={setAvatarUrl} label="Your avatar" />
       <p className="text-xs secondary-color-text opacity-60 -mt-2">
-        Remove the image and save to go back to the default photo.
+        Remove the image and save to hide your photo on the homepage.
       </p>
       <Button onClick={handleSave} loading={saving}>
         Save avatar

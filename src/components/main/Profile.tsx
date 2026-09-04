@@ -2,9 +2,9 @@
 
 import Image from "next/image";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faUser } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useState } from "react";
 import { socialLinks } from "../../utils/social-links";
-import author from "../../../public/images/me.jpg";
 import { fetchCollectionCached } from "@/lib/firestore-cache";
 
 interface ProfileDoc {
@@ -13,8 +13,8 @@ interface ProfileDoc {
 }
 
 export const Profile = () => {
-  // Custom avatar set from the admin panel (profile/main doc); falls back to
-  // the bundled photo when none is set
+  // Custom avatar set from the admin panel (profile/main doc). When none is
+  // set, a themed placeholder is shown instead of any photo.
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   useEffect(() => {
@@ -33,13 +33,23 @@ export const Profile = () => {
   return (
     <div className="flex items-center">
       <div className="relative w-[150px] h-[150px] md:hover:w-[256px] md:hover:h-[256px] duration-1000">
-        <Image
-          src={avatarUrl ?? author}
-          fill
-          alt="Picture of the author"
-          className="rounded-xl object-cover"
-          sizes="(max-width: 768px) 150px, 256px"
-        />
+        {avatarUrl ? (
+          <Image
+            src={avatarUrl}
+            fill
+            alt="Picture of the author"
+            className="rounded-xl object-cover"
+            sizes="(max-width: 768px) 150px, 256px"
+          />
+        ) : (
+          <div className="absolute inset-0 rounded-xl bg-white/[0.06] border border-[rgb(var(--primary-text-rgb)_/_0.15)] flex items-center justify-center">
+            <FontAwesomeIcon
+              icon={faUser}
+              className="secondary-color-text opacity-40"
+              style={{ width: "52px", height: "52px" }}
+            />
+          </div>
+        )}
       </div>
       <div className="pl-5">
         <div className="flex justify-around w-32">
