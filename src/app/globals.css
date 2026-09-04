@@ -253,6 +253,12 @@ p {
   animation: dialogIn 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* Kuroro sprite mascot — frames are driven from JS (rAF); CSS only renders */
+.kuroro-frame {
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+}
+
 /* Scrollbar Styles */
 ::-webkit-scrollbar {
   width: 10px;

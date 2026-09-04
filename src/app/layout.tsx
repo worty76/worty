@@ -2,6 +2,7 @@ import "./globals.css";
 import { Space_Grotesk, DM_Sans } from "next/font/google";
 import type { Metadata } from "next";
 import { SiteNavbar } from "../components/layouts/SiteNavbar";
+import { SpriteMascot } from "@/components/fun/SpriteMascot";
 import { ThemeProvider } from "@/context/theme-context";
 import { AuthProvider } from "@/context/auth-context";
 import NextTopLoader from "nextjs-toploader";
@@ -71,6 +72,7 @@ export default function RootLayout({
               showSpinner={false}
             />
             <SiteNavbar />
+            <SpriteMascot />
             {children}
             <Toaster
               position="top-right"
