@@ -45,7 +45,7 @@ function Toggle({ on }: { on: boolean }) {
 
 export function MascotToolbar() {
   const pathname = usePathname();
-  const { characters, enabled, toggle } = useMascot();
+  const { characters, enabled, toggle, setAllEnabled } = useMascot();
   const [open, setOpen] = useState(false);
 
   if (pathname?.startsWith("/admin")) return null;
@@ -57,10 +57,24 @@ export function MascotToolbar() {
     <div className="fixed left-5 bottom-5 z-50">
       {open && (
         <div className="absolute bottom-[60px] left-0 w-64 rounded-2xl border border-[rgb(var(--primary-text-rgb)_/_0.15)] bg-[var(--color-surface)] shadow-2xl p-3 animate-mascot-pop">
-          <div className="flex items-center justify-between px-1 pb-2 mb-1 border-b border-[rgb(var(--primary-text-rgb)_/_0.1)]">
-            <span className="font-heading font-semibold text-sm secondary-color-text">
+          <div className="flex items-center gap-1.5 px-1 pb-2 mb-1 border-b border-[rgb(var(--primary-text-rgb)_/_0.1)]">
+            <span className="flex-1 font-heading font-semibold text-sm secondary-color-text">
               Mascots
             </span>
+            <button
+              type="button"
+              onClick={() => setAllEnabled(true)}
+              className="text-[11px] px-2 py-1 rounded-md bg-white/5 secondary-color-text opacity-70 hover:opacity-100 hover:bg-white/10 transition-colors"
+            >
+              All on
+            </button>
+            <button
+              type="button"
+              onClick={() => setAllEnabled(false)}
+              className="text-[11px] px-2 py-1 rounded-md bg-white/5 secondary-color-text opacity-70 hover:opacity-100 hover:bg-white/10 transition-colors"
+            >
+              All off
+            </button>
             <button
               type="button"
               onClick={() => setOpen(false)}

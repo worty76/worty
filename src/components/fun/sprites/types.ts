@@ -34,6 +34,8 @@ export interface Character {
   actions: Record<string, Action>;
   idle: string;
   margin?: number;
+  /** Whether the mascot is enabled on first visit (default: false) */
+  defaultEnabled?: boolean;
 }
 
 export interface FrameState {

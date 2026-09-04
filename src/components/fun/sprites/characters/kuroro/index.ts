@@ -9,6 +9,7 @@ const kuroro: Character = {
   cols: 103,
   idle: State.idle,
   margin: 40,
+  defaultEnabled: true,
   actions: {
     [State.idle]: { name: State.idle, start: 0, end: 2, frameDuration: 450, loop: true },
     [State.walk]: { name: State.walk, start: 3, end: 4, frameDuration: 120, speed: 50, loop: true },

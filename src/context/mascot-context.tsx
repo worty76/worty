@@ -10,13 +10,16 @@ interface MascotContextType {
   enabled: Record<string, boolean>;
   toggle: (id: string) => void;
   setEnabled: (id: string, value: boolean) => void;
+  setAllEnabled: (value: boolean) => void;
 }
 
 const MascotContext = createContext<MascotContextType | undefined>(undefined);
 
+// First visit: only characters marked defaultEnabled are active. From then
+// on, the user's toggles are persisted in localStorage and win.
 const defaults = (): Record<string, boolean> =>
   Object.keys(characters).reduce<Record<string, boolean>>((acc, id) => {
-    acc[id] = true;
+    acc[id] = characters[id].defaultEnabled ?? false;
     return acc;
   }, {});
 
@@ -60,8 +63,16 @@ export function MascotProvider({ children }: { children: React.ReactNode }) {
     persist({ ...enabled, [id]: value });
   };
 
+  const setAllEnabled = (value: boolean) => {
+    const next = Object.keys(characters).reduce<Record<string, boolean>>((acc, id) => {
+      acc[id] = value;
+      return acc;
+    }, {});
+    persist(next);
+  };
+
   return (
-    <MascotContext.Provider value={{ characters, enabled, toggle, setEnabled }}>
+    <MascotContext.Provider value={{ characters, enabled, toggle, setEnabled, setAllEnabled }}>
       {children}
     </MascotContext.Provider>
   );
