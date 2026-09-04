@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { collection, addDoc, updateDoc, doc } from "firebase/firestore";
 import { db } from "@/firebase/config";
 import { Button } from "@/components/ui/Button";
@@ -18,6 +18,7 @@ interface BucketItemData {
 interface BucketListFormProps {
   initialData?: BucketItemData;
   onSuccess?: () => void;
+  onDirtyChange?: (dirty: boolean) => void;
 }
 
 const CATEGORIES = [
@@ -33,15 +34,22 @@ const CATEGORIES = [
   "Other",
 ];
 
-export function BucketListForm({ initialData, onSuccess }: BucketListFormProps) {
+export function BucketListForm({ initialData, onSuccess, onDirtyChange }: BucketListFormProps) {
   const isEditing = !!initialData?.id;
 
-  const [form, setForm] = useState({
+  const initialValues = {
     title: initialData?.title || "",
     category: initialData?.category || "Personal",
     order: initialData?.order || 1,
     completed: initialData?.completed || false,
-  });
+  };
+  const [form, setForm] = useState(initialValues);
+  const pristineRef = useRef(JSON.stringify(initialValues));
+  const isDirty = JSON.stringify(form) !== pristineRef.current;
+
+  useEffect(() => {
+    onDirtyChange?.(isDirty);
+  }, [isDirty, onDirtyChange]);
 
   const [isLoading, setIsLoading] = useState(false);
 

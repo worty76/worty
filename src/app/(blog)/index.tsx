@@ -224,30 +224,30 @@ export default function Blog() {
   return (
     <div className="w-full max-w-4xl py-4">
       <div className="flex items-center justify-start mb-2">
-          <div className="flex items-center gap-0.5 bg-[rgb(var(--primary-text-rgb)_/_0.06)] rounded-full p-0.5">
-            <button
-              onClick={() => setLang("en")}
-              aria-pressed={lang === "en"}
-              className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
-                lang === "en"
-                  ? "bg-[rgb(var(--primary-text-rgb)_/_0.12)] secondary-color-text"
-                  : "secondary-color-text opacity-40 hover:opacity-70"
-              }`}
-            >
-              EN
-            </button>
-            <button
-              onClick={() => setLang("vi")}
-              aria-pressed={lang === "vi"}
-              className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
-                lang === "vi"
-                  ? "bg-[rgb(var(--primary-text-rgb)_/_0.12)] secondary-color-text"
-                  : "secondary-color-text opacity-40 hover:opacity-70"
-              }`}
-            >
-              VI
-            </button>
-          </div>
+        <div className="flex items-center gap-0.5 bg-[rgb(var(--primary-text-rgb)_/_0.06)] rounded-full p-0.5">
+          <button
+            onClick={() => setLang("en")}
+            aria-pressed={lang === "en"}
+            className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
+              lang === "en"
+                ? "bg-[rgb(var(--primary-text-rgb)_/_0.12)] secondary-color-text"
+                : "secondary-color-text opacity-40 hover:opacity-70"
+            }`}
+          >
+            EN
+          </button>
+          <button
+            onClick={() => setLang("vi")}
+            aria-pressed={lang === "vi"}
+            className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
+              lang === "vi"
+                ? "bg-[rgb(var(--primary-text-rgb)_/_0.12)] secondary-color-text"
+                : "secondary-color-text opacity-40 hover:opacity-70"
+            }`}
+          >
+            VI
+          </button>
+        </div>
       </div>
       <div className="flex flex-col gap-4">
         {visiblePosts.map((post) => (

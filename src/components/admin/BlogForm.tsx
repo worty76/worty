@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { MarkdownEditor } from "./MarkdownEditor";
 import { ImageUpload } from "./ImageUpload";
 import { Button } from "@/components/ui/Button";
@@ -28,6 +28,7 @@ interface BlogFormProps {
     readingTimeVi?: string;
   };
   onSuccess?: () => void;
+  onDirtyChange?: (dirty: boolean) => void;
 }
 
 const STATUS_OPTIONS: Array<{ value: BlogStatus; label: string }> = [
@@ -53,9 +54,22 @@ const defaultValues = {
   readingTimeVi: "",
 };
 
-export function BlogForm({ initialData, onSuccess }: BlogFormProps) {
+/** Rough reading time (200 wpm) computed from markdown word count */
+const computeReadingTime = (markdown: string) => {
+  const words = markdown
+    .replace(/```[\s\S]*?```/g, " ")
+    .replace(/[#*`>_~[\]()!-]/g, " ")
+    .split(/\s+/)
+    .filter(Boolean).length;
+  if (!words) return "";
+  return `${Math.max(1, Math.round(words / 200))} min`;
+};
+
+export function BlogForm({ initialData, onSuccess, onDirtyChange }: BlogFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [langTab, setLangTab] = useState<LanguageTab>("en");
+  // Once the user edits a reading-time field by hand, stop auto-filling it
+  const [readingTimeTouched, setReadingTimeTouched] = useState({ en: false, vi: false });
 
   const formData = initialData
     ? {
@@ -71,10 +85,16 @@ export function BlogForm({ initialData, onSuccess }: BlogFormProps) {
     : defaultValues;
 
   const [form, setForm] = useState(formData);
+  const pristineRef = useRef(JSON.stringify(formData));
+  const isDirty = JSON.stringify(form) !== pristineRef.current;
+
+  useEffect(() => {
+    onDirtyChange?.(isDirty);
+  }, [isDirty, onDirtyChange]);
 
   useEffect(() => {
     if (initialData) {
-      setForm({
+      const next = {
         title: initialData.title,
         description: initialData.description,
         content: initialData.content,
@@ -86,6 +106,12 @@ export function BlogForm({ initialData, onSuccess }: BlogFormProps) {
         descriptionVi: initialData.descriptionVi || "",
         contentVi: initialData.contentVi || "",
         readingTimeVi: initialData.readingTimeVi || "",
+      };
+      setForm(next);
+      pristineRef.current = JSON.stringify(next);
+      setReadingTimeTouched({
+        en: Boolean(initialData.readingTime),
+        vi: Boolean(initialData.readingTimeVi),
       });
     }
   }, [initialData]);
@@ -197,7 +223,10 @@ export function BlogForm({ initialData, onSuccess }: BlogFormProps) {
           label="Reading Time"
           name={langTab === "vi" ? "readingTimeVi" : "readingTime"}
           value={langTab === "vi" ? (form as any).readingTimeVi : form.readingTime}
-          onChange={handleInputChange}
+          onChange={(e) => {
+            handleInputChange(e);
+            setReadingTimeTouched((prev) => ({ ...prev, [langTab]: true }));
+          }}
           placeholder="e.g., 5 min"
           required={langTab === "en"}
         />
@@ -255,9 +284,14 @@ export function BlogForm({ initialData, onSuccess }: BlogFormProps) {
         <MarkdownEditor
           value={langTab === "vi" ? (form as any).contentVi : form.content}
           onChange={(content) => {
+            const timeField = langTab === "vi" ? "readingTimeVi" : "readingTime";
             setForm((prev: any) => ({
               ...prev,
               [langTab === "vi" ? "contentVi" : "content"]: content,
+              // keep reading time auto-filled unless the user edited it by hand
+              ...(readingTimeTouched[langTab]
+                ? {}
+                : { [timeField]: computeReadingTime(content) }),
             }));
           }}
         />

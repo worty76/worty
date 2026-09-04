@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { ImageUpload } from "./ImageUpload";
 import { Button } from "@/components/ui/Button";
 import { FormInput, FormTextarea, FormSelect, Switch } from "@/components/ui/FormInput";
@@ -23,6 +23,7 @@ interface GalleryFormProps {
   };
   onSuccess?: () => void;
   existingTags?: string[];
+  onDirtyChange?: (dirty: boolean) => void;
 }
 
 const CATEGORIES = [
@@ -56,13 +57,19 @@ const defaultValues = {
   featured: false,
 };
 
-export function GalleryForm({ initialData, onSuccess, existingTags = [] }: GalleryFormProps) {
+export function GalleryForm({ initialData, onSuccess, existingTags = [], onDirtyChange }: GalleryFormProps) {
   const [form, setForm] = useState(defaultValues);
   const [isLoading, setIsLoading] = useState(false);
+  const pristineRef = useRef(JSON.stringify(defaultValues));
+  const isDirty = JSON.stringify(form) !== pristineRef.current;
+
+  useEffect(() => {
+    onDirtyChange?.(isDirty);
+  }, [isDirty, onDirtyChange]);
 
   useEffect(() => {
     if (initialData) {
-      setForm({
+      const next = {
         title: initialData.title,
         description: initialData.description || "",
         imageUrl: initialData.imageUrl,
@@ -71,7 +78,9 @@ export function GalleryForm({ initialData, onSuccess, existingTags = [] }: Galle
         category: initialData.category || "Travel",
         tags: initialData.tags || [],
         featured: initialData.featured || false,
-      });
+      };
+      setForm(next);
+      pristineRef.current = JSON.stringify(next);
     }
   }, [initialData]);
 

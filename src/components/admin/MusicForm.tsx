@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { ImageUpload } from "./ImageUpload";
 import { Button } from "@/components/ui/Button";
 import { FormInput, FormTextarea } from "@/components/ui/FormInput";
@@ -22,6 +22,7 @@ interface MusicFormProps {
   };
   onSuccess?: () => void;
   existingGenres?: string[];
+  onDirtyChange?: (dirty: boolean) => void;
 }
 
 const defaultValues = {
@@ -34,13 +35,19 @@ const defaultValues = {
   spotifyLink: "",
 };
 
-export function MusicForm({ initialData, onSuccess, existingGenres = [] }: MusicFormProps) {
+export function MusicForm({ initialData, onSuccess, existingGenres = [], onDirtyChange }: MusicFormProps) {
   const [form, setForm] = useState(defaultValues);
   const [isLoading, setIsLoading] = useState(false);
+  const pristineRef = useRef(JSON.stringify(defaultValues));
+  const isDirty = JSON.stringify(form) !== pristineRef.current;
+
+  useEffect(() => {
+    onDirtyChange?.(isDirty);
+  }, [isDirty, onDirtyChange]);
 
   useEffect(() => {
     if (initialData) {
-      setForm({
+      const next = {
         title: initialData.title,
         artist: initialData.artist,
         album: initialData.album || "",
@@ -48,7 +55,9 @@ export function MusicForm({ initialData, onSuccess, existingGenres = [] }: Music
         year: initialData.year,
         genre: initialData.genre || [],
         spotifyLink: initialData.spotifyLink || "",
-      });
+      };
+      setForm(next);
+      pristineRef.current = JSON.stringify(next);
     }
   }, [initialData]);
 

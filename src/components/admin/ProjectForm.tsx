@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/Button";
 import { FormInput } from "@/components/ui/FormInput";
 import toast from "react-hot-toast";
@@ -20,6 +20,7 @@ interface ProjectFormProps {
     featured: boolean;
   };
   onSuccess?: () => void;
+  onDirtyChange?: (dirty: boolean) => void;
 }
 
 const defaultValues = {
@@ -33,17 +34,23 @@ const defaultValues = {
   featured: false,
 };
 
-export function ProjectForm({ initialData, onSuccess }: ProjectFormProps) {
+export function ProjectForm({ initialData, onSuccess, onDirtyChange }: ProjectFormProps) {
   const [isLoading, setIsLoading] = useState(false);
 
-  const [form, setForm] = useState(initialData ? {
-    ...defaultValues,
-    ...initialData,
-  } : defaultValues);
+  const initialValues = initialData ? { ...defaultValues, ...initialData } : defaultValues;
+  const [form, setForm] = useState(initialValues);
+  const pristineRef = useRef(JSON.stringify(initialValues));
+  const isDirty = JSON.stringify(form) !== pristineRef.current;
+
+  useEffect(() => {
+    onDirtyChange?.(isDirty);
+  }, [isDirty, onDirtyChange]);
 
   useEffect(() => {
     if (initialData) {
-      setForm({ ...defaultValues, ...initialData });
+      const next = { ...defaultValues, ...initialData };
+      setForm(next);
+      pristineRef.current = JSON.stringify(next);
     }
   }, [initialData]);
 

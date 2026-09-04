@@ -34,6 +34,7 @@ import { Button } from "@/components/ui/Button";
 import { LoadingSpinner } from "@/components/ui/LoadingStates";
 import { BlogStatus } from "@/components/ui/StatusBadge";
 import { useTheme } from "@/context/theme-context";
+import { useConfirm } from "@/components/ui/ConfirmDialog";
 
 export const dynamic = "force-dynamic";
 
@@ -128,9 +129,10 @@ export default function AdminPage() {
   const [existingTags, setExistingTags] = useState<string[]>([]);
   const [existingGenres, setExistingGenres] = useState<string[]>([]);
   const [stats, setStats] = useState<Stats>({ blogCount: 0, galleryCount: 0, musicCount: 0, bucketCount: 0, projectCount: 0 });
-  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [formDirty, setFormDirty] = useState(false);
   const { user, loading, logOut } = useAuth();
   const { isReversed, toggleTheme } = useTheme();
+  const { confirm, dialog } = useConfirm();
   const router = useRouter();
 
   useEffect(() => {
@@ -138,6 +140,17 @@ export default function AdminPage() {
       router.push("/admin/login");
     }
   }, [user, loading, router]);
+
+  // Warn before losing unsaved form edits (tab close / refresh)
+  useEffect(() => {
+    if (!formDirty) return;
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [formDirty]);
 
   // Fetch stats
   useEffect(() => {
@@ -267,23 +280,34 @@ export default function AdminPage() {
     setCurrentView("form");
   };
 
-  const handleSuccess = () => {
-    setRefreshTrigger((prev) => prev + 1);
+  const discardEditing = () => {
     setEditingBlog(null);
     setEditingGallery(null);
     setEditingMusic(null);
     setEditingBucketItem(null);
     setEditingProject(null);
+    setFormDirty(false);
     setCurrentView("list");
   };
 
-  const handleCancelEdit = () => {
-    setEditingBlog(null);
-    setEditingGallery(null);
-    setEditingMusic(null);
-    setEditingBucketItem(null);
-    setEditingProject(null);
-    setCurrentView("list");
+  const confirmDiscard = async () => {
+    if (!formDirty) return true;
+    return confirm({
+      title: "Discard unsaved changes?",
+      message: "Your edits haven't been saved yet.",
+      confirmLabel: "Discard",
+      danger: true,
+    });
+  };
+
+  const handleSuccess = () => {
+    setRefreshTrigger((prev) => prev + 1);
+    discardEditing();
+  };
+
+  const handleCancelEdit = async () => {
+    if (!(await confirmDiscard())) return;
+    discardEditing();
   };
 
   const handleLogout = async () => {
@@ -291,15 +315,17 @@ export default function AdminPage() {
     router.push("/admin/login");
   };
 
-  const handleTabChange = (tab: Tab) => {
+  const handleTabChange = async (tab: Tab) => {
+    if (activeTab === tab) {
+      // Clicking the current section while editing acts as "back to list"
+      if (currentView !== "form") return;
+      if (!(await confirmDiscard())) return;
+      discardEditing();
+      return;
+    }
+    if (!(await confirmDiscard())) return;
     setActiveTab(tab);
-    setCurrentView("list");
-    setEditingBlog(null);
-    setEditingGallery(null);
-    setEditingMusic(null);
-    setEditingBucketItem(null);
-    setEditingProject(null);
-    setMobileNavOpen(false);
+    discardEditing();
   };
 
   const formHeaderInfo =
@@ -404,15 +430,15 @@ export default function AdminPage() {
             <CardHeader title={formHeaderInfo.title} description={formHeaderInfo.description} />
             <div className="p-4 sm:p-6">
               {activeTab === "blog" ? (
-                <BlogForm initialData={editingBlog || undefined} onSuccess={handleSuccess} />
+                <BlogForm initialData={editingBlog || undefined} onSuccess={handleSuccess} onDirtyChange={setFormDirty} />
               ) : activeTab === "gallery" ? (
-                <GalleryForm initialData={editingGallery || undefined} onSuccess={handleSuccess} existingTags={existingTags} />
+                <GalleryForm initialData={editingGallery || undefined} onSuccess={handleSuccess} existingTags={existingTags} onDirtyChange={setFormDirty} />
               ) : activeTab === "music" ? (
-                <MusicForm initialData={editingMusic || undefined} onSuccess={handleSuccess} existingGenres={existingGenres} />
+                <MusicForm initialData={editingMusic || undefined} onSuccess={handleSuccess} existingGenres={existingGenres} onDirtyChange={setFormDirty} />
               ) : activeTab === "projects" ? (
-                <ProjectForm initialData={editingProject || undefined} onSuccess={handleSuccess} />
+                <ProjectForm initialData={editingProject || undefined} onSuccess={handleSuccess} onDirtyChange={setFormDirty} />
               ) : (
-                <BucketListForm initialData={editingBucketItem || undefined} onSuccess={handleSuccess} />
+                <BucketListForm initialData={editingBucketItem || undefined} onSuccess={handleSuccess} onDirtyChange={setFormDirty} />
               )}
             </div>
           </Card>
@@ -576,6 +602,8 @@ export default function AdminPage() {
           {renderContent()}
         </div>
       </main>
+
+      {dialog}
     </div>
   );
 }

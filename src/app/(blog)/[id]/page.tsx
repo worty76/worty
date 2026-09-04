@@ -108,12 +108,20 @@ export default function Page({ params }: { params: { id: string } }) {
       </div>
     );
 
-  if (error) {
-    return window.location.replace("/");
-  }
-
-  if (!blog) {
-    return window.location.replace("/");
+  if (error || !blog) {
+    return (
+      <main className="min-h-screen primary-color-bg flex flex-col items-center justify-center gap-5 px-4">
+        <p className="secondary-color-text opacity-70 text-lg">
+          This article could not be found.
+        </p>
+        <Link
+          href="/"
+          className="px-6 py-3 primary-color-bg secondary-color-text border secondary-color-border rounded-full font-medium hover:opacity-80 transition-opacity"
+        >
+          Back to all articles
+        </Link>
+      </main>
+    );
   }
 
   const markdownComponents: Components = {
@@ -359,7 +367,6 @@ export default function Page({ params }: { params: { id: string } }) {
             disabled
             className="mr-2 cursor-default"
             {...props}
-            s
           />
         );
       }
