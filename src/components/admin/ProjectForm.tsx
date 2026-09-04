@@ -118,7 +118,7 @@ export function ProjectForm({ initialData, onSuccess }: ProjectFormProps) {
           placeholder="A brief description of the project..."
           required
           rows={3}
-          className="w-full rounded-xl px-4 py-3 bg-white/5 border border-white/10 secondary-color-text placeholder:opacity-30 focus:outline-none focus:border-white/20 transition-colors text-sm resize-none"
+          className="w-full rounded-xl px-4 py-3 bg-white/5 border border-[rgb(var(--primary-text-rgb)_/_0.1)] secondary-color-text placeholder:opacity-30 focus:outline-none focus:border-[rgb(var(--primary-text-rgb)_/_0.2)] transition-colors text-sm resize-none"
         />
       </div>
 
@@ -172,7 +172,7 @@ export function ProjectForm({ initialData, onSuccess }: ProjectFormProps) {
               name="featured"
               checked={form.featured}
               onChange={handleChange}
-              className="w-4 h-4 rounded bg-white/5 border-white/20 accent-[rgb(221,198,182)]"
+              className="w-4 h-4 rounded bg-white/5 border-[rgb(var(--primary-text-rgb)_/_0.2)] accent-[rgb(var(--primary-text-rgb))]"
             />
             <span className="text-sm secondary-color-text">Featured project</span>
           </label>

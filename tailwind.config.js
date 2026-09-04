@@ -25,16 +25,19 @@ module.exports = {
           "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
       },
       colors: {
+        /* Channel variables (see globals.css) so every utility built from these
+           colors — bg/, text/, border/, ring/, placeholder/ — follows the theme
+           toggle instead of staying hardcoded beige/dark */
         "primary-color": {
-          DEFAULT: "rgb(38, 34, 35)",
-          text: "rgb(221, 198, 182)",
-          bg: "rgb(38, 34, 35)",
+          DEFAULT: "rgb(var(--primary-bg-rgb) / <alpha-value>)",
+          text: "rgb(var(--primary-bg-rgb) / <alpha-value>)",
+          bg: "rgb(var(--primary-bg-rgb) / <alpha-value>)",
         },
         "secondary-color": {
-          DEFAULT: "rgb(221, 198, 182)",
-          text: "rgb(221, 198, 182)",
-          bg: "rgb(221, 198, 182)",
-          border: "rgb(221, 198, 182)",
+          DEFAULT: "rgb(var(--primary-text-rgb) / <alpha-value>)",
+          text: "rgb(var(--primary-text-rgb) / <alpha-value>)",
+          bg: "rgb(var(--primary-text-rgb) / <alpha-value>)",
+          border: "rgb(var(--primary-text-rgb) / <alpha-value>)",
         },
       },
     },

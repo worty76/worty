@@ -222,24 +222,26 @@ export default function Blog() {
 
   return (
     <div className="w-full max-w-4xl py-4">
-      <div className="flex items-center justify-end mb-2">
-          <div className="flex items-center gap-0.5 bg-white/[0.04] rounded-full p-0.5">
+      <div className="flex items-center justify-start mb-2">
+          <div className="flex items-center gap-0.5 bg-[rgb(var(--primary-text-rgb)_/_0.06)] rounded-full p-0.5">
             <button
               onClick={() => setLang("en")}
+              aria-pressed={lang === "en"}
               className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
                 lang === "en"
-                  ? "bg-white/[0.12] secondary-color-text"
-                  : "secondary-color-text opacity-30 hover:opacity-60"
+                  ? "bg-[rgb(var(--primary-text-rgb)_/_0.12)] secondary-color-text"
+                  : "secondary-color-text opacity-40 hover:opacity-70"
               }`}
             >
               EN
             </button>
             <button
               onClick={() => setLang("vi")}
+              aria-pressed={lang === "vi"}
               className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
                 lang === "vi"
-                  ? "bg-white/[0.12] secondary-color-text"
-                  : "secondary-color-text opacity-30 hover:opacity-60"
+                  ? "bg-[rgb(var(--primary-text-rgb)_/_0.12)] secondary-color-text"
+                  : "secondary-color-text opacity-40 hover:opacity-70"
               }`}
             >
               VI

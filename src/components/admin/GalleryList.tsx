@@ -154,7 +154,7 @@ export function GalleryList({ onEdit, refreshTrigger }: GalleryListProps) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search memories..."
-            className="w-full pl-8 pr-8 py-2 bg-white/5 border border-white/10 rounded-lg text-sm secondary-color-text placeholder-secondary/40 focus:outline-none focus:border-[rgba(221,198,182,0.3)] transition-colors"
+            className="w-full pl-8 pr-8 py-2 bg-white/5 border border-[rgb(var(--primary-text-rgb)_/_0.1)] rounded-lg text-sm secondary-color-text placeholder:text-secondary-color/40 focus:outline-none focus:border-[rgb(var(--primary-text-rgb)_/_0.3)] transition-colors"
           />
           {query && (
             <button
@@ -172,7 +172,7 @@ export function GalleryList({ onEdit, refreshTrigger }: GalleryListProps) {
           className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all shrink-0 ${
             showDeleted
               ? "secondary-color-bg primary-color-text"
-              : "bg-white/5 secondary-color-text opacity-60 hover:opacity-100 border border-white/10"
+              : "bg-white/5 secondary-color-text opacity-60 hover:opacity-100 border border-[rgb(var(--primary-text-rgb)_/_0.1)]"
           }`}
         >
           {showDeleted ? <FaTrashRestore size={12} /> : <FaTrash size={12} />}
@@ -184,7 +184,7 @@ export function GalleryList({ onEdit, refreshTrigger }: GalleryListProps) {
         {filteredItems.map((item) => (
           <div
             key={item.id}
-            className={`group relative rounded-2xl overflow-hidden bg-white/[0.04] hover:bg-white/[0.07] transition-all duration-200 border border-[rgba(221,198,182,0.08)] hover:border-[rgba(221,198,182,0.2)] cursor-pointer ${
+            className={`group relative rounded-2xl overflow-hidden bg-white/[0.04] hover:bg-white/[0.07] transition-all duration-200 border border-[rgb(var(--primary-text-rgb)_/_0.08)] hover:border-[rgb(var(--primary-text-rgb)_/_0.2)] cursor-pointer ${
               item.deleted ? "opacity-60" : ""
             }`}
             onClick={() => !item.deleted && onEdit(item)}
@@ -202,7 +202,7 @@ export function GalleryList({ onEdit, refreshTrigger }: GalleryListProps) {
 
               {/* Featured badge */}
               {item.featured && (
-                <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 bg-[rgb(221,198,182)] text-[rgb(38,34,35)] rounded-lg text-xs font-semibold shadow-lg backdrop-blur-sm">
+                <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 bg-[rgb(var(--primary-text-rgb))] text-[rgb(var(--primary-bg-rgb))] rounded-lg text-xs font-semibold shadow-lg backdrop-blur-sm">
                   <FaStar size={9} />
                   Featured
                 </div>
@@ -210,7 +210,7 @@ export function GalleryList({ onEdit, refreshTrigger }: GalleryListProps) {
 
               {/* Deleted badge */}
               {item.deleted && (
-                <div className="absolute top-3 left-3 px-2.5 py-1 bg-black/60 secondary-color-text rounded-lg text-xs font-semibold shadow-lg backdrop-blur-sm">
+                <div className="absolute top-3 left-3 px-2.5 py-1 bg-black/60 text-white rounded-lg text-xs font-semibold shadow-lg backdrop-blur-sm">
                   Deleted
                 </div>
               )}

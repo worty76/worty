@@ -26,11 +26,14 @@ import {
   FaArrowLeft,
   FaArrowRight,
   FaCode,
+  FaSun,
+  FaMoon,
 } from "react-icons/fa";
 import { Card, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { LoadingSpinner } from "@/components/ui/LoadingStates";
 import { BlogStatus } from "@/components/ui/StatusBadge";
+import { useTheme } from "@/context/theme-context";
 
 export const dynamic = "force-dynamic";
 
@@ -127,6 +130,7 @@ export default function AdminPage() {
   const [stats, setStats] = useState<Stats>({ blogCount: 0, galleryCount: 0, musicCount: 0, bucketCount: 0, projectCount: 0 });
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const { user, loading, logOut } = useAuth();
+  const { isReversed, toggleTheme } = useTheme();
   const router = useRouter();
 
   useEffect(() => {
@@ -346,7 +350,7 @@ export default function AdminPage() {
               <button
                 key={card.label}
                 onClick={() => handleTabChange(card.tab)}
-                className="group relative overflow-hidden rounded-2xl border border-[rgba(221,198,182,0.08)] bg-white/[0.03] hover:bg-white/[0.06] hover:border-[rgba(221,198,182,0.25)] transition-all duration-200 text-left p-6"
+                className="group relative overflow-hidden rounded-2xl border border-[rgb(var(--primary-text-rgb)_/_0.08)] bg-white/[0.03] hover:bg-white/[0.06] hover:border-[rgb(var(--primary-text-rgb)_/_0.25)] transition-all duration-200 text-left p-6"
               >
                 <div className="flex items-center justify-between mb-6">
                   <span className="w-10 h-10 rounded-xl bg-white/[0.06] flex items-center justify-center secondary-color-text opacity-60 group-hover:opacity-100 transition-opacity">
@@ -450,9 +454,9 @@ export default function AdminPage() {
   return (
     <div className="min-h-screen primary-color-bg flex">
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex flex-col w-64 shrink-0 border-r border-[rgba(221,198,182,0.08)] bg-[rgba(0,0,0,0.15)] sticky top-0 h-screen z-30">
+      <aside className="hidden lg:flex flex-col w-64 shrink-0 border-r border-[rgb(var(--primary-text-rgb)_/_0.08)] bg-[rgba(0,0,0,0.15)] sticky top-0 h-screen z-30">
         {/* Logo */}
-        <div className="p-6 border-b border-[rgba(221,198,182,0.08)]">
+        <div className="p-6 border-b border-[rgb(var(--primary-text-rgb)_/_0.08)]">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-white/[0.06] flex items-center justify-center">
               <span className="secondary-color-text font-bold text-lg">W</span>
@@ -487,7 +491,7 @@ export default function AdminPage() {
                 `}
               >
                 {activeTab === item.key && (
-                  <span className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-full bg-[rgb(221,198,182)]" />
+                  <span className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-full bg-[rgb(var(--primary-text-rgb))]" />
                 )}
                 {item.icon}
                 {item.label}
@@ -501,20 +505,31 @@ export default function AdminPage() {
           })}
         </nav>
 
-        {/* User info + logout */}
-        <div className="p-4 border-t border-[rgba(221,198,182,0.08)]">
+        {/* User info + theme + logout */}
+        <div className="p-4 border-t border-[rgb(var(--primary-text-rgb)_/_0.08)]">
           <div className="flex items-center gap-2.5 px-3 py-2 mb-2">
             <FaUserCircle className="secondary-color-text opacity-40" size={18} />
             <span className="secondary-color-text text-xs truncate">{user.email}</span>
           </div>
-          <Button variant="ghost" size="sm" fullWidth onClick={handleLogout} icon={<FaSignOutAlt size={12} />}>
-            Logout
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              fullWidth
+              onClick={toggleTheme}
+              icon={isReversed ? <FaMoon size={12} /> : <FaSun size={12} />}
+            >
+              Theme
+            </Button>
+            <Button variant="ghost" size="sm" fullWidth onClick={handleLogout} icon={<FaSignOutAlt size={12} />}>
+              Logout
+            </Button>
+          </div>
         </div>
       </aside>
 
       {/* Mobile header */}
-      <div className="lg:hidden fixed inset-x-0 top-0 z-40 border-b border-[rgba(221,198,182,0.08)] backdrop-blur-xl bg-[rgb(38,34,35)]/90">
+      <div className="lg:hidden fixed inset-x-0 top-0 z-40 border-b border-[rgb(var(--primary-text-rgb)_/_0.08)] backdrop-blur-xl bg-[rgb(var(--primary-bg-rgb)_/_0.9)]">
         <div className="flex items-center justify-between px-4 h-16">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-lg bg-white/[0.06] flex items-center justify-center">
@@ -522,8 +537,15 @@ export default function AdminPage() {
             </div>
             <h1 className="font-heading font-bold secondary-color-text text-sm">Admin</h1>
           </div>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" onClick={handleLogout} icon={<FaSignOutAlt size={12} />} />
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={toggleTheme}
+              icon={isReversed ? <FaMoon size={12} /> : <FaSun size={12} />}
+              aria-label="Toggle theme"
+            />
+            <Button variant="ghost" size="sm" onClick={handleLogout} icon={<FaSignOutAlt size={12} />} aria-label="Logout" />
           </div>
         </div>
 

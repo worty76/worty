@@ -371,45 +371,22 @@ export default function Page({ params }: { params: { id: string } }) {
   const displayDescription = (lang === "vi" && blog.descriptionVi) ? blog.descriptionVi : blog.description;
   const displayContent = (lang === "vi" && blog.contentVi) ? blog.contentVi : blog.content;
   const displayReadingTime = (lang === "vi" && blog.readingTimeVi) ? blog.readingTimeVi : blog.readingTime;
+  const hasVi = Boolean(blog.titleVi || blog.descriptionVi || blog.contentVi);
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
       <main className="w-[100%] max-w-[1100px] mx-auto">
         <div className="mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex flex-wrap gap-2">
-              {blog.category.map((item, index) => (
-                <div
-                  key={index}
-                  className="px-3 py-1 primary-color-bg secondary-color-text border secondary-color-border
-                            rounded-full text-sm font-medium hover:opacity-80 transition-all duration-1000"
-                >
-                  {item}
-                </div>
-              ))}
-            </div>
-            <div className="flex items-center gap-0.5 bg-white/[0.04] rounded-full p-0.5">
-              <button
-                onClick={() => setLang("en")}
-                className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
-                  lang === "en"
-                    ? "bg-white/[0.12] secondary-color-text"
-                    : "secondary-color-text opacity-30 hover:opacity-60"
-                }`}
+          <div className="flex flex-wrap gap-2 mb-4">
+            {blog.category.map((item, index) => (
+              <div
+                key={index}
+                className="px-3 py-1 primary-color-bg secondary-color-text border secondary-color-border
+                          rounded-full text-sm font-medium hover:opacity-80 transition-all duration-1000"
               >
-                EN
-              </button>
-              <button
-                onClick={() => setLang("vi")}
-                className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
-                  lang === "vi"
-                    ? "bg-white/[0.12] secondary-color-text"
-                    : "secondary-color-text opacity-30 hover:opacity-60"
-                }`}
-              >
-                VI
-              </button>
-            </div>
+                {item}
+              </div>
+            ))}
           </div>
 
           <h1 className="text-4xl font-bold leading-tight mb-4 secondary-color-text duration-1000">
@@ -418,14 +395,47 @@ export default function Page({ params }: { params: { id: string } }) {
               <StatusBadge status={blog.status} />
             )}
           </h1>
-          <time className="secondary-color-text opacity-70 text-sm duration-1000">
-            {new Date(blog.datetime).toLocaleDateString("en-US", {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })}
-            {blog.readingTime && <span> · {displayReadingTime} read</span>}
-          </time>
+
+          <div className="flex items-center justify-between flex-wrap gap-3">
+            <time className="secondary-color-text opacity-70 text-sm duration-1000">
+              {new Date(blog.datetime).toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
+              {blog.readingTime && <span> · {displayReadingTime} read</span>}
+            </time>
+
+            {hasVi && (
+              <div className="flex items-center gap-0.5 bg-[rgb(var(--primary-text-rgb)_/_0.06)] rounded-full p-0.5">
+                <button
+                  onClick={() => setLang("en")}
+                  aria-pressed={lang === "en"}
+                  title="Read in English"
+                  className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
+                    lang === "en"
+                      ? "bg-[rgb(var(--primary-text-rgb)_/_0.12)] secondary-color-text"
+                      : "secondary-color-text opacity-40 hover:opacity-70"
+                  }`}
+                >
+                  EN
+                </button>
+                <button
+                  onClick={() => setLang("vi")}
+                  aria-pressed={lang === "vi"}
+                  title="Đọc bằng tiếng Việt"
+                  className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
+                    lang === "vi"
+                      ? "bg-[rgb(var(--primary-text-rgb)_/_0.12)] secondary-color-text"
+                      : "secondary-color-text opacity-40 hover:opacity-70"
+                  }`}
+                >
+                  VI
+                </button>
+              </div>
+            )}
+          </div>
+
           <p className="mt-3 text-xs font-medium border-l-2 border-[rgb(217,164,65)] pl-3" style={{color: "rgb(217,164,65)"}}>
             100% human-written by Dat.
           </p>

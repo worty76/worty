@@ -156,7 +156,7 @@ export function MusicList({ onEdit, refreshTrigger }: MusicListProps) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search tracks..."
-            className="w-full pl-8 pr-8 py-2 bg-white/5 border border-white/10 rounded-lg text-sm secondary-color-text placeholder-secondary/40 focus:outline-none focus:border-[rgba(221,198,182,0.3)] transition-colors"
+            className="w-full pl-8 pr-8 py-2 bg-white/5 border border-[rgb(var(--primary-text-rgb)_/_0.1)] rounded-lg text-sm secondary-color-text placeholder:text-secondary-color/40 focus:outline-none focus:border-[rgb(var(--primary-text-rgb)_/_0.3)] transition-colors"
           />
           {query && (
             <button
@@ -174,7 +174,7 @@ export function MusicList({ onEdit, refreshTrigger }: MusicListProps) {
           className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all shrink-0 ${
             showDeleted
               ? "secondary-color-bg primary-color-text"
-              : "bg-white/5 secondary-color-text opacity-60 hover:opacity-100 border border-white/10"
+              : "bg-white/5 secondary-color-text opacity-60 hover:opacity-100 border border-[rgb(var(--primary-text-rgb)_/_0.1)]"
           }`}
         >
           {showDeleted ? <FaTrashRestore size={12} /> : <FaTrash size={12} />}
@@ -186,7 +186,7 @@ export function MusicList({ onEdit, refreshTrigger }: MusicListProps) {
         {filteredItems.map((item) => (
           <div
             key={item.id}
-            className={`flex items-center gap-4 p-4 bg-white/5 border border-white/10 rounded-xl group ${
+            className={`flex items-center gap-4 p-4 bg-white/5 border border-[rgb(var(--primary-text-rgb)_/_0.1)] rounded-xl group ${
               item.deleted ? "opacity-60" : ""
             }`}
           >

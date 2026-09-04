@@ -14,7 +14,7 @@ type SelectProps = BaseInputProps & SelectHTMLAttributes<HTMLSelectElement> & {
   options: Array<{ value: string; label: string }>;
 };
 
-const baseClassName = "px-4 py-3 border secondary-color-border rounded-lg bg-white/5 secondary-color-text placeholder-secondary/40 focus:outline-none focus:ring-2 focus:ring-[rgba(221,198,182,0.35)] focus:border-[rgba(221,198,182,0.4)] transition-all duration-200";
+const baseClassName = "px-4 py-3 border secondary-color-border rounded-lg bg-white/5 secondary-color-text placeholder:text-secondary-color/40 focus:outline-none focus:ring-2 focus:ring-[rgb(var(--primary-text-rgb)_/_0.35)] focus:border-[rgb(var(--primary-text-rgb)_/_0.4)] transition-all duration-200";
 const widthClassName = "w-full";
 
 export function FormInput({ label, error, fullWidth = true, className = "", ...props }: InputProps) {
@@ -107,7 +107,7 @@ export function Switch({ label, description, checked, onChange, disabled = false
         onClick={() => !disabled && onChange(!checked)}
         disabled={disabled}
         className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ${
-          checked ? "primary-color-bg" : "bg-white/20"
+          checked ? "primary-color-bg" : "bg-[rgb(var(--primary-text-rgb)_/_0.2)]"
         } ${disabled ? "cursor-not-allowed" : "cursor-pointer"}`}
       >
         <span

@@ -178,7 +178,7 @@ export function BlogList({ onEdit, refreshTrigger }: BlogListProps) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search posts..."
-            className="w-full pl-8 pr-8 py-2 bg-white/5 border border-white/10 rounded-lg text-sm secondary-color-text placeholder-secondary/40 focus:outline-none focus:border-[rgba(221,198,182,0.3)] transition-colors"
+            className="w-full pl-8 pr-8 py-2 bg-white/5 border border-[rgb(var(--primary-text-rgb)_/_0.1)] rounded-lg text-sm secondary-color-text placeholder:text-secondary-color/40 focus:outline-none focus:border-[rgb(var(--primary-text-rgb)_/_0.3)] transition-colors"
           />
           {query && (
             <button
@@ -196,7 +196,7 @@ export function BlogList({ onEdit, refreshTrigger }: BlogListProps) {
           className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all shrink-0 ${
             showDeleted
               ? "secondary-color-bg primary-color-text"
-              : "bg-white/5 secondary-color-text opacity-60 hover:opacity-100 border border-white/10"
+              : "bg-white/5 secondary-color-text opacity-60 hover:opacity-100 border border-[rgb(var(--primary-text-rgb)_/_0.1)]"
           }`}
         >
           {showDeleted ? <FaTrashRestore size={12} /> : <FaTrash size={12} />}
@@ -208,7 +208,7 @@ export function BlogList({ onEdit, refreshTrigger }: BlogListProps) {
         {filteredPosts.map((post) => (
           <div
             key={post.docId}
-            className={`group bg-white/5 hover:bg-white/10 rounded-xl overflow-hidden transition-all duration-200 border border-transparent hover:border-[rgba(221,198,182,0.2)] ${
+            className={`group bg-white/5 hover:bg-white/10 rounded-xl overflow-hidden transition-all duration-200 border border-transparent hover:border-[rgb(var(--primary-text-rgb)_/_0.2)] ${
               post.deleted ? "opacity-60" : ""
             }`}
           >
@@ -223,7 +223,7 @@ export function BlogList({ onEdit, refreshTrigger }: BlogListProps) {
               />
 
               {post.deleted && (
-                <div className="absolute top-2 left-2 px-2 py-0.5 bg-black/60 secondary-color-text backdrop-blur-sm rounded text-xs font-semibold">
+                <div className="absolute top-2 left-2 px-2 py-0.5 bg-black/60 text-white backdrop-blur-sm rounded text-xs font-semibold">
                   Deleted
                 </div>
               )}

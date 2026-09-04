@@ -116,7 +116,7 @@ export default function ProjectsPage() {
                 className={`group flex items-center gap-5 rounded-xl p-6 transition-all duration-200 hover:bg-white/[0.06] border ${
                   project.featured
                     ? "border-amber-500/20 hover:border-amber-500/40 bg-amber-500/[0.04]"
-                    : "border-white/[0.06] bg-white/[0.02]"
+                    : "border-[rgb(var(--primary-text-rgb)_/_0.06)] bg-white/[0.02]"
                 }`}
               >
                 {/* Thumbnail */}

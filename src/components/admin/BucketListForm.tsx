@@ -91,13 +91,13 @@ export function BucketListForm({ initialData, onSuccess }: BucketListFormProps) 
       />
 
       <div>
-        <label className="block text-sm font-medium text-[rgb(221,198,182)]/70 mb-1.5">
+        <label className="block text-sm font-medium text-[rgb(var(--primary-text-rgb)_/_0.7)] mb-1.5">
           Category
         </label>
         <select
           value={form.category}
           onChange={(e) => setForm({ ...form, category: e.target.value })}
-          className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-[rgba(221,198,182,0.1)] text-[rgb(221,198,182)] text-sm focus:outline-none focus:border-[rgba(221,198,182,0.3)]"
+          className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-[rgb(var(--primary-text-rgb)_/_0.1)] text-[rgb(var(--primary-text-rgb))] text-sm focus:outline-none focus:border-[rgb(var(--primary-text-rgb)_/_0.3)]"
         >
           {CATEGORIES.map((cat) => (
             <option key={cat} value={cat}>
@@ -122,7 +122,7 @@ export function BucketListForm({ initialData, onSuccess }: BucketListFormProps) 
           onChange={(e) => setForm({ ...form, completed: e.target.checked })}
           className="w-4 h-4 rounded accent-amber-600"
         />
-        <span className="text-sm text-[rgb(221,198,182)]/70">Completed</span>
+        <span className="text-sm text-[rgb(var(--primary-text-rgb)_/_0.7)]">Completed</span>
       </label>
 
       <div className="flex gap-3 pt-2">

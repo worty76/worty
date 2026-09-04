@@ -471,7 +471,7 @@ export function MarkdownEditor({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
-          className={`w-full p-4 border secondary-color-border rounded-lg bg-white/5 secondary-color-text placeholder-secondary/40 focus:outline-none focus:ring-2 focus:ring-opacity-50 transition-all duration-200 resize-y font-mono text-sm leading-relaxed ${isFullscreen ? "flex-1 min-h-0" : "min-h-[600px]"}`}
+          className={`w-full p-4 border secondary-color-border rounded-lg bg-white/5 secondary-color-text placeholder:text-secondary-color/40 focus:outline-none focus:ring-2 focus:ring-opacity-50 transition-all duration-200 resize-y font-mono text-sm leading-relaxed ${isFullscreen ? "flex-1 min-h-0" : "min-h-[600px]"}`}
         />
       ) : (
         <div className={`w-full p-6 border secondary-color-border rounded-lg bg-white/5 overflow-y-auto ${isFullscreen ? "flex-1" : "min-h-[600px] max-h-[600px]"}`}>
@@ -495,7 +495,7 @@ export function MarkdownEditor({
 
   if (isFullscreen) {
     return (
-      <div className="fixed inset-0 z-50 bg-[rgb(38,34,35)] p-6 flex flex-col">
+      <div className="fixed inset-0 z-50 bg-[rgb(var(--primary-bg-rgb))] p-6 flex flex-col">
         <div className="flex-1 flex flex-col overflow-hidden">{editorContent}</div>
       </div>
     );

@@ -76,7 +76,7 @@ const MusicCard = memo(
             )}
           </div>
         </div>
-        <h3 className={`text-sm font-medium truncate ${isCurrentTrack ? "text-white" : "secondary-color-text"}`}>
+        <h3 className={`text-sm font-medium truncate ${isCurrentTrack ? "secondary-color-text font-semibold" : "secondary-color-text"}`}>
           {music.title}
         </h3>
         <p className={`text-xs truncate mt-0.5 ${isCurrentTrack ? "secondary-color-text opacity-70" : "secondary-color-text opacity-45"}`}>
@@ -397,7 +397,7 @@ export default function Music() {
                 onClick={() => setFilterArtist(null)}
                 className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
                   filterArtist === null
-                    ? "bg-[rgb(221,198,182)] text-[rgb(38,34,35)]"
+                    ? "bg-[rgb(var(--primary-text-rgb))] text-[rgb(var(--primary-bg-rgb))]"
                     : "bg-white/5 secondary-color-text opacity-60 hover:opacity-100"
                 }`}
               >
@@ -409,7 +409,7 @@ export default function Music() {
                   onClick={() => setFilterArtist(artist)}
                   className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
                     filterArtist === artist
-                      ? "bg-[rgb(221,198,182)] text-[rgb(38,34,35)]"
+                      ? "bg-[rgb(var(--primary-text-rgb))] text-[rgb(var(--primary-bg-rgb))]"
                       : "bg-white/5 secondary-color-text opacity-60 hover:opacity-100"
                   }`}
                 >
@@ -438,7 +438,7 @@ export default function Music() {
         {/* Infinite scroll sentinel */}
         {visibleCount < filteredMusic.length && (
           <div ref={sentinelRef} className="flex justify-center py-8">
-            <div className="w-5 h-5 border-2 border-[rgb(221,198,182)]/20 border-t-[rgb(221,198,182)] rounded-full animate-spin" />
+            <div className="w-5 h-5 border-2 border-[rgb(var(--primary-text-rgb)_/_0.2)] border-t-[rgb(var(--primary-text-rgb))] rounded-full animate-spin" />
           </div>
         )}
       </div>

@@ -52,7 +52,7 @@ function ConfirmDialog({
         aria-modal="true"
         aria-label={title}
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-sm rounded-2xl border border-[rgba(221,198,182,0.15)] bg-[rgb(46,42,43)] p-6 shadow-2xl animate-dialog-in"
+        className="w-full max-w-sm rounded-2xl border border-[rgb(var(--primary-text-rgb)_/_0.15)] bg-[var(--color-surface)] p-6 shadow-2xl animate-dialog-in"
       >
         <div className="flex items-start gap-4">
           <div

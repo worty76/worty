@@ -163,7 +163,7 @@ export function BlogForm({ initialData, onSuccess }: BlogFormProps) {
           onClick={() => setLangTab("en")}
           className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${
             langTab === "en"
-              ? "bg-white/[0.12] secondary-color-text border border-[rgba(221,198,182,0.2)]"
+              ? "bg-white/[0.12] secondary-color-text border border-[rgb(var(--primary-text-rgb)_/_0.2)]"
               : "secondary-color-text opacity-50 hover:opacity-80 border border-transparent"
           }`}
         >
@@ -174,7 +174,7 @@ export function BlogForm({ initialData, onSuccess }: BlogFormProps) {
           onClick={() => setLangTab("vi")}
           className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${
             langTab === "vi"
-              ? "bg-white/[0.12] secondary-color-text border border-[rgba(221,198,182,0.2)]"
+              ? "bg-white/[0.12] secondary-color-text border border-[rgb(var(--primary-text-rgb)_/_0.2)]"
               : "secondary-color-text opacity-50 hover:opacity-80 border border-transparent"
           }`}
         >

@@ -91,7 +91,7 @@ export function BucketList({ onEdit, refreshTrigger }: BucketListProps) {
           className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
             showDeleted
               ? "secondary-color-bg primary-color-text"
-              : "bg-white/5 secondary-color-text opacity-60 hover:opacity-100 border border-white/10"
+              : "bg-white/5 secondary-color-text opacity-60 hover:opacity-100 border border-[rgb(var(--primary-text-rgb)_/_0.1)]"
           }`}
         >
           {showDeleted ? <FaRecycle size={12} /> : <FaTrash size={12} />}
@@ -114,15 +114,15 @@ export function BucketList({ onEdit, refreshTrigger }: BucketListProps) {
           {visible.map((item) => (
             <div
               key={item.id}
-              className="flex items-center gap-4 px-4 py-3 rounded-xl bg-white/[0.02] border border-[rgba(221,198,182,0.06)] hover:border-[rgba(221,198,182,0.15)] transition-all"
+              className="flex items-center gap-4 px-4 py-3 rounded-xl bg-white/[0.02] border border-[rgb(var(--primary-text-rgb)_/_0.06)] hover:border-[rgb(var(--primary-text-rgb)_/_0.15)] transition-all"
             >
-              <span className="text-[rgb(221,198,182)]/25 text-xs font-mono w-8 text-right shrink-0">
+              <span className="text-[rgb(var(--primary-text-rgb)_/_0.25)] text-xs font-mono w-8 text-right shrink-0">
                 {item.order}
               </span>
-              <span className={`flex-1 text-sm ${item.completed ? "line-through text-[rgb(221,198,182)]/40" : "text-[rgb(221,198,182)]"}`}>
+              <span className={`flex-1 text-sm ${item.completed ? "line-through text-[rgb(var(--primary-text-rgb)_/_0.4)]" : "text-[rgb(var(--primary-text-rgb))]"}`}>
                 {item.title}
               </span>
-              <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-white/5 text-[rgb(221,198,182)]/50 shrink-0">
+              <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-white/5 text-[rgb(var(--primary-text-rgb)_/_0.5)] shrink-0">
                 {item.category}
               </span>
               {item.completed && (

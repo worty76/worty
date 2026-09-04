@@ -113,7 +113,7 @@ export function TagInput({
             setTimeout(() => setShowSuggestions(false), 200);
           }}
           placeholder={tags.length === 0 ? placeholder : ""}
-          className="flex-1 min-w-[120px] bg-transparent secondary-color-text placeholder-secondary/40 focus:outline-none text-sm"
+          className="flex-1 min-w-[120px] bg-transparent secondary-color-text placeholder:text-secondary-color/40 focus:outline-none text-sm"
         />
       </div>
 

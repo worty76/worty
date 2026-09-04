@@ -59,7 +59,7 @@ export default function BucketListPage() {
   if (loading) {
     return (
       <main className="min-h-screen primary-color-bg flex items-center justify-center">
-        <div className="text-[rgb(221,198,182)] opacity-40 text-sm">Loading...</div>
+        <div className="text-[rgb(var(--primary-text-rgb))] opacity-40 text-sm">Loading...</div>
       </main>
     );
   }
@@ -96,7 +96,7 @@ export default function BucketListPage() {
                 onClick={() => setStatusFilter(s)}
                 className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                   statusFilter === s
-                    ? "bg-[rgb(221,198,182)] text-[rgb(38,34,35)]"
+                    ? "bg-[rgb(var(--primary-text-rgb))] text-[rgb(var(--primary-bg-rgb))]"
                     : "bg-white/5 secondary-color-text opacity-50 hover:opacity-80"
                 }`}
               >
@@ -113,7 +113,7 @@ export default function BucketListPage() {
                   onClick={() => setCategoryFilter(cat)}
                   className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                     categoryFilter === cat
-                      ? "bg-[rgb(221,198,182)] text-[rgb(38,34,35)]"
+                      ? "bg-[rgb(var(--primary-text-rgb))] text-[rgb(var(--primary-bg-rgb))]"
                       : "bg-white/5 secondary-color-text opacity-50 hover:opacity-80"
                   }`}
                 >
@@ -138,7 +138,7 @@ export default function BucketListPage() {
                 {item.completed ? (
                   <span className="shrink-0 text-emerald-500"><FaCheck size={10} /></span>
                 ) : (
-                  <span className="shrink-0 w-2.5 h-2.5 rounded-full border border-[rgb(221,198,182)]/20" />
+                  <span className="shrink-0 w-2.5 h-2.5 rounded-full border border-[rgb(var(--primary-text-rgb)_/_0.2)]" />
                 )}
 
                 {/* Title */}

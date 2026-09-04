@@ -5,6 +5,11 @@
 :root {
   --color-primary-bg: rgb(38 34 35);
   --color-primary-text: rgb(221 198 182);
+  /* Raw channels so Tailwind arbitrary values can apply alpha: rgb(var(--x) / 0.4) */
+  --primary-bg-rgb: 38 34 35;
+  --primary-text-rgb: 221 198 182;
+  /* Elevated surface (dialogs) — slightly lighter than the page bg */
+  --color-surface: rgb(46 42 43);
   --font-heading: "Space Grotesk", sans-serif;
   --font-body: "Inter", sans-serif;
 }
@@ -12,6 +17,31 @@
 :root[data-theme="reversed"] {
   --color-primary-bg: rgb(221 198 182);
   --color-primary-text: rgb(38 34 35);
+  --primary-bg-rgb: 221 198 182;
+  --primary-text-rgb: 38 34 35;
+  --color-surface: rgb(234 219 203);
+}
+
+/* Theme switch: ThemeProvider adds html.theme-transition for ~500ms on every
+   toggle so ALL elements animate theme colors at the same pace. Without this,
+   elements with their own transition-* classes animate at random speeds while
+   the rest snap instantly. Keep the JS timeout in theme-context in sync. */
+html.theme-transition,
+html.theme-transition *,
+html.theme-transition *::before,
+html.theme-transition *::after {
+  transition: background-color 400ms ease, color 400ms ease,
+    border-color 400ms ease, fill 400ms ease, stroke 400ms ease !important;
+  transition-delay: 0s !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.theme-transition,
+  html.theme-transition *,
+  html.theme-transition *::before,
+  html.theme-transition *::after {
+    transition: none !important;
+  }
 }
 
 /* Global Font Styles */
@@ -175,7 +205,8 @@ p {
   border-opacity: 0.25;
 }
 
-/* Prose / Code blocks dark theme */
+/* Prose / Code blocks — code blocks keep a dark background in both themes,
+   so their text must stay light regardless of the theme */
 .prose pre {
   background-color: rgb(30, 26, 27) !important;
   border: none !important;
@@ -186,7 +217,7 @@ p {
 .prose code {
   color: var(--color-primary-text) !important;
   border: none !important;
-  background: rgba(221, 198, 182, 0.08) !important;
+  background: rgb(var(--primary-text-rgb) / 0.08) !important;
   padding: 0.15rem 0.4rem !important;
   border-radius: 0.25rem !important;
   font-size: 0.875em !important;
@@ -195,6 +226,7 @@ p {
 .prose pre code {
   background: transparent !important;
   padding: 0 !important;
+  color: rgb(231 214 196) !important;
 }
 
 .prose code::before,

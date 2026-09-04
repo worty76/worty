@@ -115,8 +115,8 @@ export function ImageUpload({ value, onChange, label = "Image" }: ImageUploadPro
           {isLoading && (
             <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
               <div className="flex flex-col items-center gap-3">
-                <div className="w-10 h-10 border-[3px] border-[rgb(221,198,182)] border-t-transparent rounded-full animate-spin" />
-                <p className="text-[rgb(221,198,182)] text-sm font-medium">Uploading...</p>
+                <div className="w-10 h-10 border-[3px] border-[rgb(var(--primary-text-rgb))] border-t-transparent rounded-full animate-spin" />
+                <p className="text-[rgb(var(--primary-text-rgb))] text-sm font-medium">Uploading...</p>
               </div>
             </div>
           )}
@@ -131,7 +131,7 @@ export function ImageUpload({ value, onChange, label = "Image" }: ImageUploadPro
                 <FaTrash size={14} />
               </button>
               <div className="absolute bottom-3 left-3 flex items-center gap-1.5 px-3 py-1.5 bg-black/60 backdrop-blur-sm rounded-lg text-white text-xs">
-                <FaCheckCircle size={10} className="secondary-color-text opacity-80" />
+                <FaCheckCircle size={10} className="text-white opacity-80" />
                 Image uploaded
               </div>
             </>
@@ -151,14 +151,14 @@ export function ImageUpload({ value, onChange, label = "Image" }: ImageUploadPro
         onClick={() => !isLoading && fileInputRef.current?.click()}
         className={`
           relative rounded-2xl border-2 border-dashed transition-all duration-300
-          ${isLoading ? "border-[rgba(221,198,182,0.3)] bg-[rgba(221,198,182,0.05)] cursor-wait" : "cursor-pointer"}
-          ${!isLoading && isDragOver ? "border-[rgb(221,198,182)] bg-[rgba(221,198,182,0.1)] scale-[1.01]" : ""}
-          ${!isLoading && !isDragOver ? "border-[rgba(221,198,182,0.15)] bg-black/20 hover:bg-[rgba(221,198,182,0.05)] hover:border-[rgba(221,198,182,0.3)]" : ""}
+          ${isLoading ? "border-[rgb(var(--primary-text-rgb)_/_0.3)] bg-[rgb(var(--primary-text-rgb)_/_0.05)] cursor-wait" : "cursor-pointer"}
+          ${!isLoading && isDragOver ? "border-[rgb(var(--primary-text-rgb))] bg-[rgb(var(--primary-text-rgb)_/_0.1)] scale-[1.01]" : ""}
+          ${!isLoading && !isDragOver ? "border-[rgb(var(--primary-text-rgb)_/_0.15)] bg-black/20 hover:bg-[rgb(var(--primary-text-rgb)_/_0.05)] hover:border-[rgb(var(--primary-text-rgb)_/_0.3)]" : ""}
         `}
       >
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-20 gap-4">
-            <div className="w-14 h-14 border-[3px] border-[rgb(221,198,182)] border-t-transparent rounded-full animate-spin" />
+            <div className="w-14 h-14 border-[3px] border-[rgb(var(--primary-text-rgb))] border-t-transparent rounded-full animate-spin" />
             <div className="text-center">
               <p className="secondary-color-text font-medium">Uploading image...</p>
               <p className="secondary-color-text opacity-50 text-sm mt-1">Please wait</p>
