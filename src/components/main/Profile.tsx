@@ -1,14 +1,40 @@
+"use client";
+
 import Image from "next/image";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useEffect, useState } from "react";
 import { socialLinks } from "../../utils/social-links";
 import author from "../../../public/images/me.jpg";
+import { fetchCollectionCached } from "@/lib/firestore-cache";
+
+interface ProfileDoc {
+  id: string;
+  avatarUrl?: string;
+}
 
 export const Profile = () => {
+  // Custom avatar set from the admin panel (profile/main doc); falls back to
+  // the bundled photo when none is set
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const docs = await fetchCollectionCached<ProfileDoc>("profile");
+        const main = docs.find((d) => d.id === "main");
+        if (main?.avatarUrl) setAvatarUrl(main.avatarUrl);
+      } catch {
+        // keep the default photo
+      }
+    };
+    load();
+  }, []);
+
   return (
     <div className="flex items-center">
       <div className="relative w-[150px] h-[150px] md:hover:w-[256px] md:hover:h-[256px] duration-1000">
         <Image
-          src={author}
+          src={avatarUrl ?? author}
           fill
           alt="Picture of the author"
           className="rounded-xl object-cover"

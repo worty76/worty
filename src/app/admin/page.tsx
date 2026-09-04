@@ -12,6 +12,7 @@ import { GalleryList } from "@/components/admin/GalleryList";
 import { MusicList } from "@/components/admin/MusicList";
 import { BucketList } from "@/components/admin/BucketList";
 import { ProjectList } from "@/components/admin/ProjectList";
+import { ProfileSettings } from "@/components/admin/ProfileSettings";
 import { useAuth } from "@/context/auth-context";
 import { db } from "@/firebase/config";
 import {
@@ -38,7 +39,7 @@ import { useConfirm } from "@/components/ui/ConfirmDialog";
 
 export const dynamic = "force-dynamic";
 
-type Tab = "home" | "blog" | "gallery" | "music" | "bucketlist" | "projects";
+type Tab = "home" | "blog" | "gallery" | "music" | "bucketlist" | "projects" | "profile";
 type View = "form" | "list";
 
 interface EditingBlog {
@@ -115,6 +116,7 @@ const NAV_ITEMS: { key: Tab; label: string; icon: React.ReactNode }[] = [
   { key: "music", label: "Music", icon: <FaMusic size={16} /> },
   { key: "bucketlist", label: "Bucket List", icon: <FaList size={16} /> },
   { key: "projects", label: "Projects", icon: <FaCode size={16} /> },
+  { key: "profile", label: "Profile", icon: <FaUserCircle size={16} /> },
 ];
 
 export default function AdminPage() {
@@ -362,6 +364,21 @@ export default function AdminPage() {
   ];
 
   const renderContent = () => {
+    // Profile avatar
+    if (activeTab === "profile") {
+      return (
+        <Card>
+          <CardHeader
+            title="Your avatar"
+            description="The photo shown at the top of your homepage"
+          />
+          <div className="p-6 sm:p-8">
+            <ProfileSettings />
+          </div>
+        </Card>
+      );
+    }
+
     // Dashboard home
     if (activeTab === "home") {
       return (

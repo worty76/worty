@@ -446,7 +446,7 @@ export default function Page({ params }: { params: { id: string } }) {
             )}
           </div>
 
-          <p className="mt-3 text-xs font-medium border-l-2 border-[rgb(217,164,65)] pl-3" style={{color: "rgb(217,164,65)"}}>
+          <p className="mt-3 text-xs font-medium border-l-2 border-[rgb(var(--primary-text-rgb)_/_0.5)] pl-3 secondary-color-text opacity-70">
             100% human-written by Dat.
           </p>
         </div>

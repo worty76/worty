@@ -77,8 +77,8 @@ export default function BucketListPage() {
         <div className="mb-8">
           <div className="w-full h-1 rounded-full bg-white/5 overflow-hidden">
             <div
-              className="h-full rounded-full transition-all duration-500"
-              style={{ width: `${percentage}%`, backgroundColor: "rgb(217, 164, 65)" }}
+              className="h-full rounded-full transition-all duration-500 secondary-color-bg"
+              style={{ width: `${percentage}%` }}
             />
           </div>
         </div>
@@ -133,7 +133,7 @@ export default function BucketListPage() {
               >
                 {/* Check */}
                 {item.completed ? (
-                  <span className="shrink-0 text-emerald-500"><FaCheck size={10} /></span>
+                  <span className="shrink-0 secondary-color-text opacity-70"><FaCheck size={10} /></span>
                 ) : (
                   <span className="shrink-0 w-2.5 h-2.5 rounded-full border border-[rgb(var(--primary-text-rgb)_/_0.2)]" />
                 )}
