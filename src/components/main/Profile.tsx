@@ -16,6 +16,7 @@ export const Profile = () => {
   // Custom avatar set from the admin panel (profile/main doc). When none is
   // set, a themed placeholder is shown instead of any photo.
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const load = async () => {
@@ -24,7 +25,9 @@ export const Profile = () => {
         const main = docs.find((d) => d.id === "main");
         if (main?.avatarUrl) setAvatarUrl(main.avatarUrl);
       } catch {
-        // keep the default photo
+        // keep the placeholder
+      } finally {
+        setLoading(false);
       }
     };
     load();
@@ -33,7 +36,11 @@ export const Profile = () => {
   return (
     <div className="flex items-center">
       <div className="relative w-[150px] h-[150px] md:hover:w-[256px] md:hover:h-[256px] duration-1000">
-        {avatarUrl ? (
+        {loading ? (
+          <div className="absolute inset-0 rounded-xl bg-white/[0.06] border border-[rgb(var(--primary-text-rgb)_/_0.15)] flex items-center justify-center">
+            <div className="w-8 h-8 border-[3px] border-[rgb(var(--primary-text-rgb))] border-t-transparent rounded-full animate-spin opacity-60" />
+          </div>
+        ) : avatarUrl ? (
           <Image
             src={avatarUrl}
             fill
