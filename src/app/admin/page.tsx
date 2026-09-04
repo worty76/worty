@@ -24,6 +24,7 @@ import {
   FaUserCircle,
   FaHome,
   FaArrowLeft,
+  FaArrowRight,
   FaCode,
 } from "react-icons/fa";
 import { Card, CardHeader } from "@/components/ui/Card";
@@ -323,11 +324,11 @@ export default function AdminPage() {
 
   // Stats cards
   const statCards = [
-    { label: "Blog Posts", count: stats.blogCount, icon: <FaPen size={20} />, color: "from-blue-500/20 to-blue-600/5" },
-    { label: "Gallery Items", count: stats.galleryCount, icon: <FaImages size={20} />, color: "from-emerald-500/20 to-emerald-600/5" },
-    { label: "Music Tracks", count: stats.musicCount, icon: <FaMusic size={20} />, color: "from-purple-500/20 to-purple-600/5" },
-    { label: "Bucket List", count: stats.bucketCount, icon: <FaList size={20} />, color: "from-amber-500/20 to-amber-600/5" },
-    { label: "Projects", count: stats.projectCount, icon: <FaCode size={20} />, color: "from-cyan-500/20 to-cyan-600/5" },
+    { label: "Blog Posts", count: stats.blogCount, tab: "blog" as Tab, icon: <FaPen size={18} /> },
+    { label: "Gallery Items", count: stats.galleryCount, tab: "gallery" as Tab, icon: <FaImages size={18} /> },
+    { label: "Music Tracks", count: stats.musicCount, tab: "music" as Tab, icon: <FaMusic size={18} /> },
+    { label: "Bucket List", count: stats.bucketCount, tab: "bucketlist" as Tab, icon: <FaList size={18} /> },
+    { label: "Projects", count: stats.projectCount, tab: "projects" as Tab, icon: <FaCode size={18} /> },
   ];
 
   const renderContent = () => {
@@ -340,21 +341,24 @@ export default function AdminPage() {
             <p className="secondary-color-text opacity-60 text-sm">Welcome back. Here&apos;s an overview of your content.</p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
             {statCards.map((card) => (
               <button
                 key={card.label}
-                onClick={() => handleTabChange(card.label.toLowerCase().includes("blog") ? "blog" : card.label.toLowerCase().includes("gallery") ? "gallery" : card.label.toLowerCase().includes("music") ? "music" : card.label.toLowerCase().includes("project") ? "projects" : "bucketlist")}
-                className="relative overflow-hidden rounded-2xl border border-[rgba(221,198,182,0.08)] bg-gradient-to-br hover:border-[rgba(221,198,182,0.2)] transition-all duration-200 text-left group"
+                onClick={() => handleTabChange(card.tab)}
+                className="group relative overflow-hidden rounded-2xl border border-[rgba(221,198,182,0.08)] bg-white/[0.03] hover:bg-white/[0.06] hover:border-[rgba(221,198,182,0.25)] transition-all duration-200 text-left p-6"
               >
-                <div className={`absolute inset-0 bg-gradient-to-br ${card.color} opacity-60 group-hover:opacity-80 transition-opacity`} />
-                <div className="relative p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="secondary-color-text opacity-40">{card.icon}</span>
-                  </div>
-                  <p className="secondary-color-text font-heading text-3xl font-bold mb-1">{card.count}</p>
-                  <p className="secondary-color-text opacity-60 text-sm">{card.label}</p>
+                <div className="flex items-center justify-between mb-6">
+                  <span className="w-10 h-10 rounded-xl bg-white/[0.06] flex items-center justify-center secondary-color-text opacity-60 group-hover:opacity-100 transition-opacity">
+                    {card.icon}
+                  </span>
+                  <FaArrowRight
+                    size={14}
+                    className="secondary-color-text opacity-0 -translate-x-1 group-hover:opacity-50 group-hover:translate-x-0 transition-all duration-200"
+                  />
                 </div>
+                <p className="secondary-color-text font-heading text-3xl font-bold mb-1">{card.count}</p>
+                <p className="secondary-color-text opacity-60 text-sm">{card.label}</p>
               </button>
             ))}
           </div>
@@ -462,22 +466,39 @@ export default function AdminPage() {
 
         {/* Nav */}
         <nav className="flex-1 p-4 space-y-1">
-          {NAV_ITEMS.map((item) => (
-            <button
-              key={item.key}
-              onClick={() => handleTabChange(item.key)}
-              className={`
-                w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-150
-                ${activeTab === item.key
-                  ? "bg-white/[0.08] secondary-color-text shadow-sm"
-                  : "secondary-color-text opacity-60 hover:opacity-90 hover:bg-white/[0.04]"
-                }
-              `}
-            >
-              {item.icon}
-              {item.label}
-            </button>
-          ))}
+          {NAV_ITEMS.map((item) => {
+            const count =
+              item.key === "blog" ? stats.blogCount
+              : item.key === "gallery" ? stats.galleryCount
+              : item.key === "music" ? stats.musicCount
+              : item.key === "bucketlist" ? stats.bucketCount
+              : item.key === "projects" ? stats.projectCount
+              : undefined;
+            return (
+              <button
+                key={item.key}
+                onClick={() => handleTabChange(item.key)}
+                className={`
+                  relative w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-150
+                  ${activeTab === item.key
+                    ? "bg-white/[0.08] secondary-color-text shadow-sm"
+                    : "secondary-color-text opacity-60 hover:opacity-90 hover:bg-white/[0.04]"
+                  }
+                `}
+              >
+                {activeTab === item.key && (
+                  <span className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-full bg-[rgb(221,198,182)]" />
+                )}
+                {item.icon}
+                {item.label}
+                {count !== undefined && (
+                  <span className={`ml-auto text-xs ${activeTab === item.key ? "opacity-50" : "opacity-40"}`}>
+                    {count}
+                  </span>
+                )}
+              </button>
+            );
+          })}
         </nav>
 
         {/* User info + logout */}

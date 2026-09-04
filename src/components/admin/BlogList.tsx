@@ -5,11 +5,23 @@ import Image from "next/image";
 import { collection, getDocs, updateDoc, doc } from "firebase/firestore";
 import { db } from "@/firebase/config";
 import toast from "react-hot-toast";
-import { FaEdit, FaTrash, FaCalendar, FaTag, FaRecycle, FaTrashRestore } from "react-icons/fa";
+import { FaEdit, FaTrash, FaCalendar, FaTag, FaRecycle, FaTrashRestore, FaSearch, FaTimes } from "react-icons/fa";
 import { LoadingSkeleton, EmptyState } from "@/components/ui/LoadingStates";
 import { FilterButtonGroup } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { StatusBadge, BlogStatus } from "@/components/ui/StatusBadge";
+import { useConfirm } from "@/components/ui/ConfirmDialog";
+
+const formatDate = (dateStr: string) => {
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return dateStr;
+  return d.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+};
 
 interface BlogPost {
   docId: string;
@@ -38,6 +50,8 @@ export function BlogList({ onEdit, refreshTrigger }: BlogListProps) {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("All");
   const [showDeleted, setShowDeleted] = useState(false);
+  const [query, setQuery] = useState("");
+  const { confirm, dialog } = useConfirm();
 
   useEffect(() => {
     const fetchBlogs = async () => {
@@ -66,7 +80,13 @@ export function BlogList({ onEdit, refreshTrigger }: BlogListProps) {
   }, [refreshTrigger]);
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this blog post?")) return;
+    const ok = await confirm({
+      title: "Delete this blog post?",
+      message: "It will be moved to trash. You can restore it later.",
+      confirmLabel: "Move to Trash",
+      danger: true,
+    });
+    if (!ok) return;
 
     try {
       await updateDoc(doc(db, "blog", id), { deleted: true, deletedAt: new Date().toISOString() });
@@ -90,7 +110,13 @@ export function BlogList({ onEdit, refreshTrigger }: BlogListProps) {
   };
 
   const handlePermanentDelete = async (id: string) => {
-    if (!confirm("⚠️ This will permanently delete this post. Are you sure?")) return;
+    const ok = await confirm({
+      title: "Permanently delete this post?",
+      message: "This cannot be undone.",
+      confirmLabel: "Delete Forever",
+      danger: true,
+    });
+    if (!ok) return;
     const { deleteDoc } = await import("firebase/firestore");
     try {
       await deleteDoc(doc(db, "blog", id));
@@ -107,11 +133,18 @@ export function BlogList({ onEdit, refreshTrigger }: BlogListProps) {
     ...Array.from(new Set(posts.flatMap((p) => p.category || []))),
   ];
 
+  const q = query.trim().toLowerCase();
   const filteredPosts =
     (filter === "All"
       ? posts
       : posts.filter((post) => post.category?.includes(filter)))
-    .filter((post) => showDeleted ? post.deleted === true : post.deleted !== true);
+    .filter((post) => showDeleted ? post.deleted === true : post.deleted !== true)
+    .filter((post) =>
+      !q ||
+      post.title?.toLowerCase().includes(q) ||
+      post.description?.toLowerCase().includes(q) ||
+      post.category?.some((c) => c.toLowerCase().includes(q))
+    );
 
   const deletedCount = posts.filter((p) => p.deleted === true).length;
 
@@ -122,7 +155,7 @@ export function BlogList({ onEdit, refreshTrigger }: BlogListProps) {
   if (!showDeleted && posts.filter((p) => p.deleted !== true).length === 0) {
     return (
       <EmptyState
-        emoji=""
+        emoji="📝"
         title="No posts yet"
         description='Click "Create New" to write your first blog post'
       />
@@ -131,17 +164,38 @@ export function BlogList({ onEdit, refreshTrigger }: BlogListProps) {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
-        <FilterButtonGroup
-          filters={categories}
-          activeFilter={filter}
-          onFilterChange={setFilter}
-        />
+      <FilterButtonGroup
+        filters={categories}
+        activeFilter={filter}
+        onFilterChange={setFilter}
+      />
+
+      <div className="flex items-center justify-between gap-3 mb-4">
+        <div className="relative flex-1 sm:max-w-xs">
+          <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 secondary-color-text opacity-40" size={12} />
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search posts..."
+            className="w-full pl-8 pr-8 py-2 bg-white/5 border border-white/10 rounded-lg text-sm secondary-color-text placeholder-secondary/40 focus:outline-none focus:border-[rgba(221,198,182,0.3)] transition-colors"
+          />
+          {query && (
+            <button
+              type="button"
+              onClick={() => setQuery("")}
+              aria-label="Clear search"
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 secondary-color-text opacity-40 hover:opacity-100 transition-opacity"
+            >
+              <FaTimes size={10} />
+            </button>
+          )}
+        </div>
         <button
           onClick={() => setShowDeleted((prev) => !prev)}
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+          className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all shrink-0 ${
             showDeleted
-              ? "bg-red-500/20 text-red-400 border border-red-500/30"
+              ? "secondary-color-bg primary-color-text"
               : "bg-white/5 secondary-color-text opacity-60 hover:opacity-100 border border-white/10"
           }`}
         >
@@ -154,7 +208,7 @@ export function BlogList({ onEdit, refreshTrigger }: BlogListProps) {
         {filteredPosts.map((post) => (
           <div
             key={post.docId}
-            className={`group bg-white/5 hover:bg-white/10 rounded-xl overflow-hidden transition-all duration-200 border border-transparent hover:border-secondary-color-border ${
+            className={`group bg-white/5 hover:bg-white/10 rounded-xl overflow-hidden transition-all duration-200 border border-transparent hover:border-[rgba(221,198,182,0.2)] ${
               post.deleted ? "opacity-60" : ""
             }`}
           >
@@ -169,12 +223,12 @@ export function BlogList({ onEdit, refreshTrigger }: BlogListProps) {
               />
 
               {post.deleted && (
-                <div className="absolute top-2 left-2 px-2 py-0.5 bg-red-500/90 text-white rounded text-xs font-semibold">
+                <div className="absolute top-2 left-2 px-2 py-0.5 bg-black/60 secondary-color-text backdrop-blur-sm rounded text-xs font-semibold">
                   Deleted
                 </div>
               )}
 
-              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center gap-3">
+              <div className="absolute inset-0 bg-black/60 flex items-center justify-center gap-3 transition-opacity duration-200 opacity-100 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100 [@media(hover:hover)]:group-focus-within:opacity-100">
                 {!post.deleted && (
                   <>
                     <Button
@@ -230,7 +284,7 @@ export function BlogList({ onEdit, refreshTrigger }: BlogListProps) {
               <div className="flex items-center justify-between text-xs secondary-color-text opacity-50">
                 <div className="flex items-center gap-1">
                   <FaCalendar size={12} />
-                  <span>{post.datetime}</span>
+                  <span>{formatDate(post.datetime)}</span>
                 </div>
                 <div className="flex items-center gap-1 flex-wrap">
                   {post.category?.slice(0, 2).map((cat) => (
@@ -254,10 +308,19 @@ export function BlogList({ onEdit, refreshTrigger }: BlogListProps) {
         ))}
       </div>
 
+      {filteredPosts.length === 0 && (
+        <p className="secondary-color-text opacity-50 text-sm text-center py-12">
+          No posts match your search
+        </p>
+      )}
+
       <p className="secondary-color-text opacity-60 text-sm mt-6 text-center">
         {filteredPosts.length} {filteredPosts.length === 1 ? "post" : "posts"}
         {filter !== "All" && ` in ${filter}`}
+        {q && ` matching "${query}"`}
       </p>
+
+      {dialog}
     </div>
   );
 }

@@ -44,7 +44,7 @@ interface FilterButtonGroupProps {
 
 export function FilterButtonGroup({ filters, activeFilter, onFilterChange }: FilterButtonGroupProps) {
   return (
-    <div className="flex flex-wrap gap-2 mb-6">
+    <div className="flex flex-wrap gap-2 mb-3">
       {filters.map((filter) => (
         <button
           key={filter}

@@ -14,7 +14,7 @@ type SelectProps = BaseInputProps & SelectHTMLAttributes<HTMLSelectElement> & {
   options: Array<{ value: string; label: string }>;
 };
 
-const baseClassName = "px-4 py-3 border secondary-color-border rounded-lg bg-white/5 secondary-color-text placeholder-secondary/40 focus:outline-none focus:ring-2 focus:ring-opacity-50 transition-all duration-200";
+const baseClassName = "px-4 py-3 border secondary-color-border rounded-lg bg-white/5 secondary-color-text placeholder-secondary/40 focus:outline-none focus:ring-2 focus:ring-[rgba(221,198,182,0.35)] focus:border-[rgba(221,198,182,0.4)] transition-all duration-200";
 const widthClassName = "w-full";
 
 export function FormInput({ label, error, fullWidth = true, className = "", ...props }: InputProps) {

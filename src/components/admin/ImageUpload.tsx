@@ -2,6 +2,7 @@
 
 import { useState, useRef, useCallback } from "react";
 import Image from "next/image";
+import toast from "react-hot-toast";
 import { FaCloudUploadAlt, FaImage, FaTrash, FaCheckCircle } from "react-icons/fa";
 
 interface ImageUploadProps {
@@ -22,11 +23,11 @@ export function ImageUpload({ value, onChange, label = "Image" }: ImageUploadPro
   const uploadFile = useCallback(async (file: File) => {
     const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif"];
     if (!validTypes.includes(file.type)) {
-      alert("Please select a valid image file (JPG, PNG, WebP, GIF)");
+      toast.error("Please select a valid image file (JPG, PNG, WebP, GIF)");
       return;
     }
     if (file.size > 20 * 1024 * 1024) {
-      alert("File size must be less than 20MB");
+      toast.error("File size must be less than 20MB");
       return;
     }
 
@@ -68,7 +69,7 @@ export function ImageUpload({ value, onChange, label = "Image" }: ImageUploadPro
       setPreview(null);
     } catch (error: any) {
       console.error("Upload error:", error);
-      alert(error.message || "Failed to upload image. Please try again.");
+      toast.error(error.message || "Failed to upload image. Please try again.");
       setPreview(null);
     } finally {
       setIsLoading(false);
@@ -124,13 +125,13 @@ export function ImageUpload({ value, onChange, label = "Image" }: ImageUploadPro
               <button
                 type="button"
                 onClick={handleRemove}
-                className="absolute top-3 right-3 p-2.5 bg-red-500/80 hover:bg-red-500 rounded-xl text-white opacity-0 group-hover:opacity-100 transition-all duration-200 shadow-lg backdrop-blur-sm"
+                className="absolute top-3 right-3 p-2.5 bg-red-500/80 hover:bg-red-500 rounded-xl text-white shadow-lg backdrop-blur-sm transition-all duration-200 opacity-100 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100"
                 title="Remove image"
               >
                 <FaTrash size={14} />
               </button>
               <div className="absolute bottom-3 left-3 flex items-center gap-1.5 px-3 py-1.5 bg-black/60 backdrop-blur-sm rounded-lg text-white text-xs">
-                <FaCheckCircle size={10} className="text-green-400" />
+                <FaCheckCircle size={10} className="secondary-color-text opacity-80" />
                 Image uploaded
               </div>
             </>

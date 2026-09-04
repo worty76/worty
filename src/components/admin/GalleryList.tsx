@@ -5,9 +5,10 @@ import Image from "next/image";
 import { collection, getDocs, updateDoc, doc } from "firebase/firestore";
 import { db } from "@/firebase/config";
 import toast from "react-hot-toast";
-import { FaEdit, FaTrash, FaMapMarkerAlt, FaCalendar, FaStar, FaTag, FaRecycle, FaTrashRestore } from "react-icons/fa";
+import { FaEdit, FaTrash, FaMapMarkerAlt, FaCalendar, FaStar, FaTag, FaRecycle, FaTrashRestore, FaSearch, FaTimes } from "react-icons/fa";
 import { LoadingSkeleton, EmptyState } from "@/components/ui/LoadingStates";
 import { FilterButtonGroup } from "@/components/ui/Card";
+import { useConfirm } from "@/components/ui/ConfirmDialog";
 
 interface GalleryItem {
   id: string;
@@ -33,6 +34,8 @@ export function GalleryList({ onEdit, refreshTrigger }: GalleryListProps) {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("All");
   const [showDeleted, setShowDeleted] = useState(false);
+  const [query, setQuery] = useState("");
+  const { confirm, dialog } = useConfirm();
 
   useEffect(() => {
     const fetchGallery = async () => {
@@ -59,7 +62,13 @@ export function GalleryList({ onEdit, refreshTrigger }: GalleryListProps) {
   }, [refreshTrigger]);
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this memory?")) return;
+    const ok = await confirm({
+      title: "Delete this memory?",
+      message: "It will be moved to trash. You can restore it later.",
+      confirmLabel: "Move to Trash",
+      danger: true,
+    });
+    if (!ok) return;
     try {
       await updateDoc(doc(db, "gallery", id), { deleted: true, deletedAt: new Date().toISOString() });
       setItems((prev) => prev.filter((item) => item.id !== id));
@@ -82,7 +91,13 @@ export function GalleryList({ onEdit, refreshTrigger }: GalleryListProps) {
   };
 
   const handlePermanentDelete = async (id: string) => {
-    if (!confirm("⚠️ This will permanently delete this memory. Are you sure?")) return;
+    const ok = await confirm({
+      title: "Permanently delete this memory?",
+      message: "This cannot be undone.",
+      confirmLabel: "Delete Forever",
+      danger: true,
+    });
+    if (!ok) return;
     const { deleteDoc } = await import("firebase/firestore");
     try {
       await deleteDoc(doc(db, "gallery", id));
@@ -97,10 +112,18 @@ export function GalleryList({ onEdit, refreshTrigger }: GalleryListProps) {
   const allCategories = ["All", ...Array.from(new Set(items.map((i) => i.category || "Other")))];
   const allTags = ["All", ...Array.from(new Set(items.flatMap((i) => i.tags || [])))];
   const filterOptions = Array.from(new Set([...allCategories, ...allTags]));
+  const q = query.trim().toLowerCase();
   const filteredItems = (filter === "All"
     ? items
     : items.filter((item) => item.category === filter || item.tags?.includes(filter)))
-    .filter((item) => showDeleted ? item.deleted === true : item.deleted !== true);
+    .filter((item) => showDeleted ? item.deleted === true : item.deleted !== true)
+    .filter((item) =>
+      !q ||
+      item.title?.toLowerCase().includes(q) ||
+      item.location?.toLowerCase().includes(q) ||
+      item.description?.toLowerCase().includes(q) ||
+      item.tags?.some((t) => t.toLowerCase().includes(q))
+    );
 
   const deletedCount = items.filter((i) => i.deleted === true).length;
 
@@ -108,7 +131,7 @@ export function GalleryList({ onEdit, refreshTrigger }: GalleryListProps) {
   if (!showDeleted && items.filter((i) => i.deleted !== true).length === 0) {
     return (
       <EmptyState
-        emoji=""
+        emoji="📸"
         title="No memories yet"
         description='Click "Create New" to add your first memory'
       />
@@ -117,17 +140,38 @@ export function GalleryList({ onEdit, refreshTrigger }: GalleryListProps) {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
-        <FilterButtonGroup
-          filters={filterOptions}
-          activeFilter={filter}
-          onFilterChange={setFilter}
-        />
+      <FilterButtonGroup
+        filters={filterOptions}
+        activeFilter={filter}
+        onFilterChange={setFilter}
+      />
+
+      <div className="flex items-center justify-between gap-3 mb-4">
+        <div className="relative flex-1 sm:max-w-xs">
+          <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 secondary-color-text opacity-40" size={12} />
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search memories..."
+            className="w-full pl-8 pr-8 py-2 bg-white/5 border border-white/10 rounded-lg text-sm secondary-color-text placeholder-secondary/40 focus:outline-none focus:border-[rgba(221,198,182,0.3)] transition-colors"
+          />
+          {query && (
+            <button
+              type="button"
+              onClick={() => setQuery("")}
+              aria-label="Clear search"
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 secondary-color-text opacity-40 hover:opacity-100 transition-opacity"
+            >
+              <FaTimes size={10} />
+            </button>
+          )}
+        </div>
         <button
           onClick={() => setShowDeleted((prev) => !prev)}
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+          className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all shrink-0 ${
             showDeleted
-              ? "bg-red-500/20 text-red-400 border border-red-500/30"
+              ? "secondary-color-bg primary-color-text"
               : "bg-white/5 secondary-color-text opacity-60 hover:opacity-100 border border-white/10"
           }`}
         >
@@ -158,7 +202,7 @@ export function GalleryList({ onEdit, refreshTrigger }: GalleryListProps) {
 
               {/* Featured badge */}
               {item.featured && (
-                <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 bg-yellow-500/90 text-white rounded-lg text-xs font-semibold shadow-lg backdrop-blur-sm">
+                <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 bg-[rgb(221,198,182)] text-[rgb(38,34,35)] rounded-lg text-xs font-semibold shadow-lg backdrop-blur-sm">
                   <FaStar size={9} />
                   Featured
                 </div>
@@ -166,7 +210,7 @@ export function GalleryList({ onEdit, refreshTrigger }: GalleryListProps) {
 
               {/* Deleted badge */}
               {item.deleted && (
-                <div className="absolute top-3 left-3 px-2.5 py-1 bg-red-500/90 text-white rounded-lg text-xs font-semibold shadow-lg backdrop-blur-sm">
+                <div className="absolute top-3 left-3 px-2.5 py-1 bg-black/60 secondary-color-text rounded-lg text-xs font-semibold shadow-lg backdrop-blur-sm">
                   Deleted
                 </div>
               )}
@@ -179,7 +223,7 @@ export function GalleryList({ onEdit, refreshTrigger }: GalleryListProps) {
               )}
 
               {/* Action buttons overlay */}
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center gap-3">
+              <div className="absolute inset-0 bg-black/40 flex items-center justify-center gap-3 transition-opacity duration-200 opacity-100 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100 [@media(hover:hover)]:group-focus-within:opacity-100">
                 {!item.deleted ? (
                   <>
                     <button
@@ -201,7 +245,7 @@ export function GalleryList({ onEdit, refreshTrigger }: GalleryListProps) {
                   <>
                     <button
                       onClick={(e) => { e.stopPropagation(); handleRestore(item.id); }}
-                      className="flex items-center gap-2 px-4 py-2.5 bg-green-500/90 hover:bg-green-500 text-white rounded-xl text-sm font-medium transition-colors shadow-lg"
+                      className="flex items-center gap-2 px-4 py-2.5 secondary-color-bg primary-color-text hover:opacity-90 rounded-xl text-sm font-medium transition-all shadow-lg"
                     >
                       <FaRecycle size={12} />
                       Restore
@@ -262,10 +306,19 @@ export function GalleryList({ onEdit, refreshTrigger }: GalleryListProps) {
         ))}
       </div>
 
+      {filteredItems.length === 0 && (
+        <p className="secondary-color-text opacity-50 text-sm text-center py-12">
+          No memories match your search
+        </p>
+      )}
+
       <p className="secondary-color-text opacity-60 text-sm mt-6 text-center">
         {filteredItems.length} {filteredItems.length === 1 ? "memory" : "memories"}
         {filter !== "All" && ` in ${filter}`}
+        {q && ` matching "${query}"`}
       </p>
+
+      {dialog}
     </div>
   );
 }

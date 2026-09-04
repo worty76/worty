@@ -130,7 +130,7 @@ export function MarkdownGuide() {
                   </span>
                 </div>
                 <div className="bg-primary-color-bg/30 rounded p-3">
-                  <code className="text-xs text-green-400 block whitespace-pre-wrap break-all">
+                  <code className="text-xs secondary-color-text opacity-90 block whitespace-pre-wrap break-all">
                     {item.syntax}
                   </code>
                 </div>

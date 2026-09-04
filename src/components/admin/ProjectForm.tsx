@@ -58,8 +58,6 @@ export function ProjectForm({ initialData, onSuccess }: ProjectFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!confirm("Are you sure you want to save this project?")) return;
-
     if (!form.title.trim() || !form.description.trim()) {
       toast.error("Please fill in title and description");
       return;
@@ -174,7 +172,7 @@ export function ProjectForm({ initialData, onSuccess }: ProjectFormProps) {
               name="featured"
               checked={form.featured}
               onChange={handleChange}
-              className="w-4 h-4 rounded bg-white/5 border-white/20 text-amber-400 focus:ring-amber-400/30"
+              className="w-4 h-4 rounded bg-white/5 border-white/20 accent-[rgb(221,198,182)]"
             />
             <span className="text-sm secondary-color-text">Featured project</span>
           </label>

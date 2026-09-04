@@ -51,8 +51,6 @@ export function BucketListForm({ initialData, onSuccess }: BucketListFormProps) 
       return;
     }
 
-    if (!confirm(`Are you sure you want to ${isEditing ? "update" : "add"} this item?`)) return;
-
     setIsLoading(true);
     try {
       if (isEditing && initialData?.id) {

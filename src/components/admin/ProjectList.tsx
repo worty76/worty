@@ -5,9 +5,10 @@ import Image from "next/image";
 import { collection, getDocs, updateDoc, doc } from "firebase/firestore";
 import { db } from "@/firebase/config";
 import toast from "react-hot-toast";
-import { FaEdit, FaTrash, FaRecycle, FaTrashRestore, FaStar } from "react-icons/fa";
+import { FaEdit, FaTrash, FaRecycle, FaTrashRestore, FaStar, FaSearch, FaTimes } from "react-icons/fa";
 import { LoadingSkeleton, EmptyState } from "@/components/ui/LoadingStates";
 import { Button } from "@/components/ui/Button";
+import { useConfirm } from "@/components/ui/ConfirmDialog";
 
 interface Project {
   docId: string;
@@ -31,6 +32,8 @@ export function ProjectList({ onEdit, refreshTrigger }: ProjectListProps) {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [showDeleted, setShowDeleted] = useState(false);
+  const [query, setQuery] = useState("");
+  const { confirm, dialog } = useConfirm();
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -51,7 +54,13 @@ export function ProjectList({ onEdit, refreshTrigger }: ProjectListProps) {
   }, [refreshTrigger]);
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this project?")) return;
+    const ok = await confirm({
+      title: "Delete this project?",
+      message: "It will be moved to trash. You can restore it later.",
+      confirmLabel: "Move to Trash",
+      danger: true,
+    });
+    if (!ok) return;
     try {
       await updateDoc(doc(db, "projects", id), { deleted: true, deletedAt: new Date().toISOString() });
       setProjects((prev) => prev.filter((p) => p.docId !== id));
@@ -74,7 +83,13 @@ export function ProjectList({ onEdit, refreshTrigger }: ProjectListProps) {
   };
 
   const handlePermanentDelete = async (id: string) => {
-    if (!confirm("⚠️ This will permanently delete this project. Are you sure?")) return;
+    const ok = await confirm({
+      title: "Permanently delete this project?",
+      message: "This cannot be undone.",
+      confirmLabel: "Delete Forever",
+      danger: true,
+    });
+    if (!ok) return;
     const { deleteDoc } = await import("firebase/firestore");
     try {
       await deleteDoc(doc(db, "projects", id));
@@ -86,9 +101,15 @@ export function ProjectList({ onEdit, refreshTrigger }: ProjectListProps) {
     }
   };
 
-  const filteredProjects = projects.filter((p) =>
-    showDeleted ? p.deleted === true : p.deleted !== true
-  );
+  const q = query.trim().toLowerCase();
+  const filteredProjects = projects
+    .filter((p) => (showDeleted ? p.deleted === true : p.deleted !== true))
+    .filter((p) =>
+      !q ||
+      p.title?.toLowerCase().includes(q) ||
+      p.description?.toLowerCase().includes(q) ||
+      p.techStack?.toLowerCase().includes(q)
+    );
 
   const deletedCount = projects.filter((p) => p.deleted === true).length;
 
@@ -99,7 +120,7 @@ export function ProjectList({ onEdit, refreshTrigger }: ProjectListProps) {
   if (!showDeleted && projects.filter((p) => p.deleted !== true).length === 0) {
     return (
       <EmptyState
-        emoji=""
+        emoji="🚀"
         title="No projects yet"
         description='Click "Create New" to add your first project'
       />
@@ -108,12 +129,32 @@ export function ProjectList({ onEdit, refreshTrigger }: ProjectListProps) {
 
   return (
     <div>
-      <div className="flex items-center justify-end mb-4">
+      <div className="flex items-center justify-between gap-3 mb-4">
+        <div className="relative flex-1 sm:max-w-xs">
+          <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 secondary-color-text opacity-40" size={12} />
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search projects..."
+            className="w-full pl-8 pr-8 py-2 bg-white/5 border border-white/10 rounded-lg text-sm secondary-color-text placeholder-secondary/40 focus:outline-none focus:border-[rgba(221,198,182,0.3)] transition-colors"
+          />
+          {query && (
+            <button
+              type="button"
+              onClick={() => setQuery("")}
+              aria-label="Clear search"
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 secondary-color-text opacity-40 hover:opacity-100 transition-opacity"
+            >
+              <FaTimes size={10} />
+            </button>
+          )}
+        </div>
         <button
           onClick={() => setShowDeleted((prev) => !prev)}
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+          className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all shrink-0 ${
             showDeleted
-              ? "bg-red-500/20 text-red-400 border border-red-500/30"
+              ? "secondary-color-bg primary-color-text"
               : "bg-white/5 secondary-color-text opacity-60 hover:opacity-100 border border-white/10"
           }`}
         >
@@ -126,7 +167,7 @@ export function ProjectList({ onEdit, refreshTrigger }: ProjectListProps) {
         {filteredProjects.map((project) => (
           <div
             key={project.docId}
-            className={`group bg-white/5 hover:bg-white/10 rounded-xl overflow-hidden transition-all duration-200 border border-transparent hover:border-secondary-color-border ${
+            className={`group bg-white/5 hover:bg-white/10 rounded-xl overflow-hidden transition-all duration-200 border border-transparent hover:border-[rgba(221,198,182,0.2)] ${
               project.deleted ? "opacity-60" : ""
             }`}
           >
@@ -141,12 +182,12 @@ export function ProjectList({ onEdit, refreshTrigger }: ProjectListProps) {
               />
 
               {project.deleted && (
-                <div className="absolute top-2 left-2 px-2 py-0.5 bg-red-500/90 text-white rounded text-xs font-semibold">
+                <div className="absolute top-2 left-2 px-2 py-0.5 bg-black/60 secondary-color-text backdrop-blur-sm rounded text-xs font-semibold">
                   Deleted
                 </div>
               )}
 
-              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center gap-3">
+              <div className="absolute inset-0 bg-black/60 flex items-center justify-center gap-3 transition-opacity duration-200 opacity-100 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100 [@media(hover:hover)]:group-focus-within:opacity-100">
                 {!project.deleted ? (
                   <>
                     <Button variant="ghost" onClick={() => onEdit(project)} icon={<FaEdit size={14} />}>
@@ -178,7 +219,7 @@ export function ProjectList({ onEdit, refreshTrigger }: ProjectListProps) {
                 </h3>
                 <div className="flex items-center gap-2 ml-2">
                   {project.featured && (
-                    <FaStar size={12} className="text-amber-400" />
+                    <FaStar size={12} className="secondary-color-text opacity-70" />
                   )}
                   <span className="text-xs secondary-color-text opacity-40">#{project.order}</span>
                 </div>
@@ -191,9 +232,18 @@ export function ProjectList({ onEdit, refreshTrigger }: ProjectListProps) {
         ))}
       </div>
 
+      {filteredProjects.length === 0 && (
+        <p className="secondary-color-text opacity-50 text-sm text-center py-12">
+          No projects match your search
+        </p>
+      )}
+
       <p className="secondary-color-text opacity-60 text-sm mt-6 text-center">
         {filteredProjects.length} {filteredProjects.length === 1 ? "project" : "projects"}
+        {q && ` matching "${query}"`}
       </p>
+
+      {dialog}
     </div>
   );
 }

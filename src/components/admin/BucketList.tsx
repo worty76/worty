@@ -5,8 +5,9 @@ import { collection, getDocs, updateDoc, doc } from "firebase/firestore";
 import { db } from "@/firebase/config";
 import toast from "react-hot-toast";
 import { FaEdit, FaTrash, FaRecycle } from "react-icons/fa";
-import { LoadingSkeleton } from "@/components/ui/LoadingStates";
+import { LoadingSkeleton, EmptyState } from "@/components/ui/LoadingStates";
 import { Button } from "@/components/ui/Button";
+import { useConfirm } from "@/components/ui/ConfirmDialog";
 
 interface BucketItem {
   id: string;
@@ -27,6 +28,7 @@ export function BucketList({ onEdit, refreshTrigger }: BucketListProps) {
   const [items, setItems] = useState<BucketItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [showDeleted, setShowDeleted] = useState(false);
+  const { confirm, dialog } = useConfirm();
 
   useEffect(() => {
     const fetchItems = async () => {
@@ -47,7 +49,13 @@ export function BucketList({ onEdit, refreshTrigger }: BucketListProps) {
   }, [refreshTrigger]);
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Move this item to trash?")) return;
+    const ok = await confirm({
+      title: "Delete this item?",
+      message: "It will be moved to trash. You can restore it later.",
+      confirmLabel: "Move to Trash",
+      danger: true,
+    });
+    if (!ok) return;
     try {
       await updateDoc(doc(db, "bucketlist", id), { deleted: true });
       setItems((prev) => prev.filter((i) => i.id !== id));
@@ -71,25 +79,36 @@ export function BucketList({ onEdit, refreshTrigger }: BucketListProps) {
     ? items.filter((i) => i.deleted)
     : items.filter((i) => !i.deleted);
 
+  const deletedCount = items.filter((i) => i.deleted).length;
+
   if (loading) return <LoadingSkeleton />;
 
   return (
     <div>
       <div className="flex items-center gap-3 mb-4">
-        <Button
-          variant={showDeleted ? "primary" : "ghost"}
-          size="sm"
+        <button
           onClick={() => setShowDeleted(!showDeleted)}
-          icon={showDeleted ? <FaRecycle size={12} /> : <FaTrash size={12} />}
+          className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+            showDeleted
+              ? "secondary-color-bg primary-color-text"
+              : "bg-white/5 secondary-color-text opacity-60 hover:opacity-100 border border-white/10"
+          }`}
         >
-          {showDeleted ? "Active Items" : "Trash"}
-        </Button>
+          {showDeleted ? <FaRecycle size={12} /> : <FaTrash size={12} />}
+          {showDeleted ? "Active Items" : `Trash${deletedCount > 0 ? ` (${deletedCount})` : ""}`}
+        </button>
       </div>
 
       {visible.length === 0 ? (
-        <p className="text-[rgb(221,198,182)]/30 text-sm text-center py-8">
-          {showDeleted ? "No deleted items" : "No items yet"}
-        </p>
+        <EmptyState
+          emoji="🌱"
+          title={showDeleted ? "No deleted items" : "No items yet"}
+          description={
+            showDeleted
+              ? "Items you delete will appear here"
+              : 'Click "Create New" to add your first goal'
+          }
+        />
       ) : (
         <div className="space-y-2">
           {visible.map((item) => (
@@ -107,7 +126,7 @@ export function BucketList({ onEdit, refreshTrigger }: BucketListProps) {
                 {item.category}
               </span>
               {item.completed && (
-                <span className="text-emerald-500 text-xs shrink-0">✓</span>
+                <span className="secondary-color-text opacity-60 text-xs shrink-0">✓</span>
               )}
               <div className="flex gap-2 shrink-0">
                 {showDeleted ? (
@@ -125,6 +144,8 @@ export function BucketList({ onEdit, refreshTrigger }: BucketListProps) {
           ))}
         </div>
       )}
+
+      {dialog}
     </div>
   );
 }
