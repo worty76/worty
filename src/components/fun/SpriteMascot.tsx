@@ -1,42 +1,53 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from "react";
 import { usePathname } from "next/navigation";
+import {
+  advanceFrame,
+  characters,
+  framePosition,
+  type Character,
+  type Direction,
+} from "./sprites";
 
-const CELL_W = 64;
-const CELL_H = 79;
-const FRAME_COUNT = 103;
-const MARGIN = 40; // side padding the mascot bounces between
-const SPEED = 70; // px/s while his walk frames are on screen
+export interface SpriteHandle {
+  play: (action: string) => void;
+  resume: () => void;
+}
 
-/**
- * How fast each frame carries the character across the screen (px/s, 0 = planted).
- * Walk is steady, dash frames are fast, lunging attacks drift, idle/book/skill stay put.
- */
-const moveSpeed = (f: number): number => {
-  if (f >= 3 && f <= 4) return 50; // walk
-  if (f >= 10 && f <= 19) return 20; // dash attacks
-  if (f >= 20 && f <= 22) return 70; // flying kicks
-  if (f >= 36 && f <= 52) return 30; // lunging punches/slashes
-  if (f >= 56 && f <= 67) return 20; // kick combos / dashes
-  if (f >= 68 && f <= 86) return 20; // sword lunges
-  return 0; // idle, jumps, knockdowns, book draws, Skill Hunter
-};
+interface Props {
+  character?: Character;
+  initialAction?: string;
+  triggerAction?: string;
+}
 
-/**
- * Kuroro performs his entire sprite sheet in order (frame 0 → 102, then loops).
- * Sheet order: idle → walk → the full move list → Skill Hunter finale.
- * He only drifts across the screen while his walk frames (3–4) are showing.
- * Strip: public/sprites/kuroro.png — 103 uniform cells, bottom-aligned.
- */
-export function SpriteMascot() {
+const DEFAULT_MARGIN = 40;
+
+export const SpriteMascot = forwardRef<SpriteHandle, Props>(function SpriteMascot(
+  { character = characters.kuroro, initialAction, triggerAction },
+  ref,
+) {
   const pathname = usePathname();
   const outerRef = useRef<HTMLDivElement>(null);
   const innerRef = useRef<HTMLDivElement>(null);
-  const pos = useRef({ x: MARGIN + 40, dir: 1 as 1 | -1 });
-  const [dir, setDir] = useState<1 | -1>(-1);
+  const pos = useRef({ x: 0, dir: -1 as Direction });
+  const stateRef = useRef({ name: character.idle, frame: character.actions[character.idle].start });
+  const [dir, setDir] = useState<Direction>(-1);
   const [hidden, setHidden] = useState(false);
   const [reduced, setReduced] = useState(false);
+
+  const margin = character.margin ?? DEFAULT_MARGIN;
+  const { cellW, cellH } = character;
+
+  useEffect(() => {
+    pos.current.x = margin + cellW;
+  }, [margin, cellW]);
 
   useEffect(() => {
     const small = window.matchMedia("(max-width: 639px)");
@@ -58,45 +69,49 @@ export function SpriteMascot() {
     if (hidden || reduced) return;
     let raf = 0;
     let last = performance.now();
-    let frame = 0;
     let acc = 0;
-
-    // idle/stance frames breathe slower; the walk pair moves quickly
-    const frameDuration = (f: number) => (f <= 2 ? 450 : f <= 4 ? 120 : 150);
 
     const tick = (now: number) => {
       const dt = Math.min((now - last) / 1000, 0.05);
       last = now;
 
-      acc += dt * 1000;
-      if (acc >= frameDuration(frame)) {
-        acc = 0;
-        frame = (frame + 1) % FRAME_COUNT;
-        if (innerRef.current) {
-          innerRef.current.style.backgroundPosition = `-${frame * CELL_W}px 0`;
-        }
+      const st = stateRef.current;
+      const action = character.actions[st.name];
+      if (!action) {
+        raf = requestAnimationFrame(tick);
+        return;
       }
 
-      // moving actions carry him across the screen; walls flip his direction
-      const speed = moveSpeed(frame);
+      acc += dt * 1000;
+      if (acc >= action.frameDuration) {
+        acc = 0;
+        stateRef.current = advanceFrame(st, action, character);
+      }
+
+      const cur = character.actions[stateRef.current.name];
+      if (innerRef.current) {
+        const { x, y } = framePosition(stateRef.current.frame, cellW, cellH, character.cols);
+        innerRef.current.style.backgroundPosition = `${x}px ${y}px`;
+      }
+
+      const speed = cur?.speed ?? 0;
       if (speed > 0) {
         const p = pos.current;
         p.x += p.dir * speed * dt;
-        const max = window.innerWidth - MARGIN - CELL_W;
+        const max = window.innerWidth - margin - cellW;
         let flipped = false;
         if (p.x >= max) {
           p.x = max;
           p.dir = -1;
           flipped = true;
         }
-        if (p.x <= MARGIN) {
-          p.x = MARGIN;
+        if (p.x <= margin) {
+          p.x = margin;
           p.dir = 1;
           flipped = true;
         }
         if (flipped) setDir(p.dir);
         if (outerRef.current) {
-          // sprites face left natively — flip when moving right
           outerRef.current.style.transform = `translateX(${p.x}px) scaleX(${p.dir === -1 ? -1 : 1})`;
         }
       }
@@ -105,9 +120,38 @@ export function SpriteMascot() {
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [hidden, reduced]);
+  }, [hidden, reduced, character, cellW, cellH, margin]);
+
+  useImperativeHandle(ref, () => ({
+    play: (name: string) => {
+      const action = character.actions[name];
+      if (action) stateRef.current = { name, frame: action.start };
+    },
+    resume: () => {
+      const idle = character.actions[character.idle];
+      stateRef.current = { name: idle.name, frame: idle.start };
+    },
+  }), [character]);
+
+  const setInitial = (action?: string) => {
+    const target = action ?? initialAction ?? character.idle;
+    const a = character.actions[target] ?? character.actions[character.idle];
+    stateRef.current = { name: a.name, frame: a.start };
+  };
+
+  useEffect(() => {
+    setInitial(initialAction);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [character.id, initialAction]);
 
   if (pathname?.startsWith("/admin") || hidden) return null;
+
+  const onTrigger = triggerAction && character.actions[triggerAction]
+    ? () => {
+        const a = character.actions[triggerAction];
+        stateRef.current = { name: a.name, frame: a.start };
+      }
+    : undefined;
 
   return (
     <div
@@ -117,8 +161,8 @@ export function SpriteMascot() {
         position: "fixed",
         left: 0,
         bottom: 0,
-        width: CELL_W,
-        height: CELL_H,
+        width: cellW,
+        height: cellH,
         zIndex: 30,
         pointerEvents: "none",
         transform: `translateX(${pos.current.x}px) scaleX(${dir === -1 ? -1 : 1})`,
@@ -126,17 +170,18 @@ export function SpriteMascot() {
     >
       <div
         ref={innerRef}
-        title="Kuroro"
+        title={character.title}
+        onClick={onTrigger}
         className="kuroro-frame"
         style={{
-          width: CELL_W,
-          height: CELL_H,
-          backgroundImage: "url(/sprites/kuroro.png)",
+          width: cellW,
+          height: cellH,
+          backgroundImage: `url(${character.src})`,
           backgroundPosition: reduced ? "0 0" : undefined,
-          cursor: "pointer",
-          pointerEvents: "auto",
+          cursor: onTrigger ? "pointer" : "default",
+          pointerEvents: onTrigger ? "auto" : "none",
         }}
       />
     </div>
   );
-}
+});
