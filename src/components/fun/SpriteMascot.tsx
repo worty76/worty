@@ -25,12 +25,13 @@ interface Props {
   character?: Character;
   initialAction?: string;
   triggerAction?: string;
+  startX?: number;
 }
 
 const DEFAULT_MARGIN = 40;
 
 export const SpriteMascot = forwardRef<SpriteHandle, Props>(function SpriteMascot(
-  { character = characters.kuroro, initialAction, triggerAction },
+  { character = characters.kuroro, initialAction, triggerAction, startX },
   ref,
 ) {
   const pathname = usePathname();
@@ -44,10 +45,11 @@ export const SpriteMascot = forwardRef<SpriteHandle, Props>(function SpriteMasco
 
   const margin = character.margin ?? DEFAULT_MARGIN;
   const { cellW, cellH } = character;
+  const initialX = startX ?? margin + cellW;
 
   useEffect(() => {
-    pos.current.x = margin + cellW;
-  }, [margin, cellW]);
+    pos.current.x = initialX;
+  }, [initialX]);
 
   useEffect(() => {
     const small = window.matchMedia("(max-width: 639px)");

@@ -2,7 +2,9 @@ import "./globals.css";
 import { Space_Grotesk, DM_Sans } from "next/font/google";
 import type { Metadata } from "next";
 import { SiteNavbar } from "../components/layouts/SiteNavbar";
-import { SpriteMascot } from "@/components/fun/SpriteMascot";
+import { MascotLayer } from "@/components/fun/MascotLayer";
+import { MascotToolbar } from "@/components/fun/MascotToolbar";
+import { MascotProvider } from "@/context/mascot-context";
 import { ThemeProvider } from "@/context/theme-context";
 import { AuthProvider } from "@/context/auth-context";
 import NextTopLoader from "nextjs-toploader";
@@ -64,16 +66,18 @@ export default function RootLayout({
       >
         <AuthProvider>
           <ThemeProvider>
-            <NextTopLoader
-              color="var(--color-primary-text)"
-              initialPosition={0.08}
-              crawlSpeed={200}
-              height={3}
-              showSpinner={false}
-            />
-            <SiteNavbar />
-            <SpriteMascot />
-            {children}
+            <MascotProvider>
+              <NextTopLoader
+                color="var(--color-primary-text)"
+                initialPosition={0.08}
+                crawlSpeed={200}
+                height={3}
+                showSpinner={false}
+              />
+              <SiteNavbar />
+              <MascotLayer />
+              <MascotToolbar />
+              {children}
             <Toaster
               position="top-right"
               containerStyle={{
@@ -106,6 +110,7 @@ export default function RootLayout({
                 },
               }}
             />
+            </MascotProvider>
           </ThemeProvider>
         </AuthProvider>
       </body>
