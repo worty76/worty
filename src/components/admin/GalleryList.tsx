@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { collection, getDocs, updateDoc, doc } from "firebase/firestore";
+import { invalidateCollectionCache } from "@/lib/firestore-cache";
 import { db } from "@/firebase/config";
 import toast from "react-hot-toast";
 import { FaEdit, FaTrash, FaMapMarkerAlt, FaCalendar, FaStar, FaTag, FaRecycle, FaTrashRestore, FaSearch, FaTimes } from "react-icons/fa";
@@ -73,6 +74,7 @@ export function GalleryList({ onEdit, refreshTrigger }: GalleryListProps) {
     if (!ok) return;
     try {
       await updateDoc(doc(db, "gallery", id), { deleted: true, deletedAt: new Date().toISOString() });
+      invalidateCollectionCache("gallery");
       setItems((prev) => prev.filter((item) => item.id !== id));
       toast.success("Memory moved to trash!");
     } catch (error) {
@@ -84,6 +86,7 @@ export function GalleryList({ onEdit, refreshTrigger }: GalleryListProps) {
   const handleRestore = async (id: string) => {
     try {
       await updateDoc(doc(db, "gallery", id), { deleted: false, deletedAt: null });
+      invalidateCollectionCache("gallery");
       setItems((prev) => prev.filter((item) => item.id !== id));
       toast.success("Memory restored!");
     } catch (error) {
@@ -103,6 +106,7 @@ export function GalleryList({ onEdit, refreshTrigger }: GalleryListProps) {
     const { deleteDoc } = await import("firebase/firestore");
     try {
       await deleteDoc(doc(db, "gallery", id));
+      invalidateCollectionCache("gallery");
       setItems((prev) => prev.filter((item) => item.id !== id));
       toast.success("Memory permanently deleted!");
     } catch (error) {

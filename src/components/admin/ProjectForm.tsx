@@ -6,6 +6,7 @@ import { FormInput } from "@/components/ui/FormInput";
 import toast from "react-hot-toast";
 import { collection, addDoc, updateDoc, doc } from "firebase/firestore";
 import { db } from "@/firebase/config";
+import { invalidateCollectionCache } from "@/lib/firestore-cache";
 
 interface ProjectFormProps {
   initialData?: {
@@ -96,6 +97,7 @@ export function ProjectForm({ initialData, onSuccess, onDirtyChange }: ProjectFo
         setForm(defaultValues);
       }
 
+      invalidateCollectionCache("projects");
       onSuccess?.();
     } catch (error) {
       console.error("Error saving project:", error);

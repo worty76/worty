@@ -259,6 +259,15 @@ p {
   image-rendering: pixelated;
 }
 
+@keyframes mascot-pop {
+  from { opacity: 0; transform: translateY(6px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.animate-mascot-pop {
+  animation: mascot-pop 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 /* Scrollbar Styles */
 ::-webkit-scrollbar {
   width: 10px;

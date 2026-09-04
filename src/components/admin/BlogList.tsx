@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { collection, getDocs, updateDoc, doc } from "firebase/firestore";
+import { invalidateCollectionCache } from "@/lib/firestore-cache";
 import { db } from "@/firebase/config";
 import toast from "react-hot-toast";
 import { FaEdit, FaTrash, FaCalendar, FaTag, FaRecycle, FaTrashRestore, FaSearch, FaTimes } from "react-icons/fa";
@@ -92,6 +93,7 @@ export function BlogList({ onEdit, refreshTrigger }: BlogListProps) {
 
     try {
       await updateDoc(doc(db, "blog", id), { deleted: true, deletedAt: new Date().toISOString() });
+      invalidateCollectionCache("blog");
       setPosts((prev) => prev.filter((post) => post.docId !== id));
       toast.success("Blog post moved to trash!");
     } catch (error) {
@@ -103,6 +105,7 @@ export function BlogList({ onEdit, refreshTrigger }: BlogListProps) {
   const handleRestore = async (id: string) => {
     try {
       await updateDoc(doc(db, "blog", id), { deleted: false, deletedAt: null });
+      invalidateCollectionCache("blog");
       setPosts((prev) => prev.filter((post) => post.docId !== id));
       toast.success("Blog post restored!");
     } catch (error) {
@@ -122,6 +125,7 @@ export function BlogList({ onEdit, refreshTrigger }: BlogListProps) {
     const { deleteDoc } = await import("firebase/firestore");
     try {
       await deleteDoc(doc(db, "blog", id));
+      invalidateCollectionCache("blog");
       setPosts((prev) => prev.filter((post) => post.docId !== id));
       toast.success("Blog post permanently deleted!");
     } catch (error) {

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { collection, getDocs, updateDoc, doc } from "firebase/firestore";
+import { invalidateCollectionCache } from "@/lib/firestore-cache";
 import { db } from "@/firebase/config";
 import toast from "react-hot-toast";
 import { FaEdit, FaTrash, FaRecycle } from "react-icons/fa";
@@ -58,6 +59,7 @@ export function BucketList({ onEdit, refreshTrigger }: BucketListProps) {
     if (!ok) return;
     try {
       await updateDoc(doc(db, "bucketlist", id), { deleted: true });
+      invalidateCollectionCache("bucketlist");
       setItems((prev) => prev.filter((i) => i.id !== id));
       toast.success("Item moved to trash");
     } catch (e) {
@@ -68,6 +70,7 @@ export function BucketList({ onEdit, refreshTrigger }: BucketListProps) {
   const handleRestore = async (id: string) => {
     try {
       await updateDoc(doc(db, "bucketlist", id), { deleted: false });
+      invalidateCollectionCache("bucketlist");
       setItems((prev) => prev.filter((i) => i.id !== id));
       toast.success("Item restored");
     } catch (e) {

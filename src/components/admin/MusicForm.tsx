@@ -8,6 +8,7 @@ import { TagInput } from "@/components/ui/TagInput";
 import toast from "react-hot-toast";
 import { collection, addDoc, updateDoc, doc, getDocs } from "firebase/firestore";
 import { db } from "@/firebase/config";
+import { invalidateCollectionCache } from "@/lib/firestore-cache";
 
 interface MusicFormProps {
   initialData?: {
@@ -102,6 +103,7 @@ export function MusicForm({ initialData, onSuccess, existingGenres = [], onDirty
         setForm(defaultValues);
       }
 
+      invalidateCollectionCache("music");
       onSuccess?.();
     } catch (error) {
       console.error("Error saving music:", error);

@@ -9,6 +9,7 @@ import ReactMarkdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 import { StatusBadge, BlogStatus } from "@/components/ui/StatusBadge";
+import { TRANSLATIONS_ENABLED } from "@/lib/flags";
 
 interface MyBlog {
   category: Array<string>;
@@ -38,7 +39,9 @@ export default function Page({ params }: { params: { id: string } }) {
   const [blog, setBlog] = useState<MyBlog | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [lang, setLangState] = useState<Lang>("vi");
+  const [langPref, setLangState] = useState<Lang>("vi");
+  // Translations are disabled via flags — English is always displayed
+  const lang: Lang = TRANSLATIONS_ENABLED ? langPref : "en";
 
   useEffect(() => {
     setLangState(getLangPref());
@@ -413,7 +416,7 @@ export default function Page({ params }: { params: { id: string } }) {
               {blog.readingTime && <span> · {displayReadingTime} read</span>}
             </time>
 
-            {hasVi && (
+            {TRANSLATIONS_ENABLED && hasVi && (
               <div className="flex items-center gap-0.5 bg-[rgb(var(--primary-text-rgb)_/_0.06)] rounded-full p-0.5">
                 <button
                   onClick={() => setLang("en")}

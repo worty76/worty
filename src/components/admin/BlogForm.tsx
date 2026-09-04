@@ -10,6 +10,7 @@ import { MarkdownGuide } from "./MarkdownGuide";
 import toast from "react-hot-toast";
 import { collection, addDoc, updateDoc, doc } from "firebase/firestore";
 import { db } from "@/firebase/config";
+import { invalidateCollectionCache } from "@/lib/firestore-cache";
 
 interface BlogFormProps {
   initialData?: {
@@ -171,6 +172,7 @@ export function BlogForm({ initialData, onSuccess, onDirtyChange }: BlogFormProp
         setForm(defaultValues);
       }
 
+      invalidateCollectionCache("blog");
       onSuccess?.();
     } catch (error) {
       console.error("Error saving blog:", error);

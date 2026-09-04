@@ -82,3 +82,18 @@ export function clearFirestoreCache() {
     // ignore storage errors
   }
 }
+
+/**
+ * Drop one collection from both cache layers. Call after admin mutations
+ * (create/update/delete/restore) so the public pages pick up the change
+ * immediately instead of serving the stale TTL copy.
+ */
+export function invalidateCollectionCache(collectionName: string) {
+  memoryCache.delete(collectionName);
+  if (typeof window === "undefined") return;
+  try {
+    sessionStorage.removeItem(STORAGE_PREFIX + collectionName);
+  } catch {
+    // ignore storage errors
+  }
+}

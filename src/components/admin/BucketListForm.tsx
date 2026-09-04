@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { collection, addDoc, updateDoc, doc } from "firebase/firestore";
 import { db } from "@/firebase/config";
+import { invalidateCollectionCache } from "@/lib/firestore-cache";
 import { Button } from "@/components/ui/Button";
 import { FormInput } from "@/components/ui/FormInput";
 import toast from "react-hot-toast";
@@ -80,6 +81,7 @@ export function BucketListForm({ initialData, onSuccess, onDirtyChange }: Bucket
         });
         toast.success("Item added!");
       }
+      invalidateCollectionCache("bucketlist");
       onSuccess?.();
     } catch (e) {
       console.error(e);

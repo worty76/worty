@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { collection, getDocs, updateDoc, doc } from "firebase/firestore";
+import { invalidateCollectionCache } from "@/lib/firestore-cache";
 import { db } from "@/firebase/config";
 import toast from "react-hot-toast";
 import { FaEdit, FaTrash, FaRecycle, FaTrashRestore, FaStar, FaSearch, FaTimes } from "react-icons/fa";
@@ -65,6 +66,7 @@ export function ProjectList({ onEdit, refreshTrigger }: ProjectListProps) {
     if (!ok) return;
     try {
       await updateDoc(doc(db, "projects", id), { deleted: true, deletedAt: new Date().toISOString() });
+      invalidateCollectionCache("projects");
       setProjects((prev) => prev.filter((p) => p.docId !== id));
       toast.success("Project moved to trash!");
     } catch (error) {
@@ -76,6 +78,7 @@ export function ProjectList({ onEdit, refreshTrigger }: ProjectListProps) {
   const handleRestore = async (id: string) => {
     try {
       await updateDoc(doc(db, "projects", id), { deleted: false, deletedAt: null });
+      invalidateCollectionCache("projects");
       setProjects((prev) => prev.filter((p) => p.docId !== id));
       toast.success("Project restored!");
     } catch (error) {
@@ -95,6 +98,7 @@ export function ProjectList({ onEdit, refreshTrigger }: ProjectListProps) {
     const { deleteDoc } = await import("firebase/firestore");
     try {
       await deleteDoc(doc(db, "projects", id));
+      invalidateCollectionCache("projects");
       setProjects((prev) => prev.filter((p) => p.docId !== id));
       toast.success("Project permanently deleted!");
     } catch (error) {

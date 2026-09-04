@@ -8,6 +8,7 @@ import { TagInput } from "@/components/ui/TagInput";
 import toast from "react-hot-toast";
 import { collection, addDoc, updateDoc, doc } from "firebase/firestore";
 import { db } from "@/firebase/config";
+import { invalidateCollectionCache } from "@/lib/firestore-cache";
 
 interface GalleryFormProps {
   initialData?: {
@@ -127,6 +128,7 @@ export function GalleryForm({ initialData, onSuccess, existingTags = [], onDirty
         toast.success("Memory added successfully!");
         setForm(defaultValues);
       }
+      invalidateCollectionCache("gallery");
       onSuccess?.();
     } catch (error) {
       console.error("Error saving memory:", error);
