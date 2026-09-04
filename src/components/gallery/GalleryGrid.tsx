@@ -2,8 +2,10 @@
 
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import Image from "next/image";
-import { db } from "@/firebase/config";
+import { fetchCollectionCached } from "@/lib/firestore-cache";
 import { FaSearchPlus, FaSearchMinus, FaTimes, FaChevronLeft, FaChevronRight, FaStar, FaTag } from "react-icons/fa";
+
+const PAGE_SIZE = 12;
 
 interface GalleryItem {
   id: string;
@@ -36,11 +38,10 @@ export function GalleryGrid({ items: propItems, filter }: GalleryGridProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [imageDimensions, setImageDimensions] = useState<ImageDimensions>({});
-  const [visibleIds, setVisibleIds] = useState<Set<string>>(new Set());
+  const [columnCount, setColumnCount] = useState(1);
   const imageRef = useRef<HTMLDivElement>(null);
-  const intersectionObserverRef = useRef<IntersectionObserver | null>(null);
   const loadingImagesRef = useRef<Map<string, HTMLImageElement>>(new Map());
-  const containerRef = useRef<HTMLDivElement>(null);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
 
   // Fetch data only if not provided as prop
   useEffect(() => {
@@ -52,13 +53,7 @@ export function GalleryGrid({ items: propItems, filter }: GalleryGridProps) {
 
     const fetchGallery = async () => {
       try {
-        const { collection, getDocs } = await import("firebase/firestore");
-        const galleryCollection = collection(db, "gallery");
-        const gallerySnapshot = await getDocs(galleryCollection);
-        const galleryList = gallerySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        })) as GalleryItem[];
+        const galleryList = await fetchCollectionCached<GalleryItem>("gallery");
 
         // Sort: featured first, then by date (newest first)
         galleryList.sort((a, b) => {
@@ -91,11 +86,6 @@ export function GalleryGrid({ items: propItems, filter }: GalleryGridProps) {
         img.src = "";
       });
       currentLoadingImages.clear();
-
-      // Disconnect intersection observer
-      if (intersectionObserverRef.current) {
-        intersectionObserverRef.current.disconnect();
-      }
     };
   }, []);
   /* eslint-enable react-hooks/exhaustive-deps */
@@ -111,6 +101,32 @@ export function GalleryGrid({ items: propItems, filter }: GalleryGridProps) {
     });
   }, [items, filter]);
 
+  // Infinite scroll — reveal the next batch as the reader reaches the end of the grid
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const visibleItems = filteredItems.slice(0, visibleCount);
+
+  // Back to the first batch when the filter changes
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+  }, [filter]);
+
+  // Load the next batch when the sentinel enters the viewport
+  useEffect(() => {
+    const sentinel = loadMoreRef.current;
+    if (!sentinel) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && visibleCount < filteredItems.length) {
+          setVisibleCount((count) => Math.min(count + PAGE_SIZE, filteredItems.length));
+        }
+      },
+      { rootMargin: "600px" } // start loading before the bottom is reached
+    );
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [filteredItems, visibleCount]);
+
   // Collect all unique tags from filtered items (memoized)
   const allTags = useMemo(() => {
     return Array.from(
@@ -118,39 +134,10 @@ export function GalleryGrid({ items: propItems, filter }: GalleryGridProps) {
     ).sort();
   }, [filteredItems]);
 
-  // Setup Intersection Observer for lazy loading
+  // Measure aspect ratios for the whole visible batch up front — heights settle
+  // right after a batch renders instead of trickling in while scrolling
   useEffect(() => {
-    if (!containerRef.current || loading) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const imgId = entry.target.getAttribute("data-img-id");
-            if (imgId) {
-              setVisibleIds((prev) => new Set(Array.from(prev).concat(imgId)));
-              observer.unobserve(entry.target);
-            }
-          }
-        });
-      },
-      { rootMargin: "200px" } // Load images 200px before they enter viewport
-    );
-
-    intersectionObserverRef.current = observer;
-
-    // Observe all image containers
-    const containers = containerRef.current.querySelectorAll("[data-img-id]");
-    containers.forEach((container) => observer.observe(container));
-
-    return () => observer.disconnect();
-  }, [filteredItems, loading]);
-
-  // Load image dimensions for visible images only
-  useEffect(() => {
-    const itemsToLoad = filteredItems.filter(
-      (item) => visibleIds.has(item.id) && !imageDimensions[item.id]
-    );
+    const itemsToLoad = visibleItems.filter((item) => !imageDimensions[item.id]);
 
     if (itemsToLoad.length === 0) return;
 
@@ -181,7 +168,35 @@ export function GalleryGrid({ items: propItems, filter }: GalleryGridProps) {
 
       img.src = item.imageUrl;
     });
-  }, [visibleIds, filteredItems, imageDimensions]);
+  }, [visibleItems, imageDimensions]);
+
+  // Responsive column count (same breakpoints as the old masonry CSS)
+  useEffect(() => {
+    const queries = [
+      window.matchMedia("(min-width: 1280px)"),
+      window.matchMedia("(min-width: 1024px)"),
+      window.matchMedia("(min-width: 640px)"),
+    ];
+    const update = () => {
+      if (queries[0].matches) setColumnCount(4);
+      else if (queries[1].matches) setColumnCount(3);
+      else if (queries[2].matches) setColumnCount(2);
+      else setColumnCount(1);
+    };
+    update();
+    queries.forEach((mq) => mq.addEventListener("change", update));
+    return () => queries.forEach((mq) => mq.removeEventListener("change", update));
+  }, []);
+
+  // Distribute items round-robin: each image's column is fixed by its index,
+  // so new batches and height measurements can never reshuffle existing images
+  const columns = useMemo(() => {
+    const cols: GalleryItem[][] = Array.from({ length: columnCount }, () => []);
+    visibleItems.forEach((item, index) => {
+      cols[index % columnCount].push(item);
+    });
+    return cols;
+  }, [visibleItems, columnCount]);
 
   // Reset zoom when image changes (memoized)
   useEffect(() => {
@@ -246,14 +261,14 @@ export function GalleryGrid({ items: propItems, filter }: GalleryGridProps) {
 
   const handleNavigate = useCallback((direction: "prev" | "next") => {
     if (!selectedImage) return;
-    const currentIndex = filteredItems.findIndex((item) => item.id === selectedImage.id);
+    const currentIndex = visibleItems.findIndex((item) => item.id === selectedImage.id);
     let newIndex = direction === "next" ? currentIndex + 1 : currentIndex - 1;
 
-    if (newIndex < 0) newIndex = filteredItems.length - 1;
-    if (newIndex >= filteredItems.length) newIndex = 0;
+    if (newIndex < 0) newIndex = visibleItems.length - 1;
+    if (newIndex >= visibleItems.length) newIndex = 0;
 
-    setSelectedImage(filteredItems[newIndex]);
-  }, [selectedImage, filteredItems]);
+    setSelectedImage(visibleItems[newIndex]);
+  }, [selectedImage, visibleItems]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (e.key === "Escape") setSelectedImage(null);
@@ -329,106 +344,92 @@ export function GalleryGrid({ items: propItems, filter }: GalleryGridProps) {
         </div>
       )}
 
-      {/* Masonry Grid */}
-      <div ref={containerRef} className="masonry-grid">
-        <style>{`
-          .masonry-grid {
-            column-count: 1;
-            column-gap: 1rem;
-          }
-          @media (min-width: 640px) {
-            .masonry-grid {
-              column-count: 2;
-            }
-          }
-          @media (min-width: 1024px) {
-            .masonry-grid {
-              column-count: 3;
-            }
-          }
-          @media (min-width: 1280px) {
-            .masonry-grid {
-              column-count: 4;
-            }
-          }
-          .masonry-item {
-            break-inside: avoid;
-            margin-bottom: 1rem;
-          }
-        `}</style>
+      {/* Masonry Grid — round-robin column assignment keeps every image in
+          place while scrolling; new batches only append to the column ends */}
+      <div className="flex items-start gap-4">
+        {columns.map((columnItems, columnIndex) => (
+          <div key={columnIndex} className="flex-1 min-w-0 flex flex-col gap-4">
+            {columnItems.map((item) => {
+              const itemStyle = getItemStyle(item.id);
 
-        {filteredItems.map((item) => {
-          const itemStyle = getItemStyle(item.id);
-
-          return (
-            <div
-              key={item.id}
-              data-img-id={item.id}
-              onClick={() => setSelectedImage(item)}
-              className="masonry-item group relative overflow-hidden rounded-xl cursor-pointer bg-white/5 hover:bg-white/10 transition-all duration-300"
-              style={{ aspectRatio: itemStyle.aspectRatio }}
-            >
-              {/* Featured badge */}
-              {item.featured && (
-                <div className="absolute top-2 right-2 z-10 flex items-center gap-1 px-2 py-1 bg-yellow-500/90 text-white rounded-full text-xs font-semibold shadow-lg">
-                  <FaStar size={8} />
-                  Featured
-                </div>
-              )}
-
-              {/* Category badge */}
-              {item.category && (
-                <div className="absolute top-2 left-2 z-10 px-2 py-1 bg-black/50 backdrop-blur-sm text-white rounded-full text-xs">
-                  {item.category}
-                </div>
-              )}
-
-              <Image
-                src={item.imageUrl}
-                alt={item.title}
-                fill
-                quality={90}
-                className="object-cover transition-transform duration-500 group-hover:scale-105"
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
-                loading="lazy"
-              />
-
-              {/* Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <div className="absolute bottom-0 left-0 right-0 p-4">
-                  <p className="text-white font-medium font-heading text-sm truncate mb-1">
-                    {item.title}
-                  </p>
-                  {item.location && (
-                    <p className="text-white/70 text-xs truncate">
-                      📍 {item.location}
-                    </p>
-                  )}
-
-                  {/* Tags */}
-                  {item.tags && item.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5 mt-2">
-                      {item.tags.slice(0, 3).map((tag) => (
-                        <span
-                          key={tag}
-                          className="px-2 py-0.5 bg-white/20 backdrop-blur-sm text-white rounded-full text-xs"
-                        >
-                          #{tag}
-                        </span>
-                      ))}
-                      {item.tags.length > 3 && (
-                        <span className="px-2 py-0.5 bg-white/20 text-white rounded-full text-xs">
-                          +{item.tags.length - 3}
-                        </span>
-                      )}
+              return (
+                <div
+                  key={item.id}
+                  onClick={() => setSelectedImage(item)}
+                  className="group relative overflow-hidden rounded-xl cursor-pointer bg-white/5 hover:bg-white/10 transition-all duration-300"
+                  style={{ aspectRatio: itemStyle.aspectRatio }}
+                >
+                  {/* Featured badge */}
+                  {item.featured && (
+                    <div className="absolute top-2 right-2 z-10 flex items-center gap-1 px-2 py-1 bg-yellow-500/90 text-white rounded-full text-xs font-semibold shadow-lg">
+                      <FaStar size={8} />
+                      Featured
                     </div>
                   )}
+
+                  {/* Category badge */}
+                  {item.category && (
+                    <div className="absolute top-2 left-2 z-10 px-2 py-1 bg-black/50 backdrop-blur-sm text-white rounded-full text-xs">
+                      {item.category}
+                    </div>
+                  )}
+
+                  <Image
+                    src={item.imageUrl}
+                    alt={item.title}
+                    fill
+                    quality={90}
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
+                    loading="lazy"
+                  />
+
+                  {/* Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <div className="absolute bottom-0 left-0 right-0 p-4">
+                      <p className="text-white font-medium font-heading text-sm truncate mb-1">
+                        {item.title}
+                      </p>
+                      {item.location && (
+                        <p className="text-white/70 text-xs truncate">
+                          📍 {item.location}
+                        </p>
+                      )}
+
+                      {/* Tags */}
+                      {item.tags && item.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 mt-2">
+                          {item.tags.slice(0, 3).map((tag) => (
+                            <span
+                              key={tag}
+                              className="px-2 py-0.5 bg-white/20 backdrop-blur-sm text-white rounded-full text-xs"
+                            >
+                              #{tag}
+                            </span>
+                          ))}
+                          {item.tags.length > 3 && (
+                            <span className="px-2 py-0.5 bg-white/20 text-white rounded-full text-xs">
+                              +{item.tags.length - 3}
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-          );
-        })}
+              );
+            })}
+          </div>
+        ))}
       </div>
+
+      {/* Infinite scroll sentinel — loads the next batch when scrolled into view */}
+      <div ref={loadMoreRef} className="h-1" aria-hidden="true" />
+      {visibleCount < filteredItems.length && (
+        <p className="text-center secondary-color-text opacity-40 text-xs py-6">
+          Loading more memories…
+        </p>
+      )}
 
       {/* Lightbox Modal */}
       {selectedImage && (
@@ -448,7 +449,7 @@ export function GalleryGrid({ items: propItems, filter }: GalleryGridProps) {
           </button>
 
           {/* Navigation buttons */}
-          {filteredItems.length > 1 && (
+          {visibleItems.length > 1 && (
             <>
               <button
                 onClick={(e) => {

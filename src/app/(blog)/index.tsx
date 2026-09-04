@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { collection, getDocs } from "firebase/firestore";
-import { db } from "../../firebase/config";
+import { fetchCollectionCached } from "@/lib/firestore-cache";
 import { useEffect, useState, memo, useRef, useCallback } from "react";
 import { BlogCardSkeleton } from "@/components/blog/BlogCardSkeleton";
 import { StatusBadge, BlogStatus } from "@/components/ui/StatusBadge";
+import { usePagination } from "@/hooks/usePagination";
+import { Pagination } from "@/components/ui/Pagination";
 import { annotate } from "rough-notation";
 
 interface BlogPost {
@@ -163,17 +164,17 @@ export default function Blog() {
     isLoading: true,
     error: null as string | null,
   });
+  const { page, totalPages, paginatedItems: visiblePosts, setPage } = usePagination(
+    state.posts,
+    5
+  );
 
   useEffect(() => {
     const fetchBlogs = async () => {
       try {
-        const blogsCollection = collection(db, "blog");
-        const blogsSnapshot = await getDocs(blogsCollection);
-        const blogsData = blogsSnapshot.docs
-          .map((doc) => ({
-            docId: doc.id,
-            ...doc.data(),
-          }) as BlogPost)
+        const cached = await fetchCollectionCached<BlogPost & { id: string }>("blog");
+        const blogsData = cached
+          .map(({ id, ...data }) => ({ ...data, docId: id }) as BlogPost)
           .filter((post) => post.status !== "draft" && post.deleted !== true);
 
         setState((prev) => ({ ...prev, posts: blogsData, isLoading: false }));
@@ -249,10 +250,20 @@ export default function Blog() {
           </div>
       </div>
       <div className="flex flex-col gap-4">
-        {state.posts.map((post) => (
+        {visiblePosts.map((post) => (
           <BlogCard key={post.docId} post={post} lang={lang} />
         ))}
       </div>
+
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        onChange={(p) => {
+          setPage(p);
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }}
+        className="mt-8"
+      />
     </div>
   );
 }

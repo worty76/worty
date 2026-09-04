@@ -9,6 +9,8 @@ import { FaEdit, FaTrash, FaMapMarkerAlt, FaCalendar, FaStar, FaTag, FaRecycle, 
 import { LoadingSkeleton, EmptyState } from "@/components/ui/LoadingStates";
 import { FilterButtonGroup } from "@/components/ui/Card";
 import { useConfirm } from "@/components/ui/ConfirmDialog";
+import { usePagination } from "@/hooks/usePagination";
+import { Pagination } from "@/components/ui/Pagination";
 
 interface GalleryItem {
   id: string;
@@ -127,6 +129,12 @@ export function GalleryList({ onEdit, refreshTrigger }: GalleryListProps) {
 
   const deletedCount = items.filter((i) => i.deleted === true).length;
 
+  const { page, totalPages, paginatedItems, setPage } = usePagination(
+    filteredItems,
+    12,
+    `${filter}|${query}|${showDeleted}`
+  );
+
   if (loading) return <LoadingSkeleton count={6} type="square" />;
   if (!showDeleted && items.filter((i) => i.deleted !== true).length === 0) {
     return (
@@ -181,7 +189,7 @@ export function GalleryList({ onEdit, refreshTrigger }: GalleryListProps) {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-        {filteredItems.map((item) => (
+        {paginatedItems.map((item) => (
           <div
             key={item.id}
             className={`group relative rounded-2xl overflow-hidden bg-white/[0.04] hover:bg-white/[0.07] transition-all duration-200 border border-[rgb(var(--primary-text-rgb)_/_0.08)] hover:border-[rgb(var(--primary-text-rgb)_/_0.2)] cursor-pointer ${
@@ -317,6 +325,13 @@ export function GalleryList({ onEdit, refreshTrigger }: GalleryListProps) {
         {filter !== "All" && ` in ${filter}`}
         {q && ` matching "${query}"`}
       </p>
+
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        onChange={setPage}
+        className="mt-4"
+      />
 
       {dialog}
     </div>

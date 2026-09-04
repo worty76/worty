@@ -2,8 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback, memo } from "react";
 import Image from "next/image";
-import { collection, getDocs } from "firebase/firestore";
-import { db } from "@/firebase/config";
+import { fetchCollectionCached } from "@/lib/firestore-cache";
 import {
   FaPlay,
   FaPause,
@@ -236,11 +235,9 @@ export default function Music() {
   useEffect(() => {
     const fetchMusic = async () => {
       try {
-        const musicCollection = collection(db, "music");
-        const musicSnapshot = await getDocs(musicCollection);
-        const musicList = musicSnapshot.docs
-          .map((doc) => ({ id: doc.id, ...doc.data() } as Music))
-          .filter((m) => m.deleted !== true);
+        const musicList = (await fetchCollectionCached<Music>("music")).filter(
+          (m) => m.deleted !== true
+        );
         setMusic(musicList);
         setIsLoading(false);
       } catch (err) {

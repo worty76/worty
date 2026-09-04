@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { collection, getDocs } from "firebase/firestore";
-import { db } from "@/firebase/config";
+import { fetchCollectionCached } from "@/lib/firestore-cache";
 import { GalleryGrid } from "@/components/gallery/GalleryGrid";
 import { FaTag, FaFilter } from "react-icons/fa";
 
@@ -32,12 +31,7 @@ export default function GalleryPage() {
   useEffect(() => {
     const fetchGallery = async () => {
       try {
-        const galleryCollection = collection(db, "gallery");
-        const gallerySnapshot = await getDocs(galleryCollection);
-        const galleryList = gallerySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        })) as GalleryItem[];
+        const galleryList = await fetchCollectionCached<GalleryItem>("gallery");
 
         // Sort by featured first, then date
         galleryList.sort((a, b) => {

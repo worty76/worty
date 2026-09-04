@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { collection, getDocs } from "firebase/firestore";
-import { db } from "@/firebase/config";
+import { fetchCollectionCached } from "@/lib/firestore-cache";
 import { FaCheck } from "react-icons/fa";
 
 export const dynamic = "force-dynamic";
@@ -28,9 +27,7 @@ export default function BucketListPage() {
   useEffect(() => {
     const fetchItems = async () => {
       try {
-        const snap = await getDocs(collection(db, "bucketlist"));
-        const list = snap.docs
-          .map((d) => ({ id: d.id, ...d.data() } as BucketItem))
+        const list = (await fetchCollectionCached<BucketItem>("bucketlist"))
           .filter((item) => !item.deleted)
           .sort((a, b) => a.order - b.order);
         setItems(list);

@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import { collection, getDocs } from "firebase/firestore";
-import { db } from "@/firebase/config";
+import { fetchCollectionCached } from "@/lib/firestore-cache";
 import { FaGithub, FaExternalLinkAlt } from "react-icons/fa";
 import { LoadingSpinner } from "@/components/ui/LoadingStates";
 
@@ -68,9 +67,7 @@ export default function ProjectsPage() {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const snap = await getDocs(collection(db, "projects"));
-        const list = snap.docs
-          .map((doc) => ({ id: doc.id, ...doc.data() } as Project & { id: string }))
+        const list = (await fetchCollectionCached<Project & { id: string }>("projects"))
           .filter((p) => !p.deleted)
           .sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
         if (list.length > 0) {

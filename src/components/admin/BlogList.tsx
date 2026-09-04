@@ -11,6 +11,8 @@ import { FilterButtonGroup } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { StatusBadge, BlogStatus } from "@/components/ui/StatusBadge";
 import { useConfirm } from "@/components/ui/ConfirmDialog";
+import { usePagination } from "@/hooks/usePagination";
+import { Pagination } from "@/components/ui/Pagination";
 
 const formatDate = (dateStr: string) => {
   const d = new Date(dateStr);
@@ -148,6 +150,12 @@ export function BlogList({ onEdit, refreshTrigger }: BlogListProps) {
 
   const deletedCount = posts.filter((p) => p.deleted === true).length;
 
+  const { page, totalPages, paginatedItems: paginatedPosts, setPage } = usePagination(
+    filteredPosts,
+    6,
+    `${filter}|${query}|${showDeleted}`
+  );
+
   if (loading) {
     return <LoadingSkeleton count={4} type="card" />;
   }
@@ -205,7 +213,7 @@ export function BlogList({ onEdit, refreshTrigger }: BlogListProps) {
       </div>
 
       <div className="grid md:grid-cols-2 gap-4">
-        {filteredPosts.map((post) => (
+        {paginatedPosts.map((post) => (
           <div
             key={post.docId}
             className={`group bg-white/5 hover:bg-white/10 rounded-xl overflow-hidden transition-all duration-200 border border-transparent hover:border-[rgb(var(--primary-text-rgb)_/_0.2)] ${
@@ -319,6 +327,13 @@ export function BlogList({ onEdit, refreshTrigger }: BlogListProps) {
         {filter !== "All" && ` in ${filter}`}
         {q && ` matching "${query}"`}
       </p>
+
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        onChange={setPage}
+        className="mt-4"
+      />
 
       {dialog}
     </div>

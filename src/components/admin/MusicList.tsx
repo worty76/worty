@@ -9,6 +9,8 @@ import { FaEdit, FaTrash, FaPlay, FaYoutube, FaRecycle, FaTrashRestore, FaSearch
 import { LoadingSkeleton, EmptyState } from "@/components/ui/LoadingStates";
 import { FilterButtonGroup } from "@/components/ui/Card";
 import { useConfirm } from "@/components/ui/ConfirmDialog";
+import { usePagination } from "@/hooks/usePagination";
+import { Pagination } from "@/components/ui/Pagination";
 
 interface MusicItem {
   id: string;
@@ -126,6 +128,12 @@ export function MusicList({ onEdit, refreshTrigger }: MusicListProps) {
 
   const deletedCount = items.filter((i) => i.deleted === true).length;
 
+  const { page, totalPages, paginatedItems, setPage } = usePagination(
+    filteredItems,
+    10,
+    `${filter}|${query}|${showDeleted}`
+  );
+
   if (loading) {
     return <LoadingSkeleton count={8} type="card" />;
   }
@@ -183,7 +191,7 @@ export function MusicList({ onEdit, refreshTrigger }: MusicListProps) {
       </div>
 
       <div className="space-y-3">
-        {filteredItems.map((item) => (
+        {paginatedItems.map((item) => (
           <div
             key={item.id}
             className={`flex items-center gap-4 p-4 bg-white/5 border border-[rgb(var(--primary-text-rgb)_/_0.1)] rounded-xl group ${
@@ -290,6 +298,13 @@ export function MusicList({ onEdit, refreshTrigger }: MusicListProps) {
         {filter !== "All" && ` in ${filter}`}
         {q && ` matching "${query}"`}
       </p>
+
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        onChange={setPage}
+        className="mt-4"
+      />
 
       {dialog}
     </div>

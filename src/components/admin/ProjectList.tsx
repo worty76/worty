@@ -9,6 +9,8 @@ import { FaEdit, FaTrash, FaRecycle, FaTrashRestore, FaStar, FaSearch, FaTimes }
 import { LoadingSkeleton, EmptyState } from "@/components/ui/LoadingStates";
 import { Button } from "@/components/ui/Button";
 import { useConfirm } from "@/components/ui/ConfirmDialog";
+import { usePagination } from "@/hooks/usePagination";
+import { Pagination } from "@/components/ui/Pagination";
 
 interface Project {
   docId: string;
@@ -113,6 +115,12 @@ export function ProjectList({ onEdit, refreshTrigger }: ProjectListProps) {
 
   const deletedCount = projects.filter((p) => p.deleted === true).length;
 
+  const { page, totalPages, paginatedItems: paginatedProjects, setPage } = usePagination(
+    filteredProjects,
+    6,
+    `${query}|${showDeleted}`
+  );
+
   if (loading) {
     return <LoadingSkeleton count={4} type="card" />;
   }
@@ -164,7 +172,7 @@ export function ProjectList({ onEdit, refreshTrigger }: ProjectListProps) {
       </div>
 
       <div className="grid md:grid-cols-2 gap-4">
-        {filteredProjects.map((project) => (
+        {paginatedProjects.map((project) => (
           <div
             key={project.docId}
             className={`group bg-white/5 hover:bg-white/10 rounded-xl overflow-hidden transition-all duration-200 border border-transparent hover:border-[rgb(var(--primary-text-rgb)_/_0.2)] ${
@@ -182,7 +190,7 @@ export function ProjectList({ onEdit, refreshTrigger }: ProjectListProps) {
               />
 
               {project.deleted && (
-                <div className="absolute top-2 left-2 px-2 py-0.5 bg-black/60 secondary-color-text backdrop-blur-sm rounded text-xs font-semibold">
+                <div className="absolute top-2 left-2 px-2 py-0.5 bg-black/60 text-white backdrop-blur-sm rounded text-xs font-semibold">
                   Deleted
                 </div>
               )}
@@ -242,6 +250,13 @@ export function ProjectList({ onEdit, refreshTrigger }: ProjectListProps) {
         {filteredProjects.length} {filteredProjects.length === 1 ? "project" : "projects"}
         {q && ` matching "${query}"`}
       </p>
+
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        onChange={setPage}
+        className="mt-4"
+      />
 
       {dialog}
     </div>
