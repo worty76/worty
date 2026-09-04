@@ -9,6 +9,7 @@ import toast from "react-hot-toast";
 import { collection, addDoc, updateDoc, doc, getDocs } from "firebase/firestore";
 import { db } from "@/firebase/config";
 import { invalidateCollectionCache } from "@/lib/firestore-cache";
+import { resolvePendingImageUploads } from "@/lib/image-uploads";
 
 interface MusicFormProps {
   initialData?: {
@@ -95,10 +96,10 @@ export function MusicForm({ initialData, onSuccess, existingGenres = [], onDirty
       };
 
       if (initialData?.id) {
-        await updateDoc(doc(db, "music", initialData.id), musicData);
+        await updateDoc(doc(db, "music", initialData.id), await resolvePendingImageUploads(musicData));
         toast.success("Music updated successfully!");
       } else {
-        await addDoc(collection(db, "music"), musicData);
+        await addDoc(collection(db, "music"), await resolvePendingImageUploads(musicData));
         toast.success("Music added successfully!");
         setForm(defaultValues);
       }

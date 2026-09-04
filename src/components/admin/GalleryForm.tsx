@@ -9,6 +9,7 @@ import toast from "react-hot-toast";
 import { collection, addDoc, updateDoc, doc } from "firebase/firestore";
 import { db } from "@/firebase/config";
 import { invalidateCollectionCache } from "@/lib/firestore-cache";
+import { resolvePendingImageUploads } from "@/lib/image-uploads";
 
 interface GalleryFormProps {
   initialData?: {
@@ -121,10 +122,10 @@ export function GalleryForm({ initialData, onSuccess, existingTags = [], onDirty
         updatedAt: new Date().toISOString(),
       };
       if (initialData?.id) {
-        await updateDoc(doc(db, "gallery", initialData.id), galleryData);
+        await updateDoc(doc(db, "gallery", initialData.id), await resolvePendingImageUploads(galleryData));
         toast.success("Memory updated successfully!");
       } else {
-        await addDoc(collection(db, "gallery"), galleryData);
+        await addDoc(collection(db, "gallery"), await resolvePendingImageUploads(galleryData));
         toast.success("Memory added successfully!");
         setForm(defaultValues);
       }

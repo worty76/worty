@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 import { collection, addDoc, updateDoc, doc } from "firebase/firestore";
 import { db } from "@/firebase/config";
 import { invalidateCollectionCache } from "@/lib/firestore-cache";
+import { resolvePendingImageUploads } from "@/lib/image-uploads";
 
 interface ProjectFormProps {
   initialData?: {
@@ -86,11 +87,11 @@ export function ProjectForm({ initialData, onSuccess, onDirtyChange }: ProjectFo
       };
 
       if (initialData?.docId) {
-        await updateDoc(doc(db, "projects", initialData.docId), data);
+        await updateDoc(doc(db, "projects", initialData.docId), await resolvePendingImageUploads(data));
         toast.success("Project updated successfully!");
       } else {
         await addDoc(collection(db, "projects"), {
-          ...data,
+          ...(await resolvePendingImageUploads(data)),
           createdAt: new Date().toISOString(),
         });
         toast.success("Project created successfully!");

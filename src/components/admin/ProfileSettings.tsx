@@ -3,10 +3,11 @@
 import { useEffect, useState } from "react";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "@/firebase/config";
+import { invalidateCollectionCache } from "@/lib/firestore-cache";
+import { resolvePendingImageUploads } from "@/lib/image-uploads";
 import toast from "react-hot-toast";
 import { ImageUpload } from "./ImageUpload";
 import { Button } from "@/components/ui/Button";
-import { invalidateCollectionCache } from "@/lib/firestore-cache";
 
 export function ProfileSettings() {
   const [avatarUrl, setAvatarUrl] = useState("");
@@ -34,7 +35,7 @@ export function ProfileSettings() {
     try {
       await setDoc(
         doc(db, "profile", "main"),
-        { avatarUrl: avatarUrl.trim(), updatedAt: new Date().toISOString() },
+        { ...(await resolvePendingImageUploads({ avatarUrl: avatarUrl.trim() })), updatedAt: new Date().toISOString() },
         { merge: true }
       );
       invalidateCollectionCache("profile");

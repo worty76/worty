@@ -11,6 +11,7 @@ import toast from "react-hot-toast";
 import { collection, addDoc, updateDoc, doc } from "firebase/firestore";
 import { db } from "@/firebase/config";
 import { invalidateCollectionCache } from "@/lib/firestore-cache";
+import { resolvePendingImageUploads } from "@/lib/image-uploads";
 
 interface BlogFormProps {
   initialData?: {
@@ -163,11 +164,11 @@ export function BlogForm({ initialData, onSuccess, onDirtyChange }: BlogFormProp
 
       if (initialData?.docId) {
         // Update existing blog - use document ID
-        await updateDoc(doc(db, "blog", initialData.docId), blogData);
+        await updateDoc(doc(db, "blog", initialData.docId), await resolvePendingImageUploads(blogData));
         toast.success("Blog updated successfully!");
       } else {
         // Create new blog - let Firestore auto-generate document ID
-        const docRef = await addDoc(collection(db, "blog"), blogData);
+        const docRef = await addDoc(collection(db, "blog"), await resolvePendingImageUploads(blogData));
         toast.success("Blog created successfully!");
         setForm(defaultValues);
       }
