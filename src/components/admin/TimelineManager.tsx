@@ -16,12 +16,21 @@ interface MilestoneDoc {
   date?: string;
   description?: string;
   category?: string;
+  techStack?: string[];
+  architecture?: string;
   deleted?: boolean;
 }
 
 const CATEGORIES = ["Career", "Education", "Personal", "Achievement", "Other"];
 
-const emptyForm = { title: "", date: "", category: "Career", description: "" };
+const emptyForm = {
+  title: "",
+  date: "",
+  category: "Career",
+  description: "",
+  techStack: "",
+  architecture: "",
+};
 
 export function TimelineManager() {
   const [milestones, setMilestones] = useState<MilestoneDoc[]>([]);
@@ -66,6 +75,8 @@ export function TimelineManager() {
       date: m.date ?? "",
       category: m.category ?? "Other",
       description: m.description ?? "",
+      techStack: (m.techStack ?? []).join(", "),
+      architecture: m.architecture ?? "",
     });
     setShowForm(true);
   };
@@ -86,11 +97,18 @@ export function TimelineManager() {
 
     setSaving(true);
     try {
+      const techStack = form.techStack
+        .split(",")
+        .map((t) => t.trim())
+        .filter(Boolean);
+      const architecture = form.architecture.trim();
       const data = {
         title: form.title.trim(),
         date: form.date,
         category: form.category,
         description: form.description.trim(),
+        ...(techStack.length > 0 ? { techStack } : {}),
+        ...(architecture ? { architecture } : {}),
         updatedAt: new Date().toISOString(),
       };
 
@@ -198,6 +216,24 @@ export function TimelineManager() {
               rows={3}
               required
               placeholder="e.g., Led the team that rebuilt the payment service in Go…"
+              className="w-full rounded-xl px-4 py-3 bg-white/5 border border-[rgb(var(--primary-text-rgb)_/_0.1)] secondary-color-text placeholder:opacity-30 focus:outline-none focus:border-[rgb(var(--primary-text-rgb)_/_0.2)] transition-colors text-sm resize-none"
+            />
+          </div>
+          <FormInput
+            label="Main tech stack (comma-separated, optional)"
+            value={form.techStack}
+            onChange={(e) => setForm((f) => ({ ...f, techStack: e.target.value }))}
+            placeholder="e.g., Go, Redis, PostgreSQL, gRPC"
+          />
+          <div>
+            <label className="block text-sm font-semibold secondary-color-text mb-2">
+              Architecture <span className="opacity-50 font-normal">(optional)</span>
+            </label>
+            <textarea
+              value={form.architecture}
+              onChange={(e) => setForm((f) => ({ ...f, architecture: e.target.value }))}
+              rows={2}
+              placeholder="How the system was designed — services, data flow, infra…"
               className="w-full rounded-xl px-4 py-3 bg-white/5 border border-[rgb(var(--primary-text-rgb)_/_0.1)] secondary-color-text placeholder:opacity-30 focus:outline-none focus:border-[rgb(var(--primary-text-rgb)_/_0.2)] transition-colors text-sm resize-none"
             />
           </div>

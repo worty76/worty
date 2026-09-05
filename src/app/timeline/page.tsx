@@ -9,6 +9,8 @@ interface Milestone {
   date?: string; // "YYYY-MM-DD"
   description?: string;
   category?: string;
+  techStack?: string[];
+  architecture?: string;
   deleted?: boolean;
 }
 
@@ -120,6 +122,23 @@ export default function TimelinePage() {
                       {m.description && (
                         <p className="secondary-color-text opacity-70 text-sm leading-relaxed">
                           {m.description}
+                        </p>
+                      )}
+                      {m.techStack && m.techStack.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 mt-2">
+                          {m.techStack.map((t) => (
+                            <span
+                              key={t}
+                              className="px-2 py-0.5 rounded-md bg-[rgb(var(--primary-text-rgb)_/_0.08)] border border-[rgb(var(--primary-text-rgb)_/_0.12)] secondary-color-text opacity-70 text-[11px] font-medium"
+                            >
+                              {t}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                      {m.architecture && (
+                        <p className="mt-2 pl-3 border-l-2 border-[rgb(var(--primary-text-rgb)_/_0.2)] secondary-color-text opacity-55 text-xs leading-relaxed">
+                          {m.architecture}
                         </p>
                       )}
                     </li>
