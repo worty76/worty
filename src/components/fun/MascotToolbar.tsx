@@ -48,7 +48,7 @@ export function MascotToolbar() {
   const { characters, enabled, toggle, setAllEnabled } = useMascot();
   const [open, setOpen] = useState(false);
 
-  if (pathname?.startsWith("/admin")) return null;
+  if (pathname?.startsWith("/admin") || pathname?.startsWith("/journey")) return null;
 
   const roster = Object.values(characters);
   const activeCount = roster.filter((c) => enabled[c.id]).length;

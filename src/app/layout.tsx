@@ -8,6 +8,7 @@ import { MascotToolbar } from "@/components/fun/MascotToolbar";
 import { MascotProvider } from "@/context/mascot-context";
 import { ThemeProvider } from "@/context/theme-context";
 import { AuthProvider } from "@/context/auth-context";
+import { RouteAnalytics } from "@/components/RouteAnalytics";
 import NextTopLoader from "nextjs-toploader";
 import { Toaster } from "react-hot-toast";
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION } from "@/lib/site";
@@ -81,6 +82,7 @@ export default function RootLayout({
                 showSpinner={false}
               />
               <SiteNavbar />
+              <RouteAnalytics />
               <MascotLayer />
               <MascotToolbar />
               {children}

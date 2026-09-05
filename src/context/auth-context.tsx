@@ -14,7 +14,6 @@ import {
   onAuthStateChanged,
   getAuth,
 } from "firebase/auth";
-import { initializeApp } from "firebase/app";
 
 interface AuthContextType {
   user: User | null;
@@ -34,24 +33,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Only initialize auth on client side
     const initAuth = async () => {
       if (typeof window !== "undefined") {
-        const firebaseConfig = {
-          apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-          authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-          projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-          storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-          messagingSenderId:
-            process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-          appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-        };
-
         try {
-          const { getAuth: _getAuth } = await import("firebase/auth");
-          const app = initializeApp(firebaseConfig);
-          const authInstance = _getAuth(app);
+          // reuse the single shared Firebase app — a second initializeApp
+          // with a diverging config throws duplicate-app
+          const { firebaseApp } = await import("@/firebase/config");
+          const authInstance = getAuth(firebaseApp);
           setAuth(authInstance);
 
           const unsubscribe = onAuthStateChanged(authInstance, (user) => {
             setUser(user);
+            // tag your own visits in Analytics so they're filterable
+            if (user?.uid) {
+              import("@/firebase/analytics").then((m) => m.identifyAdmin(user.uid));
+            }
             setLoading(false);
           });
 
