@@ -55,14 +55,14 @@ export default function BucketListPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen primary-color-bg flex items-center justify-center">
+      <main className="min-h-screen flex items-center justify-center">
         <div className="text-[rgb(var(--primary-text-rgb))] opacity-40 text-sm">Loading...</div>
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen primary-color-bg px-4 py-12">
+    <main className="min-h-screen px-4 py-12">
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <div className="mb-6">

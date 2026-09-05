@@ -113,7 +113,7 @@ export default function Page({ params }: { params: { id: string } }) {
 
   if (error || !blog) {
     return (
-      <main className="min-h-screen primary-color-bg flex flex-col items-center justify-center gap-5 px-4">
+      <main className="min-h-screen flex flex-col items-center justify-center gap-5 px-4">
         <p className="secondary-color-text opacity-70 text-lg">
           This article could not be found.
         </p>
@@ -487,7 +487,7 @@ export default function Page({ params }: { params: { id: string } }) {
         </ReactMarkdown>
       </article>
 
-      <div className="mb-8 text-center">
+      <div className="mt-8 mb-8 text-center">
         <h3 className="text-xl font-semibold secondary-color-text mb-4">
           Did you enjoy this article?
         </h3>

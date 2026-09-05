@@ -61,7 +61,7 @@ export default function ProjectDetailPage({
 
   if (isLoading) {
     return (
-      <main className="min-h-screen primary-color-bg flex items-center justify-center">
+      <main className="min-h-screen flex items-center justify-center">
         <div className="w-8 h-8 border-[3px] border-[rgb(var(--primary-text-rgb))] border-t-transparent rounded-full animate-spin opacity-60" />
       </main>
     );
@@ -69,7 +69,7 @@ export default function ProjectDetailPage({
 
   if (notFound || !project) {
     return (
-      <main className="min-h-screen primary-color-bg flex flex-col items-center justify-center gap-5 px-4">
+      <main className="min-h-screen flex flex-col items-center justify-center gap-5 px-4">
         <p className="secondary-color-text opacity-70 text-lg">
           This project could not be found.
         </p>
@@ -101,7 +101,7 @@ export default function ProjectDetailPage({
   const features = (project.features ?? []).filter(Boolean);
 
   return (
-    <main className="min-h-screen primary-color-bg px-4 py-12">
+    <main className="min-h-screen px-4 py-12">
       <div className="max-w-3xl mx-auto">
         <Link
           href="/projects"
@@ -110,22 +110,24 @@ export default function ProjectDetailPage({
           <FaArrowLeft size={12} />
           Back to projects
         </Link>
+      </div>
 
-        {/* Hero image */}
-        {project.imageUrl && (
-          <div className="relative aspect-video rounded-2xl overflow-hidden shadow-2xl mb-8">
-            <Image
-              src={project.imageUrl}
-              alt={project.title ?? "Project"}
-              fill
-              priority
-              quality={90}
-              className="object-cover"
-              sizes="(max-width: 768px) 100vw, 768px"
-            />
-          </div>
-        )}
+      {/* Hero image — spans wider than the text column on large screens */}
+      {project.imageUrl && (
+        <div className="relative aspect-video rounded-2xl overflow-hidden shadow-2xl mb-8 max-w-6xl mx-auto w-full">
+          <Image
+            src={project.imageUrl}
+            alt={project.title ?? "Project"}
+            fill
+            priority
+            quality={100}
+            className="object-cover"
+            sizes="(max-width: 768px) 100vw, 1152px"
+          />
+        </div>
+      )}
 
+      <div className="max-w-3xl mx-auto">
         {/* Title */}
         <div className="flex items-center gap-3 flex-wrap mb-3">
           <h1 className="secondary-color-text font-heading text-3xl md:text-4xl font-bold">

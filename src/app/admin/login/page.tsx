@@ -47,7 +47,7 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="min-h-screen primary-color-bg flex items-center justify-center px-4 py-12">
+    <main className="min-h-screen flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
         <div className="bg-white/10 backdrop-blur-md rounded-xl p-8 border border-[rgb(var(--primary-text-rgb)_/_0.2)]">
           <div className="text-center mb-8">

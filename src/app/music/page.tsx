@@ -361,7 +361,7 @@ export default function Music() {
   }
 
   return (
-    <main className="min-h-screen primary-color-bg transition-colors duration-1000">
+    <main className="min-h-screen transition-colors duration-1000">
       {/* Hidden YouTube player container */}
       <div
         ref={containerRef}

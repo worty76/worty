@@ -29,17 +29,19 @@ import {
   FaCode,
   FaSun,
   FaMoon,
+  FaHistory,
 } from "react-icons/fa";
 import { Card, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { LoadingSpinner } from "@/components/ui/LoadingStates";
 import { BlogStatus } from "@/components/ui/StatusBadge";
 import { useTheme } from "@/context/theme-context";
+import { TimelineManager } from "@/components/admin/TimelineManager";
 import { useConfirm } from "@/components/ui/ConfirmDialog";
 
 export const dynamic = "force-dynamic";
 
-type Tab = "home" | "blog" | "gallery" | "music" | "bucketlist" | "projects" | "profile";
+type Tab = "home" | "blog" | "gallery" | "music" | "bucketlist" | "projects" | "profile" | "timeline";
 type View = "form" | "list";
 
 interface EditingBlog {
@@ -113,6 +115,7 @@ interface Stats {
   musicCount: number;
   bucketCount: number;
   projectCount: number;
+  timelineCount: number;
 }
 
 const NAV_ITEMS: { key: Tab; label: string; icon: React.ReactNode }[] = [
@@ -122,6 +125,7 @@ const NAV_ITEMS: { key: Tab; label: string; icon: React.ReactNode }[] = [
   { key: "music", label: "Music", icon: <FaMusic size={16} /> },
   { key: "bucketlist", label: "Bucket List", icon: <FaList size={16} /> },
   { key: "projects", label: "Projects", icon: <FaCode size={16} /> },
+  { key: "timeline", label: "Timeline", icon: <FaHistory size={16} /> },
   { key: "profile", label: "Profile", icon: <FaUserCircle size={16} /> },
 ];
 
@@ -136,7 +140,7 @@ export default function AdminPage() {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [existingTags, setExistingTags] = useState<string[]>([]);
   const [existingGenres, setExistingGenres] = useState<string[]>([]);
-  const [stats, setStats] = useState<Stats>({ blogCount: 0, galleryCount: 0, musicCount: 0, bucketCount: 0, projectCount: 0 });
+  const [stats, setStats] = useState<Stats>({ blogCount: 0, galleryCount: 0, musicCount: 0, bucketCount: 0, projectCount: 0, timelineCount: 0 });
   const [formDirty, setFormDirty] = useState(false);
   const { user, loading, logOut } = useAuth();
   const { isReversed, toggleTheme } = useTheme();
@@ -165,12 +169,13 @@ export default function AdminPage() {
     const fetchStats = async () => {
       try {
         const { collection, getDocs } = await import("firebase/firestore");
-        const [blogSnap, gallerySnap, musicSnap, bucketSnap, projectSnap] = await Promise.all([
+        const [blogSnap, gallerySnap, musicSnap, bucketSnap, projectSnap, timelineSnap] = await Promise.all([
           getDocs(collection(db, "blog")),
           getDocs(collection(db, "gallery")),
           getDocs(collection(db, "music")),
           getDocs(collection(db, "bucketlist")),
           getDocs(collection(db, "projects")),
+          getDocs(collection(db, "timeline")),
         ]);
         setStats({
           blogCount: blogSnap.size,
@@ -178,6 +183,7 @@ export default function AdminPage() {
           musicCount: musicSnap.size,
           bucketCount: bucketSnap.size,
           projectCount: projectSnap.size,
+          timelineCount: timelineSnap.size,
         });
       } catch (e) {
         console.error("Error fetching stats:", e);
@@ -226,7 +232,7 @@ export default function AdminPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen primary-color-bg flex items-center justify-center">
+      <main className="min-h-screen flex items-center justify-center">
         <LoadingSpinner />
       </main>
     );
@@ -389,6 +395,21 @@ export default function AdminPage() {
       );
     }
 
+    // Timeline milestones
+    if (activeTab === "timeline") {
+      return (
+        <Card>
+          <CardHeader
+            title="Timeline"
+            description="Milestones shown in the My journey section of your homepage"
+          />
+          <div className="p-6 sm:p-8">
+            <TimelineManager />
+          </div>
+        </Card>
+      );
+    }
+
     // Dashboard home
     if (activeTab === "home") {
       return (
@@ -505,7 +526,7 @@ export default function AdminPage() {
   };
 
   return (
-    <div className="min-h-screen primary-color-bg flex">
+    <div className="min-h-screen flex">
       {/* Desktop Sidebar */}
       <aside className="hidden lg:flex flex-col w-64 shrink-0 border-r border-[rgb(var(--primary-text-rgb)_/_0.08)] bg-[rgba(0,0,0,0.15)] sticky top-0 h-screen z-30">
         {/* Logo */}
@@ -530,6 +551,7 @@ export default function AdminPage() {
               : item.key === "music" ? stats.musicCount
               : item.key === "bucketlist" ? stats.bucketCount
               : item.key === "projects" ? stats.projectCount
+              : item.key === "timeline" ? stats.timelineCount
               : undefined;
             return (
               <button

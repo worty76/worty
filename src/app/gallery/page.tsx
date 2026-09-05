@@ -77,7 +77,7 @@ export default function GalleryPage() {
   };
 
   return (
-    <main className="min-h-screen primary-color-bg transition-colors duration-1000 py-8 px-4">
+    <main className="min-h-screen transition-colors duration-1000 py-8 px-4">
       <div className="w-full max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">

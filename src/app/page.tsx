@@ -39,6 +39,31 @@ export default function Home() {
         <Blog />
       </section>
 
+      {/* Journey link */}
+      <Link
+        href="/timeline"
+        className="fixed bottom-20 right-8 flex items-center gap-2 group secondary-color-text duration-1000"
+      >
+        <span className="hidden md:block text-sm opacity-70 group-hover:opacity-100 transition-opacity duration-1000">
+          my journey
+        </span>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="transform transition-transform duration-1000 group-hover:translate-x-1 hidden md:block "
+        >
+          <path d="M5 12h14" />
+          <path d="m12 5 7 7-7 7" />
+        </svg>
+      </Link>
+
       <Link
         href="/music"
         className="fixed bottom-8 right-8 flex items-center gap-2 group secondary-color-text duration-1000"

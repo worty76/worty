@@ -2,6 +2,7 @@ import "./globals.css";
 import { Space_Grotesk, DM_Sans } from "next/font/google";
 import type { Metadata } from "next";
 import { SiteNavbar } from "../components/layouts/SiteNavbar";
+import { GridBackground } from "@/components/fun/GridBackground";
 import { MascotLayer } from "@/components/fun/MascotLayer";
 import { MascotToolbar } from "@/components/fun/MascotToolbar";
 import { MascotProvider } from "@/context/mascot-context";
@@ -50,7 +51,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      style={{ backgroundColor: "var(--color-primary-bg)" }}
+    >
       <head>
         <meta name="description" content={SITE_DESCRIPTION} />
         <script
@@ -62,8 +67,9 @@ export default function RootLayout({
       <body
         suppressHydrationWarning={true}
         className={`${heading.variable} ${body.variable} font-sans antialiased transition-colors duration-1000`}
-        style={{ backgroundColor: "var(--color-primary-bg)" }}
       >
+        {/* Living pixel-field background */}
+        <GridBackground />
         <AuthProvider>
           <ThemeProvider>
             <MascotProvider>

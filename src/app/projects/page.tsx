@@ -43,8 +43,9 @@ function CardContent({ project }: { project: Project }) {
           <Image
             src={project.imageUrl}
             alt={project.title}
-            width={64}
-            height={64}
+            width={160}
+            height={160}
+            quality={90}
             className="object-cover"
           />
         ) : (
@@ -137,14 +138,14 @@ export default function ProjectsPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen primary-color-bg flex items-center justify-center">
+      <main className="min-h-screen flex items-center justify-center">
         <LoadingSpinner />
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen primary-color-bg">
+    <main className="min-h-screen">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="mb-12 text-center">
           <h1 className="secondary-color-text font-heading text-4xl font-bold mb-3">Projects</h1>
