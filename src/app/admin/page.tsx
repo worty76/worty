@@ -99,6 +99,12 @@ interface EditingProject {
   liveUrl?: string;
   order: number;
   featured: boolean;
+  contributed?: boolean;
+  myRole?: string;
+  contributions?: string;
+  features?: string;
+  stars?: number | string;
+  installations?: number | string;
 }
 
 interface Stats {
@@ -269,6 +275,10 @@ export default function AdminPage() {
       docId: item.docId, title: item.title, description: item.description,
       techStack: item.techStack, imageUrl: item.imageUrl, githubUrl: item.githubUrl,
       liveUrl: item.liveUrl, order: item.order, featured: item.featured,
+      contributed: !!item.contributed, myRole: item.myRole || "",
+      contributions: (item.contributions ?? []).join("\n"),
+      features: (item.features ?? []).join("\n"),
+      stars: item.stars ?? "", installations: item.installations ?? "",
     });
     setCurrentView("form");
   };

@@ -2,11 +2,14 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { fetchCollectionCached } from "@/lib/firestore-cache";
-import { FaGithub, FaExternalLinkAlt } from "react-icons/fa";
+import { FaGithub, FaExternalLinkAlt, FaStar } from "react-icons/fa";
 import { LoadingSpinner } from "@/components/ui/LoadingStates";
 
 interface Project {
+  id?: string;
+  category?: string;
   title: string;
   description: string;
   techStack: string;
@@ -16,53 +19,105 @@ interface Project {
   order: number;
   featured: boolean;
   deleted?: boolean;
+  contributed?: boolean;
+  stars?: number;
 }
 
-const FALLBACK_PROJECTS: Project[] = [
-  {
-    title: "ChatApp Realtime",
-    description: "Full-stack real-time chat application with rooms, typing indicators, and message history. Built with WebSockets and a responsive UI.",
-    techStack: "React, Node.js, Socket.io, MongoDB",
-    imageUrl: "",
-    githubUrl: "https://github.com/worty/chatapp",
-    liveUrl: "https://chatapp-demo.vercel.app",
-    order: 1,
-    featured: true,
-  },
-  {
-    title: "DevDash Analytics",
-    description: "Developer productivity dashboard that aggregates GitHub stats, CI/CD pipelines, and sprint metrics into one clean view.",
-    techStack: "Next.js, TypeScript, Tailwind CSS, Chart.js",
-    imageUrl: "",
-    githubUrl: "https://github.com/worty/devdash",
-    liveUrl: "",
-    order: 2,
-    featured: true,
-  },
-  {
-    title: "BudgetTracker",
-    description: "Personal finance tracker with expense categorization, monthly budgets, and visual spending breakdowns.",
-    techStack: "Vue.js, Firebase, Vuetify",
-    imageUrl: "",
-    githubUrl: "https://github.com/worty/budget-tracker",
-    order: 3,
-    featured: false,
-  },
-  {
-    title: "Markdown Blog Engine",
-    description: "Lightweight static blog engine that renders markdown files with syntax highlighting and automatic RSS feed generation.",
-    techStack: "Astro, MDX, TypeScript",
-    imageUrl: "",
-    githubUrl: "https://github.com/worty/markdown-blog",
-    liveUrl: "https://blog-demo.vercel.app",
-    order: 4,
-    featured: false,
-  },
+/** Shared card content — thumbnail, title, description, tech pills, arrow */
+const CATEGORY_FILTERS = [
+  { key: "all", label: "All" },
+  { key: "own", label: "My projects" },
+  { key: "contribute", label: "Contributions" },
 ];
+
+function projectCategory(p: Project): string {
+  return p.category ?? (p.contributed ? "contribute" : "own");
+}
+
+function CardContent({ project }: { project: Project }) {
+  return (
+    <>
+      {/* Thumbnail */}
+      <div className="shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-white/[0.06] flex items-center justify-center">
+        {project.imageUrl ? (
+          <Image
+            src={project.imageUrl}
+            alt={project.title}
+            width={64}
+            height={64}
+            className="object-cover"
+          />
+        ) : (
+          <span className="secondary-color-text/20 text-xl font-bold font-heading">
+            {project.title.charAt(0)}
+          </span>
+        )}
+      </div>
+
+      {/* Info */}
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 mb-1 flex-wrap">
+          <h3 className="secondary-color-text font-semibold font-heading text-base truncate">
+            {project.title}
+          </h3>
+          {project.contributed && (
+            <span className="shrink-0 text-[9px] font-bold uppercase tracking-wider secondary-color-text opacity-70 bg-white/[0.06] px-2 py-0.5 rounded-full">
+              Contributed
+            </span>
+          )}
+          {project.featured && (
+            <span className="shrink-0 text-[9px] font-bold uppercase tracking-wider secondary-color-bg primary-color-text px-2 py-0.5 rounded-full">
+              Featured
+            </span>
+          )}
+          {!!project.stars && project.stars > 0 && (
+            <span className="shrink-0 flex items-center gap-1 text-[11px] secondary-color-text opacity-50">
+              <FaStar size={9} /> {project.stars.toLocaleString()}
+            </span>
+          )}
+        </div>
+        <p className="secondary-color-text/50 text-sm leading-relaxed line-clamp-2">
+          {project.description}
+        </p>
+      </div>
+
+      {/* Tech pills */}
+      <div className="hidden sm:flex flex-wrap gap-1.5 shrink-0">
+        {project.techStack?.split(",").slice(0, 3).map((tech) => {
+          const t = tech.trim();
+          return t ? (
+            <span
+              key={t}
+              className="bg-white/[0.05] text-secondary-color-text/40 text-xs font-medium px-2.5 py-1 rounded-md"
+            >
+              {t}
+            </span>
+          ) : null;
+        })}
+      </div>
+
+      {/* Arrow */}
+      <div className="shrink-0 text-secondary-color-text/20 group-hover:text-secondary-color-text/60 transition-colors">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="rotate-[-30deg] group-hover:rotate-[-45deg] group-hover:translate-x-0.5 transition-all duration-200">
+          <path d="M4 12L12 4M12 4H6M12 4V10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </div>
+    </>
+  );
+}
 
 export default function ProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
+  const [categoryFilter, setCategoryFilter] = useState("all");
+
+  const visibleProjects = projects
+    .filter(
+      (p) =>
+        !p.deleted &&
+        (categoryFilter === "all" || projectCategory(p) === categoryFilter)
+    )
+    .sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -70,13 +125,9 @@ export default function ProjectsPage() {
         const list = (await fetchCollectionCached<Project & { id: string }>("projects"))
           .filter((p) => !p.deleted)
           .sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
-        if (list.length > 0) {
-          setProjects(list);
-        } else {
-          setProjects(FALLBACK_PROJECTS);
-        }
+        setProjects(list);
       } catch {
-        setProjects(FALLBACK_PROJECTS);
+        setProjects([]);
       } finally {
         setLoading(false);
       }
@@ -103,77 +154,66 @@ export default function ProjectsPage() {
         {projects.length === 0 ? (
           <p className="text-center secondary-color-text opacity-40 text-lg">No projects yet. Check back soon!</p>
         ) : (
-          <div className="max-w-3xl mx-auto space-y-4">
-            {projects.map((project) => (
-              <a
-                key={project.title}
-                href={project.liveUrl || project.githubUrl || "#"}
-                target={project.liveUrl || project.githubUrl ? "_blank" : undefined}
-                rel="noopener noreferrer"
-                className={`group flex items-center gap-5 rounded-xl p-6 transition-all duration-200 hover:bg-white/[0.06] border ${
-                  project.featured
-                    ? "border-amber-500/20 hover:border-amber-500/40 bg-amber-500/[0.04]"
-                    : "border-[rgb(var(--primary-text-rgb)_/_0.06)] bg-white/[0.02]"
-                }`}
-              >
-                {/* Thumbnail */}
-                <div className="shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-white/[0.06] flex items-center justify-center">
-                  {project.imageUrl ? (
-                    <Image
-                      src={project.imageUrl}
-                      alt={project.title}
-                      width={64}
-                      height={64}
-                      className="object-cover"
-                    />
-                  ) : (
-                    <span className="secondary-color-text/20 text-xl font-bold font-heading">
-                      {project.title.charAt(0)}
-                    </span>
-                  )}
-                </div>
+          <>
+            {/* Category filter */}
+            <div className="flex gap-2 flex-wrap justify-center mb-8">
+              {CATEGORY_FILTERS.map((c) => (
+                <button
+                  key={c.key}
+                  onClick={() => setCategoryFilter(c.key)}
+                  className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                    categoryFilter === c.key
+                      ? "bg-[rgb(var(--primary-text-rgb))] text-[rgb(var(--primary-bg-rgb))]"
+                      : "bg-white/5 secondary-color-text opacity-50 hover:opacity-80"
+                  }`}
+                >
+                  {c.label}
+                </button>
+              ))}
+            </div>
 
-                {/* Info */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="secondary-color-text font-semibold font-heading text-base truncate">
-                      {project.title}
-                    </h3>
-                    {project.featured && (
-                      <span className="shrink-0 text-[9px] font-bold uppercase tracking-wider text-amber-400/80 bg-amber-500/10 px-2 py-0.5 rounded-full">
-                        Featured
-                      </span>
-                    )}
-                  </div>
-                  <p className="secondary-color-text/50 text-sm leading-relaxed line-clamp-2">
-                    {project.description}
-                  </p>
-                </div>
+            <div className="max-w-3xl mx-auto space-y-4">
+              {visibleProjects.map((project) => {
+              const cardClass = `group flex items-center gap-5 rounded-xl p-6 transition-all duration-200 hover:bg-white/[0.06] cursor-pointer border ${
+                project.featured
+                  ? "border-[rgb(var(--primary-text-rgb)_/_0.25)] hover:border-[rgb(var(--primary-text-rgb)_/_0.45)] bg-white/[0.04]"
+                  : "border-[rgb(var(--primary-text-rgb)_/_0.06)] bg-white/[0.02]"
+              }`;
 
-                {/* Tech pills */}
-                <div className="hidden sm:flex flex-wrap gap-1.5 shrink-0">
-                  {project.techStack?.split(",").slice(0, 3).map((tech) => {
-                    const t = tech.trim();
-                    return t ? (
-                      <span
-                        key={t}
-                        className="bg-white/[0.05] text-secondary-color-text/40 text-xs font-medium px-2.5 py-1 rounded-md"
-                      >
-                        {t}
-                      </span>
-                    ) : null;
-                  })}
-                </div>
+              // showcase entries without a document keep their external link
+              if (!project.id) {
+                const external = project.liveUrl || project.githubUrl || "#";
+                return (
+                  <a
+                    key={project.title}
+                    href={external}
+                    target={external === "#" ? undefined : "_blank"}
+                    rel="noopener noreferrer"
+                    className={cardClass}
+                  >
+                    <CardContent project={project} />
+                  </a>
+                );
+              }
 
-                {/* Arrow */}
-                <div className="shrink-0 text-secondary-color-text/20 group-hover:text-secondary-color-text/60 transition-colors">
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="rotate-[-30deg] group-hover:rotate-[-45deg] group-hover:translate-x-0.5 transition-all duration-200">
-                    <path d="M4 12L12 4M12 4H6M12 4V10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </div>
-              </a>
-            ))}
-          </div>
+              return (
+                <Link
+                  key={project.id}
+                  href={`/projects/${project.id}`}
+                  className={cardClass}
+                >
+                  <CardContent project={project} />
+                </Link>
+              );
+            })}
+
+            {visibleProjects.length === 0 && (
+              <p className="text-center secondary-color-text opacity-40 text-lg">
+                No projects in this category yet.
+              </p>
+            )}
+            </div>
+          </>
         )}
       </div>
     </main>
