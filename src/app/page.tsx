@@ -11,25 +11,36 @@ export default function Home() {
 
       <section>
         <h1 className="py-7 text-2xl duration-1000">
-          Hi, I&apos;m Dat - a Go developer passionate about building scalable, efficient applications.
+          Hi, I&apos;m Dat - a Go developer passionate about distributed systems.
         </h1>
 
         <div className="space-y-3">
           <p className="duration-1000">
-            I&apos;m just a normal guy with no fancy achievements or extraordinary
-            background - just someone trying to grow, learn, and become a little
-            better every single day. I enjoy working with various backend
-            technologies and architectures, but my favorite stack revolves around
-            Go, as it allows me to craft high-performance and real-time solutions.
-            I believe in building APIs and services that are reliable, easy to
-            maintain, and designed for growth.
+            I&apos;m just a normal guy with no fancy achievements or
+            extraordinary background - just someone who enjoys learning,
+            building things, and becoming a little better every day.
           </p>
 
           <p className="duration-1000">
-            I am always looking to collaborate with others and learn from the
-            experiences of fellow developers. If you're interested in discussing
-            tech, exploring new projects, or collaborating on backend-related
-            challenges, feel free to reach out!
+            I&apos;m particularly interested in distributed systems, where
+            multiple services, machines, and components have to work together
+            reliably at scale. I enjoy thinking about how systems communicate,
+            handle failures, process data, and remain resilient as they grow.
+          </p>
+
+          <p className="duration-1000">
+            My favorite stack revolves around Go, especially for building
+            high-performance backend services, APIs, message-driven systems,
+            and real-time applications. I&apos;m always curious about topics
+            like microservices, event-driven architecture, messaging,
+            concurrency, observability, and system scalability.
+          </p>
+          <p className="duration-1000">
+            I&apos;m always looking to learn from other developers, explore
+            interesting technical problems, and collaborate on projects
+            involving backend engineering and distributed systems. If
+            you&apos;re interested in discussing systems, exploring new ideas,
+            or building something together, feel free to reach out.
           </p>
         </div>
       </section>
@@ -38,6 +49,34 @@ export default function Home() {
         <h2 className="duration-1000 secondary-color-text">My articles:</h2>
         <Blog />
       </section>
+
+      {/* Systems link */}
+      <Link
+        href="/systems"
+        className="fixed bottom-44 right-8 flex items-center gap-2 group secondary-color-text duration-1000"
+      >
+        <span className="hidden md:block text-sm opacity-70 group-hover:opacity-100 transition-opacity duration-1000">
+          how I see distributed systems
+        </span>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="transform transition-transform duration-1000 group-hover:translate-x-1 hidden md:block "
+        >
+          <rect x="3" y="3" width="7" height="7" rx="1" />
+          <rect x="14" y="3" width="7" height="7" rx="1" />
+          <rect x="8.5" y="14" width="7" height="7" rx="1" />
+          <path d="M6.5 10v2a2 2 0 0 0 2 2h0" />
+          <path d="M17.5 10v2a2 2 0 0 1-2 2h0" />
+        </svg>
+      </Link>
 
       {/* Story link */}
       <Link

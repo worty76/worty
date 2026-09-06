@@ -1,5 +1,5 @@
 import "./globals.css";
-import { Space_Grotesk, DM_Sans } from "next/font/google";
+import { Space_Grotesk, DM_Sans, Caveat, Patrick_Hand } from "next/font/google";
 import type { Metadata } from "next";
 import { SiteNavbar } from "../components/layouts/SiteNavbar";
 import { GridBackground } from "@/components/fun/GridBackground";
@@ -46,6 +46,19 @@ const body = DM_Sans({
   weight: ["400", "500", "600", "700"],
 });
 
+const sketch = Caveat({
+  subsets: ["latin"],
+  variable: "--font-sketch",
+  display: "swap",
+});
+
+const hand = Patrick_Hand({
+  subsets: ["latin"],
+  variable: "--font-hand",
+  display: "swap",
+  weight: "400",
+});
+
 export default function RootLayout({
   children,
 }: {
@@ -67,7 +80,7 @@ export default function RootLayout({
       </head>
       <body
         suppressHydrationWarning={true}
-        className={`${heading.variable} ${body.variable} font-sans antialiased transition-colors duration-1000`}
+        className={`${heading.variable} ${body.variable} ${sketch.variable} ${hand.variable} font-sans antialiased transition-colors duration-1000`}
       >
         {/* Living pixel-field background */}
         <GridBackground />
