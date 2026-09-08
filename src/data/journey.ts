@@ -7,8 +7,9 @@ export interface JourneyScene {
 }
 
 /**
- * The walkable story of Dat — each scene is a chapter.
- * Edit the text freely; the /journey page renders whatever is here.
+ * AI-generated content for the /journey page.
+ * Just temporary content for now, but it gives a sense of the story.
+ * I will eventually replace this with a more personal story, but for now, this is a placeholder.
  */
 export const JOURNEY_SCENES: JourneyScene[] = [
   {

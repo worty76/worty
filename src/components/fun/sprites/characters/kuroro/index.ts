@@ -11,7 +11,7 @@ const kuroro: Character = {
   margin: 40,
   defaultEnabled: true,
   actions: {
-    [State.idle]: { name: State.idle, start: 0, end: 2, frameDuration: 450, loop: true },
+    [State.idle]: { name: State.idle, start: 0, end: 2, frameDuration: 150, loop: true },
     [State.walk]: { name: State.walk, start: 3, end: 4, frameDuration: 120, speed: 50, loop: true },
     [State.dash]: { name: State.dash, start: 10, end: 19, frameDuration: 150, speed: 20, next: State.idle },
     [State.flyKick]: { name: State.flyKick, start: 20, end: 22, frameDuration: 150, speed: 70, next: State.idle },
