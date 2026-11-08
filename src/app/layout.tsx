@@ -1,8 +1,9 @@
 import "./globals.css";
-import { Space_Grotesk, DM_Sans, Caveat, Patrick_Hand } from "next/font/google";
-import type { Metadata } from "next";
+import "./manga.css";
+import { Chakra_Petch, Be_Vietnam_Pro, Shippori_Mincho, JetBrains_Mono, Caveat, Patrick_Hand } from "next/font/google";
+import type { Metadata, Viewport } from "next";
 import { SiteNavbar } from "../components/layouts/SiteNavbar";
-import { GridBackground } from "@/components/fun/GridBackground";
+import { NetworkBackground } from "@/components/fun/NetworkBackground";
 import { MascotLayer } from "@/components/fun/MascotLayer";
 import { MascotToolbar } from "@/components/fun/MascotToolbar";
 import { MascotProvider } from "@/context/mascot-context";
@@ -12,6 +13,16 @@ import { RouteAnalytics } from "@/components/RouteAnalytics";
 import NextTopLoader from "nextjs-toploader";
 import { Toaster } from "react-hot-toast";
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION } from "@/lib/site";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover", // env(safe-area-inset-*) become real values on notched phones
+  themeColor: [
+    { media: "(prefers-color-scheme: dark)", color: "#262223" },
+    { media: "(prefers-color-scheme: light)", color: "#ddc6b6" },
+  ],
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -32,18 +43,37 @@ export const metadata: Metadata = {
   },
 };
 
-const heading = Space_Grotesk({
-  subsets: ["latin"],
+/* Headings: angular "mecha HUD" style, full Vietnamese support */
+const heading = Chakra_Petch({
+  subsets: ["latin", "vietnamese"],
   variable: "--font-heading",
+  display: "swap",
+  weight: ["500", "600", "700"],
+});
+
+/* Body: designed in Vietnam, full Vietnamese diacritics */
+const body = Be_Vietnam_Pro({
+  subsets: ["latin", "vietnamese"],
+  variable: "--font-body",
   display: "swap",
   weight: ["400", "500", "600", "700"],
 });
 
-const body = DM_Sans({
+/* Small Japanese labels (思い出, 作品, おわり…) — only the glyphs used get fetched */
+const jp = Shippori_Mincho({
   subsets: ["latin"],
-  variable: "--font-body",
+  variable: "--font-jp",
   display: "swap",
-  weight: ["400", "500", "600", "700"],
+  weight: "700",
+  preload: false,
+});
+
+/* Numbers & tags: EXHIBIT 02 / 05, No.01, tech-debt meter */
+const mono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+  display: "swap",
+  weight: ["400", "700"],
 });
 
 const sketch = Caveat({
@@ -80,10 +110,10 @@ export default function RootLayout({
       </head>
       <body
         suppressHydrationWarning={true}
-        className={`${heading.variable} ${body.variable} ${sketch.variable} ${hand.variable} font-sans antialiased transition-colors duration-1000`}
+        className={`${heading.variable} ${body.variable} ${jp.variable} ${mono.variable} ${sketch.variable} ${hand.variable} font-sans antialiased transition-colors duration-1000`}
       >
-        {/* Living pixel-field background */}
-        <GridBackground />
+        {/* Living service-mesh background */}
+        <NetworkBackground />
         <AuthProvider>
           <ThemeProvider>
             <MascotProvider>

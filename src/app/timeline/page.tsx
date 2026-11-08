@@ -56,9 +56,10 @@ export default function TimelinePage() {
     <main className="min-h-screen px-4 py-12">
       <div className="relative max-w-2xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="secondary-color-text font-heading text-4xl font-bold mb-3">
-            My Journey
+        <div className="mg-head mb-12">
+          <span className="mg-kana">歩み</span>
+          <h1 className="secondary-color-text font-heading text-4xl font-bold mb-5">
+            My <span className="mg-brush">Journey</span>
           </h1>
           <p className="secondary-color-text opacity-60 text-lg">
             Milestones that shaped my path.
@@ -78,11 +79,7 @@ export default function TimelinePage() {
                   <button
                     key={cat}
                     onClick={() => setCategoryFilter(cat)}
-                    className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                      categoryFilter === cat
-                        ? "bg-[rgb(var(--primary-text-rgb))] text-[rgb(var(--primary-bg-rgb))]"
-                        : "bg-white/5 secondary-color-text opacity-50 hover:opacity-80"
-                    }`}
+                    className={`mg-chip ${categoryFilter === cat ? "is-on" : ""}`}
                   >
                     {cat}
                   </button>
@@ -105,13 +102,13 @@ export default function TimelinePage() {
                       className="group relative pl-8 pb-10 last:pb-0"
                     >
                       {/* dot */}
-                      <span className="absolute left-0 top-1 w-[15px] h-[15px] rounded-full border-2 border-[rgb(var(--primary-text-rgb))] bg-[var(--color-primary-bg)] transition-all duration-300 group-hover:shadow-[0_0_14px_rgb(var(--primary-text-rgb)_/_0.45)]" />
+                      <span className="absolute left-[1px] top-1.5 w-[13px] h-[13px] rotate-45 border-2 border-[rgb(var(--primary-text-rgb))] bg-[var(--color-primary-bg)] transition-colors duration-300 group-hover:bg-[rgb(var(--primary-text-rgb))]" />
                       <div className="flex items-center gap-2 flex-wrap mb-1">
                         <span className="secondary-color-text opacity-50 text-xs font-medium uppercase tracking-wider">
                           {formatDate(m.date ?? "")}
                         </span>
                         {m.category && (
-                          <span className="px-2 py-0.5 rounded-full bg-white/[0.06] secondary-color-text opacity-70 text-[10px] uppercase tracking-wider">
+                          <span className="mg-caption !text-[10px]">
                             {m.category}
                           </span>
                         )}

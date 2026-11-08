@@ -335,7 +335,7 @@ export function GalleryGrid({ items: propItems, filter }: GalleryGridProps) {
             {allTags.slice(0, 15).map((tag) => (
               <button
                 key={tag}
-                className="px-3 py-1 bg-white/5 hover:bg-white/10 secondary-color-text rounded-full text-sm transition-colors duration-300"
+                className="mg-chip"
               >
                 #{tag}
               </button>
@@ -356,12 +356,12 @@ export function GalleryGrid({ items: propItems, filter }: GalleryGridProps) {
                 <div
                   key={item.id}
                   onClick={() => setSelectedImage(item)}
-                  className="group relative overflow-hidden rounded-xl cursor-pointer bg-white/5 hover:bg-white/10 transition-all duration-300"
+                  className="group relative overflow-hidden cursor-pointer mg-panel"
                   style={{ aspectRatio: itemStyle.aspectRatio }}
                 >
                   {/* Featured badge */}
                   {item.featured && (
-                    <div className="absolute top-2 right-2 z-10 flex items-center gap-1 px-2 py-1 bg-yellow-500/90 text-white rounded-full text-xs font-semibold shadow-lg">
+                    <div className="absolute top-2.5 right-2.5 z-10 mg-stamp">
                       <FaStar size={8} />
                       Featured
                     </div>
@@ -369,7 +369,7 @@ export function GalleryGrid({ items: propItems, filter }: GalleryGridProps) {
 
                   {/* Category badge */}
                   {item.category && (
-                    <div className="absolute top-2 left-2 z-10 px-2 py-1 bg-black/50 backdrop-blur-sm text-white rounded-full text-xs">
+                    <div className="absolute top-2 left-2 z-10 mg-caption">
                       {item.category}
                     </div>
                   )}
@@ -383,6 +383,9 @@ export function GalleryGrid({ items: propItems, filter }: GalleryGridProps) {
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
                     loading="lazy"
                   />
+
+                  {/* screentone on hover */}
+                  <div className="mg-tone" />
 
                   {/* Overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">

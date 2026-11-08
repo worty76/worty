@@ -34,11 +34,12 @@ function projectCategory(p: Project): string {
   return p.category ?? (p.contributed ? "contribute" : "own");
 }
 
-function CardContent({ project }: { project: Project }) {
+function CardContent({ project, index }: { project: Project; index: number }) {
   return (
     <>
+      <span className="mg-no absolute top-2 right-3">No.{String(index + 1).padStart(2, "0")}</span>
       {/* Thumbnail */}
-      <div className="shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-white/[0.06] flex items-center justify-center">
+      <div className="shrink-0 w-20 h-20 rounded-[3px] overflow-hidden border-2 border-[rgb(var(--primary-text-rgb)_/_0.85)] bg-white/[0.06] flex items-center justify-center">
         {project.imageUrl ? (
           <Image
             src={project.imageUrl}
@@ -62,12 +63,12 @@ function CardContent({ project }: { project: Project }) {
             {project.title}
           </h3>
           {project.contributed && (
-            <span className="shrink-0 text-[9px] font-bold uppercase tracking-wider secondary-color-text opacity-70 bg-white/[0.06] px-2 py-0.5 rounded-full">
+            <span className="shrink-0 mg-caption !text-[9px] !py-0">
               Contributed
             </span>
           )}
           {project.featured && (
-            <span className="shrink-0 text-[9px] font-bold uppercase tracking-wider secondary-color-bg primary-color-text px-2 py-0.5 rounded-full">
+            <span className="shrink-0 mg-stamp">
               Featured
             </span>
           )}
@@ -147,8 +148,11 @@ export default function ProjectsPage() {
   return (
     <main className="min-h-screen">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="mb-12 text-center">
-          <h1 className="secondary-color-text font-heading text-4xl font-bold mb-3">Projects</h1>
+        <div className="mb-12 mg-head">
+          <span className="mg-kana">作品</span>
+          <h1 className="secondary-color-text font-heading text-4xl font-bold mb-5">
+            <span className="mg-brush">Projects</span>
+          </h1>
           <p className="secondary-color-text opacity-60 text-lg">A collection of things I&apos;ve built and tinkered with.</p>
         </div>
 
@@ -162,24 +166,16 @@ export default function ProjectsPage() {
                 <button
                   key={c.key}
                   onClick={() => setCategoryFilter(c.key)}
-                  className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                    categoryFilter === c.key
-                      ? "bg-[rgb(var(--primary-text-rgb))] text-[rgb(var(--primary-bg-rgb))]"
-                      : "bg-white/5 secondary-color-text opacity-50 hover:opacity-80"
-                  }`}
+                  className={`mg-chip ${categoryFilter === c.key ? "is-on" : ""}`}
                 >
                   {c.label}
                 </button>
               ))}
             </div>
 
-            <div className="max-w-3xl mx-auto space-y-4">
-              {visibleProjects.map((project) => {
-              const cardClass = `group flex items-center gap-5 rounded-xl p-6 transition-all duration-200 hover:bg-white/[0.06] cursor-pointer border ${
-                project.featured
-                  ? "border-[rgb(var(--primary-text-rgb)_/_0.25)] hover:border-[rgb(var(--primary-text-rgb)_/_0.45)] bg-white/[0.04]"
-                  : "border-[rgb(var(--primary-text-rgb)_/_0.06)] bg-white/[0.02]"
-              }`;
+            <div className="max-w-3xl mx-auto space-y-5">
+              {visibleProjects.map((project, index) => {
+              const cardClass = "group flex items-center gap-5 p-6 cursor-pointer mg-panel";
 
               // showcase entries without a document keep their external link
               if (!project.id) {
@@ -192,7 +188,7 @@ export default function ProjectsPage() {
                     rel="noopener noreferrer"
                     className={cardClass}
                   >
-                    <CardContent project={project} />
+                    <CardContent project={project} index={index} />
                   </a>
                 );
               }
@@ -203,7 +199,7 @@ export default function ProjectsPage() {
                   href={`/projects/${project.id}`}
                   className={cardClass}
                 >
-                  <CardContent project={project} />
+                  <CardContent project={project} index={index} />
                 </Link>
               );
             })}

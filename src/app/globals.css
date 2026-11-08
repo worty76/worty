@@ -2,6 +2,57 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Interaction & mobile hardening ────────────────────────────────────────
+   Sources: emilkowalski/skills mobile-native + ui-ux-pro-max checklist */
+
+html {
+  /* no gray flash on first tap — tappables carry their own press states */
+  -webkit-tap-highlight-color: transparent;
+  /* don't re-inflate text when the phone rotates */
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Clickables: instant taps, no sticky text selection on long-press.
+   Deliberately NOT on body — users must be able to copy text. */
+button,
+[role="button"],
+a {
+  touch-action: manipulation; /* kills the double-tap zoom wait */
+}
+button,
+[role="button"] {
+  cursor: pointer;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* iOS zooms into (and won't zoom back out of) inputs under 16px */
+@media (pointer: coarse) {
+  input,
+  textarea,
+  select {
+    font-size: 16px;
+  }
+}
+
+/* Keyboard focus is clearly visible, in theme colors — pointer clicks stay clean */
+:focus-visible {
+  outline: 2px solid rgb(var(--primary-text-rgb) / 0.8);
+  outline-offset: 2px;
+}
+
+/* Respect users who ask for less motion: keep the layout, drop the movement */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 :root {
   --color-primary-bg: rgb(38 34 35);
   --color-primary-text: rgb(221 198 182);

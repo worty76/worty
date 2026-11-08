@@ -50,7 +50,7 @@ const MusicCard = memo(
   }) => {
     return (
       <div onClick={onPlay} className="group cursor-pointer">
-        <div className="relative aspect-square rounded-xl overflow-hidden secondary-color-bg/50 mb-3">
+        <div className="relative aspect-square overflow-hidden mb-3 mg-panel">
           <Image
             src={music.coverImage}
             alt={music.title}
@@ -59,6 +59,7 @@ const MusicCard = memo(
             className="object-cover group-hover:scale-105 transition-transform duration-300"
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 200px"
           />
+          <div className="mg-tone" />
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-300 flex items-center justify-center">
             {isCurrentTrack && isPlaying ? (
               <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center opacity-100 scale-100 shadow-lg">
@@ -377,12 +378,12 @@ export default function Music() {
 
       <div className="max-w-5xl mx-auto px-4 py-12 pb-40">
         {/* Header */}
-        <div className="mb-8">
-          <p className="text-xs uppercase tracking-widest secondary-color-text opacity-30 mb-2">
-            Collection
-          </p>
-          <h1 className="text-2xl font-bold secondary-color-text">Favorite Music</h1>
-          <p className="text-sm secondary-color-text opacity-40 mt-1">{filteredMusic.length} tracks</p>
+        <div className="mb-10 mg-head">
+          <span className="mg-kana">音楽</span>
+          <h1 className="font-heading text-4xl font-bold secondary-color-text mb-4">
+            Favorite <span className="mg-brush">Music</span>
+          </h1>
+          <p className="text-sm secondary-color-text opacity-50 mt-1">{filteredMusic.length} tracks</p>
         </div>
 
         {/* Artist filter */}
@@ -392,11 +393,7 @@ export default function Music() {
             <div className="flex flex-wrap gap-2">
               <button
                 onClick={() => setFilterArtist(null)}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                  filterArtist === null
-                    ? "bg-[rgb(var(--primary-text-rgb))] text-[rgb(var(--primary-bg-rgb))]"
-                    : "bg-white/5 secondary-color-text opacity-60 hover:opacity-100"
-                }`}
+                className={`mg-chip ${filterArtist === null ? "is-on" : ""}`}
               >
                 All ({music.length})
               </button>
@@ -404,11 +401,7 @@ export default function Music() {
                 <button
                   key={artist}
                   onClick={() => setFilterArtist(artist)}
-                  className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                    filterArtist === artist
-                      ? "bg-[rgb(var(--primary-text-rgb))] text-[rgb(var(--primary-bg-rgb))]"
-                      : "bg-white/5 secondary-color-text opacity-60 hover:opacity-100"
-                  }`}
+                  className={`mg-chip ${filterArtist === artist ? "is-on" : ""}`}
                 >
                   {artist} ({artistCounts[artist]})
                 </button>
@@ -418,7 +411,7 @@ export default function Music() {
         )}
 
         {/* Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
           {visibleMusic.map((item) => {
             const idx = music.indexOf(item);
             return (
@@ -452,18 +445,18 @@ export default function Music() {
           onClick={handleSeek}
         >
           <div
-            className="h-full bg-amber-500/80 group-hover:bg-amber-500 transition-colors"
+            className="h-full bg-[rgb(var(--primary-text-rgb)_/_0.85)] group-hover:bg-[rgb(var(--primary-text-rgb))] transition-colors"
             style={{ width: duration ? `${(progress / duration) * 100}%` : "0%" }}
           />
         </div>
 
         {/* Controls */}
-        <div className="secondary-color-bg/95 backdrop-blur-xl border-t border-secondary-color-border/10">
+        <div className="primary-color-bg border-t-2 border-[rgb(var(--primary-text-rgb)_/_0.85)]">
           <div className="max-w-5xl mx-auto px-4 py-2.5 flex items-center gap-3">
             {/* Song info */}
             {currentTrack && (
               <div className="flex items-center gap-3 min-w-0 flex-1">
-                <div className="relative w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 shadow-lg">
+                <div className="relative w-10 h-10 rounded-[3px] overflow-hidden flex-shrink-0 border-2 border-[rgb(var(--primary-text-rgb)_/_0.85)]">
                   <Image
                     src={currentTrack.coverImage}
                     alt={currentTrack.title}
@@ -494,7 +487,7 @@ export default function Music() {
               </button>
               <button
                 onClick={handleTogglePlay}
-                className="w-9 h-9 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-colors"
+                className="w-9 h-9 rounded-full flex items-center justify-center border-2 border-[rgb(var(--primary-text-rgb)_/_0.85)] hover:bg-[rgb(var(--primary-text-rgb)_/_0.1)] transition-colors"
               >
                 {isPlaying ? (
                   <FaPause className="secondary-color-text" size={14} />
@@ -541,7 +534,7 @@ export default function Music() {
                 max="100"
                 value={volume}
                 onChange={handleVolumeChange}
-                className="w-20 h-1 accent-amber-500 cursor-pointer"
+                className="w-20 h-1 cursor-pointer accent-[rgb(var(--primary-text-rgb))]"
               />
             </div>
 

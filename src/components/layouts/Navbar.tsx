@@ -37,7 +37,7 @@ export default function Navbar() {
         <div className="flex items-center py-3">
           <button
             onClick={toggleTheme}
-            className="primary-color-bg hover:opacity-80 font-bold py-2 px-4 rounded-xl duration-1000 secondary-color-text border secondary-color-border w-12 h-12 flex items-center justify-center"
+            className="primary-color-bg hover:opacity-80 font-bold py-2 px-4 rounded-xl duration-300 secondary-color-text border secondary-color-border w-12 h-12 flex items-center justify-center"
             aria-label="Toggle theme"
           >
             <FontAwesomeIcon
@@ -52,7 +52,7 @@ export default function Navbar() {
             <Link
               key={link.href}
               href={link.href}
-              className="primary-color-bg hover:opacity-80 font-bold py-2 px-4 rounded-xl duration-1000 secondary-color-text border secondary-color-border w-12 h-12 flex items-center justify-center"
+              className="primary-color-bg hover:opacity-80 font-bold py-2 px-4 rounded-xl duration-300 secondary-color-text border secondary-color-border w-12 h-12 flex items-center justify-center"
               aria-label={link.label}
             >
               <FontAwesomeIcon

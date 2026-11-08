@@ -119,7 +119,7 @@ export default function Page({ params }: { params: { id: string } }) {
         </p>
         <Link
           href="/"
-          className="px-6 py-3 primary-color-bg secondary-color-text border secondary-color-border rounded-full font-medium hover:opacity-80 transition-opacity"
+          className="mg-btn"
         >
           Back to all articles
         </Link>
@@ -131,7 +131,7 @@ export default function Page({ params }: { params: { id: string } }) {
     code({ inline, className, children, ...props }: any) {
       if (!inline) {
         return (
-          <pre className="rounded-md overflow-x-auto primary-color-bg">
+          <pre className="mg-code overflow-x-auto primary-color-bg">
             <code className="block whitespace-pre secondary-color-text text-sm font-mono">
               {children}
             </code>
@@ -257,7 +257,7 @@ export default function Page({ params }: { params: { id: string } }) {
     blockquote({ children, ...props }) {
       return (
         <blockquote
-          className="border-l-4 secondary-color-border pl-4 py-2 my-4 secondary-color-text italic opacity-80 bg-black/10 rounded-r"
+          className="mg-quote secondary-color-text italic"
           {...props}
         >
           {children}
@@ -321,7 +321,7 @@ export default function Page({ params }: { params: { id: string } }) {
       return (
         <div className={isCentered ? "flex justify-center my-6" : "my-6"}>
           <img
-            className="rounded-lg max-w-full h-auto border secondary-color-border shadow-md"
+            className="mg-img max-w-full h-auto"
             loading="lazy"
             alt={alt || "Blog content image"}
             src={src}
@@ -391,8 +391,7 @@ export default function Page({ params }: { params: { id: string } }) {
             {blog.category.map((item, index) => (
               <div
                 key={index}
-                className="px-3 py-1 primary-color-bg secondary-color-text border secondary-color-border
-                          rounded-full text-sm font-medium hover:opacity-80 transition-all duration-1000"
+                className="mg-caption"
               >
                 {item}
               </div>
@@ -446,14 +445,14 @@ export default function Page({ params }: { params: { id: string } }) {
             )}
           </div>
 
-          <p className="mt-3 text-xs font-medium border-l-2 border-[rgb(var(--primary-text-rgb)_/_0.5)] pl-3 secondary-color-text opacity-70">
-            100% human-written by Dat.
+          <p className="mt-4">
+            <span className="mg-stamp">100% human-written by Dat</span>
           </p>
         </div>
       </main>
 
       <div className="my-8 w-full">
-        <div className="aspect-video w-full relative rounded-xl overflow-hidden shadow-2xl max-w-5xl mx-auto">
+        <div className="aspect-video w-full relative overflow-hidden mg-panel mg-static max-w-5xl mx-auto">
           <Image
             src={blog.image}
             fill
@@ -487,7 +486,8 @@ export default function Page({ params }: { params: { id: string } }) {
         </ReactMarkdown>
       </article>
 
-      <div className="mt-8 mb-8 text-center">
+      <div className="mt-12 mb-8 mx-auto max-w-xl text-center mg-panel mg-static px-6 py-8">
+        <span className="mg-end secondary-color-text">おわり</span>
         <h3 className="text-xl font-semibold secondary-color-text mb-4">
           Did you enjoy this article?
         </h3>
@@ -496,9 +496,7 @@ export default function Page({ params }: { params: { id: string } }) {
         </p>
         <Link
           href="/support"
-          className="inline-block px-6 py-3 primary-color-bg secondary-color-text
-                     border secondary-color-border rounded-full font-medium
-                     hover:opacity-80 transition-all duration-500"
+          className="mg-btn mg-btn-ink"
         >
           Support My Work
         </Link>

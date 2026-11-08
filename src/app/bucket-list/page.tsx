@@ -65,19 +65,20 @@ export default function BucketListPage() {
     <main className="min-h-screen px-4 py-12">
       <div className="max-w-2xl mx-auto">
         {/* Header */}
-        <div className="mb-6">
-          <p className="text-xs uppercase tracking-widest secondary-color-text opacity-30 mb-2">Personal</p>
-          <h1 className="secondary-color-text text-2xl font-bold">100 Things To Do Before I Die</h1>
-          <p className="text-sm secondary-color-text opacity-40 mt-1">
+        <div className="mb-8 mg-head">
+          <span className="mg-kana">やりたいこと</span>
+          <h1 className="secondary-color-text font-heading text-3xl md:text-4xl font-bold mb-4">
+            100 Things To Do <span className="mg-brush">Before I Die</span>
+          </h1>
+          <p className="text-sm secondary-color-text opacity-50 mt-1">
             {completedCount} of {totalCount} completed
           </p>
         </div>
 
         {/* Progress bar */}
         <div className="mb-8">
-          <div className="w-full h-1 rounded-full bg-white/5 overflow-hidden">
+          <div className="mg-bar">
             <div
-              className="h-full rounded-full transition-all duration-500 secondary-color-bg"
               style={{ width: `${percentage}%` }}
             />
           </div>
@@ -91,11 +92,7 @@ export default function BucketListPage() {
               <button
                 key={s}
                 onClick={() => setStatusFilter(s)}
-                className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                  statusFilter === s
-                    ? "bg-[rgb(var(--primary-text-rgb))] text-[rgb(var(--primary-bg-rgb))]"
-                    : "bg-white/5 secondary-color-text opacity-50 hover:opacity-80"
-                }`}
+                className={`mg-chip ${statusFilter === s ? "is-on" : ""}`}
               >
                 {s}
               </button>
@@ -108,11 +105,7 @@ export default function BucketListPage() {
                 <button
                   key={cat}
                   onClick={() => setCategoryFilter(cat)}
-                  className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                    categoryFilter === cat
-                      ? "bg-[rgb(var(--primary-text-rgb))] text-[rgb(var(--primary-bg-rgb))]"
-                      : "bg-white/5 secondary-color-text opacity-50 hover:opacity-80"
-                  }`}
+                  className={`mg-chip ${categoryFilter === cat ? "is-on" : ""}`}
                 >
                   {cat}
                 </button>
@@ -129,26 +122,26 @@ export default function BucketListPage() {
             filtered.map((item) => (
               <div
                 key={item.id}
-                className="flex items-center gap-3 py-2.5 px-2 rounded-lg hover:bg-white/[0.03] transition-colors"
+                className="flex items-center gap-3 py-3 px-2 border-b border-dashed border-[rgb(var(--primary-text-rgb)_/_0.15)] hover:bg-white/[0.03] transition-colors"
               >
                 {/* Check */}
                 {item.completed ? (
-                  <span className="shrink-0 secondary-color-text opacity-70"><FaCheck size={10} /></span>
+                  <span className="mg-check is-done"><FaCheck size={9} /></span>
                 ) : (
-                  <span className="shrink-0 w-2.5 h-2.5 rounded-full border border-[rgb(var(--primary-text-rgb)_/_0.2)]" />
+                  <span className="mg-check" />
                 )}
 
                 {/* Title */}
                 <span className={`flex-1 text-sm ${
                   item.completed
-                    ? "secondary-color-text opacity-45"
+                    ? "secondary-color-text opacity-45 line-through decoration-[rgb(var(--primary-text-rgb)_/_0.5)]"
                     : "secondary-color-text"
                 }`}>
                   {item.title}
                 </span>
 
                 {/* Category */}
-                <span className="shrink-0 px-2 py-0.5 rounded text-[10px] bg-white/5 secondary-color-text opacity-40">
+                <span className="shrink-0 mg-caption !text-[10px] !font-semibold opacity-70">
                   {item.category}
                 </span>
               </div>

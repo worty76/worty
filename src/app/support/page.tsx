@@ -24,19 +24,22 @@ export default function Support() {
   return (
     <main className="w-[95%] max-w-[1100px] mx-auto">
       <div className="max-w-3xl mx-auto px-4 py-16">
-        <p className="text-center mb-12 secondary-color-text duration-1000">
-          If you find my work helpful, you can support me through these channels
-        </p>
+        <div className="mg-head mb-12">
+          <span className="mg-kana">応援</span>
+          <p className="secondary-color-text duration-1000">
+            If you find my work helpful, you can support me through these channels
+          </p>
+        </div>
 
         <div className="space-y-4">
           {myBanks.map((bank, index) => (
             <div
               key={index}
-              className="rounded-lg shadow-md p-6 transition-all hover:shadow-lg duration-1000 cursor-pointer secondary-color-border"
+              className="mg-panel p-6 cursor-pointer"
               onClick={() => handleCopy(bank.clipboard)}
             >
               <div className="flex items-center space-x-4">
-                <div className="p-3 rounded-lg">
+                <div className="p-2 rounded-[3px] border-2 border-[rgb(var(--primary-text-rgb)_/_0.8)] bg-white">
                   <Image
                     src={bank.bankLogo}
                     width={48}
@@ -49,8 +52,8 @@ export default function Support() {
                   <p className="font-medium secondary-color-text duration-1000">
                     {bank.message}
                   </p>
-                  <p className="text-sm mt-1 secondary-color-text duration-1000">
-                    Click to copy
+                  <p className="mt-2">
+                    <span className="mg-caption !text-[10px]">Click to copy</span>
                   </p>
                 </div>
               </div>
@@ -58,7 +61,8 @@ export default function Support() {
           ))}
         </div>
 
-        <div className="mt-12 text-center">
+        <div className="mt-14 text-center">
+          <span className="mg-end secondary-color-text">ありがとう</span>
           <p className="text-2xl font-medium secondary-color-text duration-1000">
             Thanks for Your Support! 🙏
           </p>

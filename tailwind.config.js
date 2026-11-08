@@ -42,6 +42,11 @@ module.exports = {
       },
     },
   },
+  /* hover: styles only fire on devices that can actually hover —
+     fixes sticky :hover after the first tap on touch screens */
+  future: {
+    hoverOnlyWhenSupported: true,
+  },
   plugins: [],
   darkMode: "class"
 };

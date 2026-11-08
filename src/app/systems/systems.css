@@ -1,0 +1,198 @@
+/* /systems — the display hall overlay (pairs with manga.css pieces) */
+
+.sys-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 50% 45%, transparent 55%, rgb(var(--primary-bg-rgb) / 0.75) 100%),
+    linear-gradient(to top, rgb(var(--primary-bg-rgb) / 0.55), transparent 30%);
+}
+
+.sys-back {
+  position: absolute;
+  top: calc(18px + env(safe-area-inset-top));
+  left: 18px;
+  z-index: 10;
+  padding: 6px 14px;
+  font-size: 13px;
+  animation: sys-drop 0.6s 0.3s both cubic-bezier(0.2, 1.4, 0.4, 1);
+}
+
+.sys-title {
+  position: absolute;
+  top: calc(22px + env(safe-area-inset-top));
+  left: 50%;
+  z-index: 10;
+  transform: translateX(-50%);
+  text-align: center;
+  pointer-events: none;
+  animation: sys-fade 1.2s 0.6s both ease-out;
+}
+.sys-title h1 {
+  font-family: var(--font-heading), sans-serif;
+  font-size: clamp(1.25rem, 2.4vw, 1.75rem);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+/* plaque */
+.sys-plaque {
+  position: absolute;
+  left: 22px;
+  bottom: 22px;
+  z-index: 10;
+  width: min(400px, calc(100vw - 44px));
+  padding: 16px 18px 18px;
+  overflow: hidden;
+  animation: sys-rise 0.8s 1.6s both cubic-bezier(0.2, 1.1, 0.3, 1);
+}
+.sys-plaque-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.sys-dots {
+  display: flex;
+  gap: 6px;
+}
+.sys-dots button {
+  width: 9px;
+  height: 9px;
+  border: 1.5px solid rgb(var(--primary-text-rgb) / 0.7);
+  transform: rotate(45deg);
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+.sys-dots button:hover {
+  transform: rotate(45deg) scale(1.2);
+}
+.sys-dots button.is-on {
+  background: var(--color-primary-text);
+}
+
+/* copy: re-mounts per exhibit → staggered ink-reveal */
+.sys-copy h2 {
+  font-family: var(--font-heading), sans-serif;
+  font-size: 1.55rem;
+  font-weight: 700;
+  line-height: 1.15;
+  animation: sys-wipe 0.6s 0.15s both cubic-bezier(0.6, 0, 0.2, 1);
+}
+.sys-copy p {
+  margin-top: 8px;
+  font-size: 0.92rem;
+  line-height: 1.6;
+  opacity: 0.85;
+  animation: sys-up 0.55s 0.35s both ease-out;
+}
+.sys-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 12px;
+}
+.sys-tags > * {
+  animation: sys-pop 0.4s both cubic-bezier(0.2, 1.6, 0.4, 1);
+}
+.sys-tags > *:nth-child(1) { animation-delay: 0.5s; }
+.sys-tags > *:nth-child(2) { animation-delay: 0.58s; }
+.sys-tags > *:nth-child(3) { animation-delay: 0.66s; }
+.sys-tags > *:nth-child(4) { animation-delay: 0.74s; }
+
+.sys-controls {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+.sys-controls .mg-btn {
+  padding: 7px 14px;
+  font-size: 13px;
+}
+
+/* autoplay timer along the bottom edge */
+.sys-timer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  background: rgb(var(--primary-text-rgb) / 0.12);
+}
+.sys-timer > div {
+  height: 100%;
+  background: var(--color-primary-text);
+  transform-origin: left;
+  animation-name: sys-timer;
+  animation-timing-function: linear;
+  animation-fill-mode: both;
+}
+.sys-plaque:hover .sys-timer > div {
+  animation-play-state: paused;
+}
+
+.sys-hint {
+  position: absolute;
+  right: 20px;
+  bottom: 22px;
+  z-index: 10;
+  max-width: 260px;
+  text-align: right;
+  font-size: 11px;
+  line-height: 1.6;
+  opacity: 0.6;
+  pointer-events: none;
+  animation: sys-fade 1s 2.4s both;
+}
+
+@keyframes sys-drop {
+  from { opacity: 0; transform: translateY(-14px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes sys-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes sys-rise {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes sys-wipe {
+  from { clip-path: inset(0 100% 0 0); transform: translateX(-6px); }
+  to { clip-path: inset(0 0 0 0); transform: none; }
+}
+@keyframes sys-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 0.85; transform: none; }
+}
+@keyframes sys-pop {
+  from { opacity: 0; transform: scale(0.6) rotate(-4deg); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes sys-timer {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+@media (max-width: 640px) {
+  .sys-title {
+    top: calc(70px + env(safe-area-inset-top));
+  }
+  .sys-plaque {
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    width: auto;
+    padding: 14px 14px 16px;
+  }
+  .sys-copy h2 {
+    font-size: 1.3rem;
+  }
+  .sys-copy p {
+    font-size: 0.86rem;
+  }
+  .sys-hint {
+    display: none;
+  }
+}

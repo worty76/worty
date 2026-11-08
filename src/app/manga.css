@@ -1,0 +1,311 @@
+/* =====================================================================
+   Manga touches — ink on paper.
+   Only the two theme colours are used: "ink" = --primary-text-rgb,
+   "paper" = --primary-bg-rgb, so both themes read like a printed page.
+   ===================================================================== */
+
+/* headings top out at 700 — don't let the browser fake heavier weights */
+h1, h2, h3, h4, h5, h6, .font-heading {
+  font-synthesis: none;
+}
+
+/* ---------- page heading: small kana, brush underline, screentone ---------- */
+.mg-head {
+  position: relative;
+  isolation: isolate;
+  text-align: center;
+}
+.mg-head::before {
+  /* screentone patch behind the title */
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: 50%;
+  top: 50%;
+  width: min(520px, 90vw);
+  height: 170px;
+  transform: translate(-50%, -56%);
+  background: radial-gradient(circle, rgb(var(--primary-text-rgb) / 0.16) 1.1px, transparent 1.5px) 0 0 / 7px 7px;
+  -webkit-mask-image: radial-gradient(ellipse at center, #000 10%, transparent 68%);
+  mask-image: radial-gradient(ellipse at center, #000 10%, transparent 68%);
+  pointer-events: none;
+}
+.mg-kana {
+  display: block;
+  margin-bottom: 6px;
+  font-family: var(--font-jp), "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.5em;
+  margin-right: -0.5em;
+  color: rgb(var(--primary-text-rgb) / 0.55);
+}
+.mg-brush {
+  position: relative;
+  display: inline-block;
+}
+.mg-brush::after {
+  /* tapered ink stroke under the word */
+  content: "";
+  position: absolute;
+  left: -4%;
+  right: -4%;
+  bottom: -0.18em;
+  height: 0.3em;
+  background: currentColor;
+  opacity: 0.85;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 20' preserveAspectRatio='none'%3E%3Cpath d='M3 13C30 7 80 4 197 6c3 1 2 3-1 3C140 11 70 15 6 17c-4 0-6-3-3-4z'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 20' preserveAspectRatio='none'%3E%3Cpath d='M3 13C30 7 80 4 197 6c3 1 2 3-1 3C140 11 70 15 6 17c-4 0-6-3-3-4z'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+  pointer-events: none;
+}
+
+/* ---------- panels: hard ink border + offset print shadow ---------- */
+.mg-panel {
+  position: relative;
+  border: 2px solid rgb(var(--primary-text-rgb) / 0.85);
+  border-radius: 4px;
+  background: var(--color-primary-bg);
+  box-shadow: 4px 4px 0 rgb(var(--primary-text-rgb) / 0.85);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.mg-panel:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 7px 7px 0 rgb(var(--primary-text-rgb) / 0.9);
+}
+.mg-panel:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 rgb(var(--primary-text-rgb) / 0.9);
+}
+
+/* screentone that fades in over pictures on hover */
+.mg-tone {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, rgb(0 0 0 / 0.45) 1.2px, transparent 1.7px) 0 0 / 6px 6px;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  pointer-events: none;
+}
+.group:hover .mg-tone {
+  opacity: 1;
+}
+
+/* panel number, like a page/panel counter */
+.mg-no {
+  font-family: var(--font-mono), ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: rgb(var(--primary-text-rgb) / 0.45);
+}
+
+/* ---------- captions & stamps ---------- */
+.mg-caption {
+  /* manga narration box: paper box, ink border */
+  display: inline-block;
+  padding: 2px 8px;
+  border: 1.5px solid rgb(var(--primary-text-rgb) / 0.85);
+  background: var(--color-primary-bg);
+  color: var(--color-primary-text);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1.5;
+}
+.mg-stamp {
+  /* inked stamp, slightly crooked */
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 7px;
+  border: 1.5px solid var(--color-primary-text);
+  background: var(--color-primary-text);
+  color: var(--color-primary-bg);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  line-height: 1.6;
+  transform: rotate(-3deg);
+  box-shadow: 2px 2px 0 rgb(var(--primary-text-rgb) / 0.35);
+}
+
+/* ---------- filter chips: little panels ---------- */
+.mg-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  border: 1.5px solid rgb(var(--primary-text-rgb) / 0.35);
+  border-radius: 3px;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgb(var(--primary-text-rgb) / 0.75);
+  background: var(--color-primary-bg);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.mg-chip:hover {
+  color: var(--color-primary-text);
+  border-color: rgb(var(--primary-text-rgb) / 0.85);
+}
+.mg-chip.is-on {
+  color: var(--color-primary-bg);
+  background: var(--color-primary-text);
+  border-color: var(--color-primary-text);
+  box-shadow: 3px 3px 0 rgb(var(--primary-text-rgb) / 0.35);
+  transform: translate(-1px, -1px);
+}
+
+/* homepage: avatar framed like a panel (keeps the original hover-grow) */
+.mg-frame {
+  border: 2px solid rgb(var(--primary-text-rgb) / 0.85);
+  border-radius: 6px;
+  box-shadow: 5px 5px 0 rgb(var(--primary-text-rgb) / 0.85);
+}
+.mg-frame img,
+.mg-frame > div {
+  border-radius: 4px !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mg-panel,
+  .mg-chip {
+    transition: none;
+  }
+}
+
+/* ---------- more pieces for detail / list pages ---------- */
+
+/* big panels that shouldn't jump on hover (hero images, stat boxes) */
+.mg-static:hover,
+.mg-static:active {
+  transform: none;
+  box-shadow: 4px 4px 0 rgb(var(--primary-text-rgb) / 0.85);
+}
+
+/* buttons: outline panel, or solid ink */
+.mg-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 18px;
+  border: 2px solid rgb(var(--primary-text-rgb) / 0.85);
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-primary-text);
+  background: var(--color-primary-bg);
+  box-shadow: 3px 3px 0 rgb(var(--primary-text-rgb) / 0.85);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.mg-btn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 5px 5px 0 rgb(var(--primary-text-rgb) / 0.9);
+}
+.mg-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 rgb(var(--primary-text-rgb) / 0.9);
+}
+.mg-btn-ink {
+  color: var(--color-primary-bg);
+  background: var(--color-primary-text);
+  box-shadow: 3px 3px 0 rgb(var(--primary-text-rgb) / 0.35);
+}
+.mg-btn-ink:hover {
+  box-shadow: 5px 5px 0 rgb(var(--primary-text-rgb) / 0.4);
+}
+
+/* section heading with an ink diamond, like a chapter mark */
+.mg-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.mg-section::before {
+  content: "";
+  width: 9px;
+  height: 9px;
+  flex: none;
+  background: var(--color-primary-text);
+  transform: rotate(45deg);
+}
+.mg-section::after {
+  content: "";
+  flex: 1;
+  height: 0;
+  border-top: 1.5px dashed rgb(var(--primary-text-rgb) / 0.3);
+}
+
+/* square ink checkbox */
+.mg-check {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid rgb(var(--primary-text-rgb) / 0.8);
+  border-radius: 2px;
+}
+.mg-check.is-done {
+  background: var(--color-primary-text);
+  color: var(--color-primary-bg);
+}
+
+/* narration box for quotes */
+.mg-quote {
+  position: relative;
+  margin: 1.6rem 0;
+  padding: 14px 18px;
+  border: 2px solid rgb(var(--primary-text-rgb) / 0.85);
+  background: var(--color-primary-bg);
+  box-shadow: 4px 4px 0 rgb(var(--primary-text-rgb) / 0.25);
+}
+
+/* framed pictures and code inside articles */
+.mg-img {
+  border: 2px solid rgb(var(--primary-text-rgb) / 0.85);
+  border-radius: 4px;
+  box-shadow: 5px 5px 0 rgb(var(--primary-text-rgb) / 0.85);
+}
+.mg-code {
+  border: 2px solid rgb(var(--primary-text-rgb) / 0.75);
+  border-radius: 4px !important;
+  box-shadow: 4px 4px 0 rgb(var(--primary-text-rgb) / 0.3);
+}
+
+/* progress bar: ink fill with hatching, inside a thin frame */
+.mg-bar {
+  height: 10px;
+  padding: 2px;
+  border: 1.5px solid rgb(var(--primary-text-rgb) / 0.8);
+  border-radius: 2px;
+}
+.mg-bar > div {
+  height: 100%;
+  background: repeating-linear-gradient(-45deg, var(--color-primary-text) 0 3px, rgb(var(--primary-text-rgb) / 0.55) 3px 5px);
+  transition: width 0.5s ease;
+}
+
+/* "the end" mark */
+.mg-end {
+  display: block;
+  font-family: var(--font-jp), "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.4em;
+  margin-right: -0.4em;
+  margin-bottom: 4px;
+  opacity: 0.8;
+}
+
+/* homepage: link to the archived v1 site */
+.old-site-link {
+  opacity: 0.6;
+  transition: opacity 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+.old-site-link:hover {
+  opacity: 1;
+  transform: translate(-1px, -1px) rotate(-1.5deg);
+  box-shadow: 3px 3px 0 rgb(var(--primary-text-rgb) / 0.6);
+}

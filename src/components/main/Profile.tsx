@@ -35,7 +35,7 @@ export const Profile = () => {
 
   return (
     <div className="flex items-center">
-      <div className="relative w-[150px] h-[150px] md:hover:w-[256px] md:hover:h-[256px] duration-1000">
+      <div className="mg-frame relative w-[150px] h-[150px] md:hover:w-[256px] md:hover:h-[256px] duration-300">
         {loading ? (
           <div className="absolute inset-0 rounded-xl bg-white/[0.06] border border-[rgb(var(--primary-text-rgb)_/_0.15)] flex items-center justify-center">
             <div className="w-8 h-8 border-[3px] border-[rgb(var(--primary-text-rgb))] border-t-transparent rounded-full animate-spin opacity-60" />
@@ -70,7 +70,7 @@ export const Profile = () => {
             >
               <FontAwesomeIcon
                 icon={icon}
-                className="cursor-pointer duration-1000 rounded-md hover:opacity-80"
+                className="cursor-pointer duration-300 rounded-md hover:opacity-80"
                 style={{
                   color: "var(--color-primary-text)",
                   width: "20px",

@@ -10,6 +10,7 @@ import Navbar from "./Navbar";
  */
 export function SiteNavbar() {
   const pathname = usePathname();
-  if (pathname?.startsWith("/admin")) return null;
+  // /journey is a full-screen story with its own HUD
+  if (pathname?.startsWith("/admin") || pathname?.startsWith("/journey")) return null;
   return <Navbar />;
 }

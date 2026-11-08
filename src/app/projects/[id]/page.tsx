@@ -75,7 +75,7 @@ export default function ProjectDetailPage({
         </p>
         <Link
           href="/projects"
-          className="px-6 py-3 primary-color-bg secondary-color-text border secondary-color-border rounded-full font-medium hover:opacity-80 transition-opacity"
+          className="mg-btn"
         >
           Back to projects
         </Link>
@@ -114,7 +114,7 @@ export default function ProjectDetailPage({
 
       {/* Hero image — spans wider than the text column on large screens */}
       {project.imageUrl && (
-        <div className="relative aspect-video rounded-2xl overflow-hidden shadow-2xl mb-8 max-w-6xl mx-auto w-full">
+        <div className="relative aspect-video overflow-hidden mg-panel mg-static mb-10 max-w-6xl mx-auto w-full">
           <Image
             src={project.imageUrl}
             alt={project.title ?? "Project"}
@@ -134,7 +134,7 @@ export default function ProjectDetailPage({
             {project.title}
           </h1>
           {project.contributed && (
-            <span className="px-3 py-1 rounded-full text-xs font-semibold secondary-color-bg primary-color-text">
+            <span className="mg-stamp">
               Contributed
             </span>
           )}
@@ -152,7 +152,7 @@ export default function ProjectDetailPage({
               href={project.githubUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border secondary-color-border secondary-color-text text-sm font-medium hover:bg-white/[0.06] transition-colors"
+              className="mg-btn"
             >
               <FaGithub /> Source code
             </a>
@@ -162,7 +162,7 @@ export default function ProjectDetailPage({
               href={project.liveUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl secondary-color-bg primary-color-text text-sm font-semibold hover:opacity-90 transition-opacity"
+              className="mg-btn mg-btn-ink"
             >
               <FaExternalLinkAlt size={12} /> Live demo
             </a>
@@ -175,9 +175,9 @@ export default function ProjectDetailPage({
             {stats.map((s) => (
               <div
                 key={s.label}
-                className="rounded-2xl border border-[rgb(var(--primary-text-rgb)_/_0.1)] bg-white/[0.03] p-5 flex items-center gap-4"
+                className="mg-panel mg-static p-5 flex items-center gap-4"
               >
-                <span className="w-10 h-10 rounded-xl bg-white/[0.06] flex items-center justify-center secondary-color-text opacity-70">
+                <span className="w-10 h-10 rounded-[3px] border-2 border-[rgb(var(--primary-text-rgb)_/_0.8)] flex items-center justify-center secondary-color-text">
                   {s.icon}
                 </span>
                 <div>
@@ -194,7 +194,7 @@ export default function ProjectDetailPage({
         {/* Contributions (contributed projects) */}
         {project.contributed && (
           <section className="mb-10">
-            <h2 className="secondary-color-text font-heading text-xl font-bold mb-4">
+            <h2 className="mg-section secondary-color-text font-heading text-xl font-bold mb-4">
               My contributions
             </h2>
             {project.myRole && (
@@ -206,8 +206,8 @@ export default function ProjectDetailPage({
               <ul className="space-y-3">
                 {contributions.map((c, i) => (
                   <li key={i} className="flex items-start gap-3">
-                    <span className="mt-1.5 shrink-0 w-5 h-5 rounded-full bg-white/[0.06] border border-[rgb(var(--primary-text-rgb)_/_0.15)] flex items-center justify-center">
-                      <FaCheck size={9} className="secondary-color-text opacity-70" />
+                    <span className="mt-1 mg-check is-done">
+                      <FaCheck size={9} />
                     </span>
                     <span className="secondary-color-text opacity-85 leading-relaxed">{c}</span>
                   </li>
@@ -220,14 +220,14 @@ export default function ProjectDetailPage({
         {/* Features (own projects) */}
         {!project.contributed && features.length > 0 && (
           <section className="mb-10">
-            <h2 className="secondary-color-text font-heading text-xl font-bold mb-4">
+            <h2 className="mg-section secondary-color-text font-heading text-xl font-bold mb-4">
               What it does
             </h2>
             <ul className="space-y-3">
               {features.map((f, i) => (
                 <li key={i} className="flex items-start gap-3">
-                  <span className="mt-1.5 shrink-0 w-5 h-5 rounded-full bg-white/[0.06] border border-[rgb(var(--primary-text-rgb)_/_0.15)] flex items-center justify-center">
-                    <FaCheck size={9} className="secondary-color-text opacity-70" />
+                  <span className="mt-1 mg-check is-done">
+                    <FaCheck size={9} />
                   </span>
                   <span className="secondary-color-text opacity-85 leading-relaxed">{f}</span>
                 </li>
@@ -239,14 +239,14 @@ export default function ProjectDetailPage({
         {/* Tech stack */}
         {techStack.length > 0 && (
           <section className="mb-4">
-            <h2 className="secondary-color-text font-heading text-xl font-bold mb-4">
+            <h2 className="mg-section secondary-color-text font-heading text-xl font-bold mb-4">
               Built with
             </h2>
             <div className="flex flex-wrap gap-2">
               {techStack.map((t) => (
                 <span
                   key={t}
-                  className="px-3 py-1.5 rounded-lg bg-white/[0.05] border border-[rgb(var(--primary-text-rgb)_/_0.1)] secondary-color-text opacity-80 text-sm"
+                  className="mg-chip"
                 >
                   {t}
                 </span>

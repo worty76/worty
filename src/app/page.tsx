@@ -3,6 +3,7 @@
 import { Profile } from "@/components/main/Profile";
 import Blog from "./(blog)";
 import Link from "next/link";
+import { OLD_SITE_URL } from "@/lib/site";
 
 export default function Home() {
   return (
@@ -46,17 +47,32 @@ export default function Home() {
       </section>
 
       <section className="mt-5">
-        <h2 className="duration-1000 secondary-color-text">My articles:</h2>
+        <h2 className="duration-1000 secondary-color-text">
+          My <span className="mg-brush">articles</span>:
+        </h2>
         <Blog />
       </section>
 
-      {/* Systems link */}
+      {/* link to the archived first version of the site */}
+      <p className="mt-16 mb-4 text-center">
+        <a
+          href={OLD_SITE_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="old-site-link mg-caption"
+          title="The first version of this site"
+        >
+          旧版 · old version (v1) ↗
+        </a>
+      </p>
+
+      {/* Display hall link */}
       <Link
         href="/systems"
         className="fixed bottom-44 right-8 flex items-center gap-2 group secondary-color-text duration-1000"
       >
-        <span className="hidden md:block text-sm opacity-70 group-hover:opacity-100 transition-opacity duration-1000">
-          how I see distributed systems
+        <span className="hidden md:block text-sm opacity-70 group-hover:opacity-100 transition-opacity duration-300">
+          the display hall
         </span>
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -68,7 +84,7 @@ export default function Home() {
           strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
-          className="transform transition-transform duration-1000 group-hover:translate-x-1 hidden md:block "
+          className="transform transition-transform duration-300 group-hover:translate-x-1 hidden md:block "
         >
           <rect x="3" y="3" width="7" height="7" rx="1" />
           <rect x="14" y="3" width="7" height="7" rx="1" />
@@ -83,7 +99,7 @@ export default function Home() {
         href="/journey"
         className="fixed bottom-32 right-8 flex items-center gap-2 group secondary-color-text duration-1000"
       >
-        <span className="hidden md:block text-sm opacity-70 group-hover:opacity-100 transition-opacity duration-1000">
+        <span className="hidden md:block text-sm opacity-70 group-hover:opacity-100 transition-opacity duration-300">
           walk through my story
         </span>
         <svg
@@ -96,7 +112,7 @@ export default function Home() {
           strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
-          className="transform transition-transform duration-1000 group-hover:translate-x-1 hidden md:block "
+          className="transform transition-transform duration-300 group-hover:translate-x-1 hidden md:block "
         >
           <path d="M5 12h14" />
           <path d="m12 5 7 7-7 7" />
@@ -108,7 +124,7 @@ export default function Home() {
         href="/timeline"
         className="fixed bottom-20 right-8 flex items-center gap-2 group secondary-color-text duration-1000"
       >
-        <span className="hidden md:block text-sm opacity-70 group-hover:opacity-100 transition-opacity duration-1000">
+        <span className="hidden md:block text-sm opacity-70 group-hover:opacity-100 transition-opacity duration-300">
           my journey
         </span>
         <svg
@@ -121,7 +137,7 @@ export default function Home() {
           strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
-          className="transform transition-transform duration-1000 group-hover:translate-x-1 hidden md:block "
+          className="transform transition-transform duration-300 group-hover:translate-x-1 hidden md:block "
         >
           <path d="M5 12h14" />
           <path d="m12 5 7 7-7 7" />
@@ -132,7 +148,7 @@ export default function Home() {
         href="/music"
         className="fixed bottom-8 right-8 flex items-center gap-2 group secondary-color-text duration-1000"
       >
-        <span className="hidden md:block text-sm opacity-70 group-hover:opacity-100 transition-opacity duration-1000">
+        <span className="hidden md:block text-sm opacity-70 group-hover:opacity-100 transition-opacity duration-300">
           my favorite musics
         </span>
         <svg
@@ -145,7 +161,7 @@ export default function Home() {
           strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
-          className="transform transition-transform duration-1000 group-hover:translate-x-1 hidden md:block "
+          className="transform transition-transform duration-300 group-hover:translate-x-1 hidden md:block "
         >
           <path d="M5 12h14" />
           <path d="m12 5 7 7-7 7" />
