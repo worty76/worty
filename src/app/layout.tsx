@@ -30,7 +30,13 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
   },
+  // v1 is an archived copy of the site — keep it out of search results so it
+  // never competes with the current site at worty.id.vn
+  robots: { index: false, follow: false },
 };
+
+/** where the current site lives */
+const CURRENT_SITE = "https://worty.id.vn";
 
 const heading = Space_Grotesk({
   subsets: ["latin"],
@@ -82,6 +88,16 @@ export default function RootLayout({
         suppressHydrationWarning={true}
         className={`${heading.variable} ${body.variable} ${sketch.variable} ${hand.variable} font-sans antialiased transition-colors duration-1000`}
       >
+        {/* archive banner — this is the old version of the site */}
+        <div className="relative z-50 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 border-b border-[rgb(var(--primary-text-rgb)_/_0.2)] bg-[rgb(var(--primary-text-rgb)_/_0.08)] px-4 py-2 text-center text-xs secondary-color-text">
+          <span className="opacity-80">You&apos;re viewing the old version of this site (v1 · 2025).</span>
+          <a
+            href={CURRENT_SITE}
+            className="font-semibold underline underline-offset-2 hover:opacity-80"
+          >
+            See the new site →
+          </a>
+        </div>
         {/* Living pixel-field background */}
         <GridBackground />
         <AuthProvider>

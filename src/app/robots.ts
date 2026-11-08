@@ -1,13 +1,11 @@
 import type { MetadataRoute } from "next";
-import { SITE_URL } from "@/lib/site";
 
+/** v1 is an archive: ask every crawler to stay away (the current site is worty.id.vn) */
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
       userAgent: "*",
-      allow: "/",
-      disallow: "/admin",
+      disallow: "/",
     },
-    sitemap: `${SITE_URL}/sitemap.xml`,
   };
 }
