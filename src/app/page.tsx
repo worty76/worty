@@ -3,7 +3,7 @@
 import { Profile } from "@/components/main/Profile";
 import Blog from "./(blog)";
 import Link from "next/link";
-import { OLD_SITE_URL } from "@/lib/site";
+import { OLD_SITE_URL, JOURNEY_ENABLED } from "@/lib/site";
 
 export default function Home() {
   return (
@@ -94,30 +94,34 @@ export default function Home() {
         </svg>
       </Link>
 
-      {/* Story link */}
-      <Link
-        href="/journey"
-        className="fixed bottom-32 right-8 flex items-center gap-2 group secondary-color-text duration-1000"
-      >
-        <span className="hidden md:block text-sm opacity-70 group-hover:opacity-100 transition-opacity duration-300">
-          walk through my story
-        </span>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="transform transition-transform duration-300 group-hover:translate-x-1 hidden md:block "
-        >
-          <path d="M5 12h14" />
-          <path d="m12 5 7 7-7 7" />
-        </svg>
-      </Link>
+      {JOURNEY_ENABLED && (
+        <>
+          {/* Story link */}
+          <Link
+            href="/journey"
+            className="fixed bottom-32 right-8 flex items-center gap-2 group secondary-color-text duration-1000"
+          >
+            <span className="hidden md:block text-sm opacity-70 group-hover:opacity-100 transition-opacity duration-300">
+              walk through my story
+            </span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="transform transition-transform duration-300 group-hover:translate-x-1 hidden md:block "
+            >
+              <path d="M5 12h14" />
+              <path d="m12 5 7 7-7 7" />
+            </svg>
+          </Link>
+        </>
+      )}
 
       {/* Journey link */}
       <Link

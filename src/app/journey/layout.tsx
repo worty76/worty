@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { JOURNEY_ENABLED } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "The Road So Far — my journey",
@@ -6,5 +8,6 @@ export const metadata: Metadata = {
 };
 
 export default function JourneyLayout({ children }: { children: React.ReactNode }) {
+  if (!JOURNEY_ENABLED) notFound();
   return children;
 }
