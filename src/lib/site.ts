@@ -11,3 +11,6 @@ export const SITE_DESCRIPTION =
 
 /** flip to true to bring back the /journey page and its homepage button */
 export const JOURNEY_ENABLED = false;
+
+/** flip to true to bring back the display hall (/systems) homepage button */
+export const DISPLAY_HALL_ENABLED = false;

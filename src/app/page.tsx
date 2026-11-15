@@ -3,7 +3,7 @@
 import { Profile } from "@/components/main/Profile";
 import Blog from "./(blog)";
 import Link from "next/link";
-import { OLD_SITE_URL, JOURNEY_ENABLED } from "@/lib/site";
+import { OLD_SITE_URL, JOURNEY_ENABLED, DISPLAY_HALL_ENABLED } from "@/lib/site";
 
 export default function Home() {
   return (
@@ -53,46 +53,48 @@ export default function Home() {
         <Blog />
       </section>
 
-      {/* link to the archived first version of the site */}
-      <p className="mt-16 mb-4 text-center">
-        <a
-          href={OLD_SITE_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="old-site-link mg-caption"
-          title="The first version of this site"
-        >
-          旧版 · old version (v1) ↗
-        </a>
-      </p>
-
-      {/* Display hall link */}
-      <Link
-        href="/systems"
-        className="fixed bottom-44 right-8 flex items-center gap-2 group secondary-color-text duration-1000"
+      {/* archived first version — a quiet footnote in the corner, easy to miss */}
+      <a
+        href={OLD_SITE_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        title="The first version of this site"
+        className="fixed left-5 bottom-20 z-10 text-[10px] secondary-color-text opacity-35 hover:opacity-80 transition-opacity duration-300"
       >
-        <span className="hidden md:block text-sm opacity-70 group-hover:opacity-100 transition-opacity duration-300">
-          the display hall
-        </span>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="transform transition-transform duration-300 group-hover:translate-x-1 hidden md:block "
-        >
-          <rect x="3" y="3" width="7" height="7" rx="1" />
-          <rect x="14" y="3" width="7" height="7" rx="1" />
-          <rect x="8.5" y="14" width="7" height="7" rx="1" />
-          <path d="M6.5 10v2a2 2 0 0 0 2 2h0" />
-          <path d="M17.5 10v2a2 2 0 0 1-2 2h0" />
-        </svg>
-      </Link>
+        旧版 · v1 ↗
+      </a>
+
+      {DISPLAY_HALL_ENABLED && (
+        <>
+          {/* Display hall link */}
+          <Link
+            href="/systems"
+            className="fixed bottom-44 right-8 flex items-center gap-2 group secondary-color-text duration-1000"
+          >
+            <span className="hidden md:block text-sm opacity-70 group-hover:opacity-100 transition-opacity duration-300">
+              the display hall
+            </span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="transform transition-transform duration-300 group-hover:translate-x-1 hidden md:block "
+            >
+              <rect x="3" y="3" width="7" height="7" rx="1" />
+              <rect x="14" y="3" width="7" height="7" rx="1" />
+              <rect x="8.5" y="14" width="7" height="7" rx="1" />
+              <path d="M6.5 10v2a2 2 0 0 0 2 2h0" />
+              <path d="M17.5 10v2a2 2 0 0 1-2 2h0" />
+            </svg>
+          </Link>
+        </>
+      )}
 
       {JOURNEY_ENABLED && (
         <>
